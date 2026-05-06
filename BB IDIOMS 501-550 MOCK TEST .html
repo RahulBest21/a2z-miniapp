@@ -1,0 +1,282 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𝔸𝔻𝕀𝕀𝕩𝔸𝔹ℍ𝕀𝕀 🌺💯 | Blackbook Quiz</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --glass: rgba(255, 255, 255, 0.15);
+            --bg: #0f172a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+        }
+
+        /* Glassmorphism Header */
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 25px;
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .main-title { font-size: 2.2rem; margin-bottom: 8px; color: #fff; text-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+        .sub-heading { font-size: 0.9rem; opacity: 0.8; letter-spacing: 1px; }
+
+        /* Quiz UI */
+        .card {
+            background: #ffffff;
+            color: #1e293b;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .stats { display: flex; justify-content: space-between; font-weight: 700; color: #64748b; margin-bottom: 20px; font-size: 0.85rem; text-transform: uppercase; }
+
+        .question-text { font-size: 1.25rem; font-weight: 700; line-height: 1.4; margin-bottom: 25px; color: #0f172a; }
+
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option {
+            padding: 16px;
+            border: 2px solid #f1f5f9;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+
+        .option:hover { background: #f8fafc; border-color: var(--primary); }
+        .option.selected { background: #e0e7ff; border-color: var(--primary); color: var(--primary); }
+
+        .actions { display: flex; gap: 10px; margin-top: 25px; }
+        
+        button { flex: 1; padding: 15px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .btn-skip { background: #f1f5f9; color: #64748b; }
+        .btn-next { background: var(--primary); color: white; }
+        .btn-submit { background: #10b981; color: white; display: none; }
+
+        /* Scorecard Styles */
+        #result-section { display: none; width: 100%; max-width: 550px; }
+        .big-scorecard { background: white; border-radius: 24px; padding: 35px; text-align: center; color: #1e293b; }
+        .final-marks { font-size: 4rem; font-weight: 900; color: var(--primary); margin: 15px 0; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0; }
+        .grid-item { padding: 15px; border-radius: 15px; background: #f8fafc; }
+        .correct { color: #10b981; }
+        .wrong { color: #ef4444; }
+
+        .tg-link {
+            background: #0088cc;
+            color: white;
+            text-decoration: none;
+            padding: 18px;
+            border-radius: 15px;
+            display: block;
+            margin-top: 20px;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        .review-box { 
+            background: white; border-radius: 24px; margin-top: 20px; padding: 25px; color: #1e293b;
+            max-height: 400px; overflow-y: auto; text-align: left;
+        }
+        .review-item { border-bottom: 1px solid #f1f5f9; padding: 12px 0; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 class="main-title">𝔸𝔻𝕀𝕀𝕩𝔸𝔹ℍ𝕀𝕀 🌺💯</h1>
+        <p class="sub-heading">BLACKBOOK OWS SERIES | SN 501-550</p>
+        <p style="font-size: 0.75rem; margin-top: 10px; opacity: 0.7;">Join channel to access full PDF and analysis.</p>
+    </div>
+
+    <div id="quiz-area" class="card">
+        <div class="stats">
+            <span id="q-num">Question 1/50</span>
+            <span id="score-live">Marks: 0.00</span>
+        </div>
+        <div class="question-text" id="q-text">Loading...</div>
+        <div class="options-list" id="opt-list"></div>
+        <div class="actions">
+            <button class="btn-skip" id="skip-btn" onclick="handleAction('skip')">Skip</button>
+            <button class="btn-next" id="next-btn" onclick="handleAction('next')">Next</button>
+            <button class="btn-submit" id="submit-btn" onclick="showScorecard()">Submit Test</button>
+        </div>
+    </div>
+
+    <div id="result-section">
+        <div class="big-scorecard">
+            <h2>Test Summary</h2>
+            <div class="final-marks" id="res-score">0.00</div>
+            <p>Total Marks Obtained</p>
+            <div class="grid">
+                <div class="grid-item correct">
+                    <h3 id="res-correct">0</h3>
+                    <p>Correct</p>
+                </div>
+                <div class="grid-item wrong">
+                    <h3 id="res-wrong">0</h3>
+                    <p>Incorrect</p>
+                </div>
+            </div>
+            <a href="https://t.me/Blackbook_2027" class="tg-link">Join Telegram Channel</a>
+        </div>
+
+        <div class="review-box" id="review-mistakes">
+            <h3 style="margin-bottom: 15px;">Review Mistakes</h3>
+            <div id="mistakes-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const data = [
+            { q: "Dance attendance on someone", a: "Obey or serve someone attentively and eagerly" },
+            { q: "Dance to someone's tune", a: "Do what others want you to do" },
+            { q: "Day and night", a: "Continuously" },
+            { q: "Dead heat", a: "Close contest that ends in a tie" },
+            { q: "Dead in the water", a: "No chance of succeeding or making any progress" },
+            { q: "Dead ringer", a: "An exact duplicate" },
+            { q: "Dead set against", a: "Disapproved" },
+            { q: "Deadlock", a: "A state in which progress is impossible" },
+            { q: "Deep pockets", a: "A lot of money" },
+            { q: "Desperate times call for desperate measures", a: "when you are extremely desperate you need to take extremely desperate actions" },
+            { q: "Die a dog's death", a: "A dishonourable or shameful death" },
+            { q: "Die hard", a: "Unwilling to change" },
+            { q: "Died in harness", a: "Died while working / to die while in service" },
+            { q: "Dig around", a: "investigating" },
+            { q: "Dig up dirt on someone", a: "Discover damaging information about someone" },
+            { q: "Do a good turn", a: "To help someone / Render a service" },
+            { q: "Do a roaring trade", a: "Highly successful" },
+            { q: "Do away with", a: "To abolish" },
+            { q: "Do or die", a: "To make a final effort" },
+            { q: "Dodge a bullet", a: "To narrowly avoid situation" },
+            { q: "Dog eat dog", a: "Ruthlessly competitive" },
+            { q: "Dog in a manger", a: "Selfish" },
+            { q: "Don't judge a book by its cover", a: "We should not judge something primarily by its outward appearance" },
+            { q: "Done for", a: "Ruined" },
+            { q: "Donkey's years", a: "A very long time" },
+            { q: "Don't count your chickens before they hatch", a: "Don't make plans based on events that have not yet happened" },
+            { q: "Don't put all your eggs in one basket", a: "Don't put all your resources in one place" },
+            { q: "Dot one's i's and cross one's t's", a: "Be detailed and exact / To pay attention to minute details" },
+            { q: "Down and out", a: "Without money" },
+            { q: "Down in the dumps", a: "Sad and depressed" },
+            { q: "Down in the mouth", a: "To be depressed" },
+            { q: "Down the drain", a: "Wasted or lost" },
+            { q: "Down the tubes", a: "Failing completely" },
+            { q: "Down to earth", a: "Very realistic and sensible / Practical and direct" },
+            { q: "Draconian law", a: "Extremely severe law" },
+            { q: "Drag one's feet", a: "Be reluctant to act / Do something deliberately at a slow pace" },
+            { q: "Draw a blank", a: "To be unsuccessful / find no favour" },
+            { q: "Draw a line", a: "To fix a limit / Accept something up to a particular point" },
+            { q: "Draw first blood", a: "Be the first to gain an advantage or score" },
+            { q: "Dressed to kill", a: "Dressed to attract attention" },
+            { q: "Dressing-down", a: "Give a scolding" },
+            { q: "Drew on his fancy", a: "Used his imagination" },
+            { q: "Drive home", a: "Emphasise / to emphasize an important point" },
+            { q: "Drive someone up the wall", a: "Make someone very irritated or angry" },
+            { q: "Drop in", a: "Pay a casual visit" },
+            { q: "Drop names", a: "Name famous people to impress others" },
+            { q: "Dropping like flies", a: "Collapsing in large numbers" },
+            { q: "Dust and ashes", a: "Something that is very disappointing" },
+            { q: "Eager beaver", a: "A keen and enthusiastic person" },
+            { q: "Eagle eye", a: "An eye with sharp visual powers / A careful watch" }
+        ];
+
+        let currentIdx = 0;
+        let responses = [];
+        let totalMarks = 0;
+
+        function renderQuestion() {
+            const item = data[currentIdx];
+            document.getElementById('q-num').innerText = `Question ${currentIdx + 1}/50`;
+            document.getElementById('q-text').innerText = item.q;
+            
+            let distractors = data.filter(d => d.a !== item.a).sort(() => 0.5 - Math.random()).slice(0, 3).map(d => d.a);
+            let choices = [...distractors, item.a].sort(() => 0.5 - Math.random());
+
+            const container = document.getElementById('opt-list');
+            container.innerHTML = '';
+            choices.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerText = c;
+                div.onclick = () => {
+                    document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    div.classList.add('selected');
+                };
+                container.appendChild(div);
+            });
+
+            if (currentIdx === data.length - 1) {
+                document.getElementById('next-btn').style.display = 'none';
+                document.getElementById('submit-btn').style.display = 'block';
+            }
+        }
+
+        function handleAction(type) {
+            const selected = document.querySelector('.option.selected');
+            const ans = selected ? selected.innerText : "Skipped";
+            
+            responses.push({ q: data[currentIdx].q, selected: ans, correct: data[currentIdx].a });
+
+            if (ans === data[currentIdx].a) totalMarks += 1;
+            else if (ans !== "Skipped") totalMarks -= 0.25;
+
+            document.getElementById('score-live').innerText = `Marks: ${totalMarks.toFixed(2)}`;
+
+            if (currentIdx < data.length - 1) {
+                currentIdx++;
+                renderQuestion();
+            } else {
+                showScorecard();
+            }
+        }
+
+        function showScorecard() {
+            document.getElementById('quiz-area').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+
+            let c = 0, w = 0, review = '';
+            responses.forEach(r => {
+                if (r.selected === r.correct) c++;
+                else if (r.selected !== "Skipped") {
+                    w++;
+                    review += `<div class="review-item"><strong>Q: ${r.q}</strong><br><span class="wrong">You: ${r.selected}</span><br><span class="correct">Correct: ${r.correct}</span></div>`;
+                }
+            });
+
+            document.getElementById('res-score').innerText = totalMarks.toFixed(2);
+            document.getElementById('res-correct').innerText = c;
+            document.getElementById('res-wrong').innerText = w;
+            document.getElementById('mistakes-container').innerHTML = review || "Perfect score! No mistakes found.";
+        }
+
+        renderQuestion();
+    </script>
+</body>
+</html>

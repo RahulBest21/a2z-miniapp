@@ -1,0 +1,268 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ADIIxABHII 🌺 | Blackbook OWS Series</title>
+
+<style>
+:root {
+  --p1:#6f00ff;
+  --p2:#9c27b0;
+  --bg:#f6f8fb;
+  --card:#fff;
+  --text:#111;
+  --nav-height:80px;
+}
+[data-theme="dark"] {
+  --bg:#0b0620;
+  --card:#18122b;
+  --text:#e6e1f6;
+}
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin:0;
+  padding-bottom:calc(var(--nav-height) + 40px);
+  transition:background .3s,color .3s;
+}
+.container{max-width:1100px;margin:auto;padding:16px;}
+.header{display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:16px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.1);flex-wrap:wrap;gap:10px; position: sticky; top: 10px; z-index: 100; backdrop-filter: blur(10px); background: rgba(255,255,255,0.8);}
+[data-theme="dark"] .header { background: rgba(24, 18, 43, 0.8); }
+
+.header-left{display:flex;align-items:center;gap:10px;}
+.brand-badge{background:linear-gradient(90deg,var(--p1),var(--p2));color:white;padding:6px 12px;border-radius:10px;font-weight:bold; font-family: cursive;}
+.title-text{font-weight:700;font-size:18px;color:var(--text);}
+
+.question-box { background: var(--card); padding: 25px; border-radius: 15px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.question{margin:20px 0;font-size:20px;line-height:1.5; font-weight: 600;}
+.options{display:flex;flex-direction:column;gap:12px;margin-bottom:30px;}
+.option{padding:15px;border:1px solid #ccc;border-radius:10px;cursor:pointer;background:var(--card);transition:.2s; font-size: 17px;}
+.option.selected{background:linear-gradient(90deg,var(--p1),var(--p2));color:white; border-color: transparent;}
+.option:hover:not(.selected){background: #f0f0f0; transform:translateX(5px);}
+
+.navigation{position:fixed;bottom:0;left:0;right:0;background:var(--card);display:flex;gap:10px;justify-content:space-between;padding:15px;z-index:10;box-shadow:0 -3px 10px rgba(0,0,0,.1);}
+.navigation button{flex:1;border:none;border-radius:8px;padding:12px;font-weight:bold;cursor:pointer; transition: 0.3s;}
+.prev{background:#6b7280;color:white;}
+.next{background:linear-gradient(90deg,var(--p1),var(--p2));color:white;}
+.submit{background:#00c853;color:white;}
+
+.bookmark-btn{background:var(--card);border:2px solid #ccc;padding:8px 15px;border-radius:8px;cursor:pointer;color:var(--text); font-weight: bold;}
+.bookmark-btn.active{background:#ffeb3b;border-color:#fbc02d;color:#111;}
+
+.palette-fab{position:fixed;right:16px;bottom:100px;width:56px;height:56px;border-radius:50%;background:linear-gradient(90deg,var(--p1),var(--p2));color:white;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3); z-index: 99;}
+.question-palette{position:fixed;right:-100%;top:0;width:400px;max-width:90%;height:100%;background:var(--card);transition:right .3s;z-index:1000;display:flex;flex-direction:column;box-shadow: -5px 0 15px rgba(0,0,0,0.1);}
+.question-palette.active{right:0;}
+.palette-header{padding:20px;background:linear-gradient(90deg,var(--p1),var(--p2));color:white;display:flex;justify-content:space-between;align-items:center;}
+.palette-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:20px;overflow-y:auto;}
+.palette-btn{padding:12px;border-radius:8px;border:1px solid #ddd;background:#eee;cursor:pointer;font-weight:bold; position: relative;}
+.palette-btn.current{border: 2px solid var(--p1); color: var(--p1);}
+.palette-btn.answered{background:#00c853;color:white; border: none;}
+.palette-btn.bookmarked::after{content:"📑";position:absolute;top:-5px;right:-5px;font-size:12px;}
+
+.result-section{background:var(--card);padding:30px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.1);margin-top:20px; text-align: center;}
+.score-big { font-size: 48px; font-weight: 800; color: var(--p1); margin: 10px 0; }
+.promo-box { background: #e3f2fd; border: 1px dashed #2196f3; padding: 15px; border-radius: 12px; margin: 20px 0; color: #0d47a1; }
+.tg-link { display: inline-block; background: #0088cc; color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+
+.correct-ans { background: #e6f7ee !important; border-left: 5px solid #00c853 !important; color: #1b5e20; }
+.wrong-ans { background: #ffeaea !important; border-left: 5px solid #ff1744 !important; color: #b71c1c; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="header-left">
+      <div class="brand-badge">𝔸𝔻𝕀𝕀𝕩𝔸𝔹ℍ𝕀𝕀 🌺</div>
+      <div class="title-text">Blackbook OWS (550-600)</div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <div id="timer">00:00:00</div>
+      <button id="themeToggle" style="background:none;border:none;cursor:pointer;font-size:20px;">🌓</button>
+      <button id="fullscreenBtn" style="background:none;border:none;cursor:pointer;font-size:20px;">⛶</button>
+    </div>
+  </div>
+
+  <div id="quizSection">
+    <div class="question-box">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 id="questionNumber" style="margin:0;">Question 1</h3>
+            <button class="bookmark-btn" id="bookmarkBtn">🔖 Bookmark</button>
+        </div>
+        <div class="question" id="questionText">Loading...</div>
+        <div class="options" id="optionsContainer"></div>
+    </div>
+  </div>
+
+  <div id="resultSection" class="result-section" style="display:none;"></div>
+</div>
+
+<div class="navigation">
+  <button class="prev" id="prevBtn">← Previous</button>
+  <button class="next" id="nextBtn">Next →</button>
+  <button class="submit" id="submitBtn" style="display:none;">Submit Test</button>
+</div>
+
+<div class="palette-fab" id="paletteFab">📋</div>
+<div class="question-palette" id="questionPalette">
+  <div class="palette-header">
+    <h3 style="margin:0;">Question Palette</h3>
+    <button id="paletteClose" style="background:none;border:none;color:white;font-size:24px;cursor:pointer;">✕</button>
+  </div>
+  <div class="palette-grid" id="paletteGrid"></div>
+</div>
+
+<script>
+// Data extracted from SN 550-600
+const questions = [
+    {q: "Eagle eye", a: "A careful or close watch", sn: "550"},
+    {q: "Ease somebody's mind", a: "Alleviate someone's anxiety", sn: "551"},
+    {q: "Easier said than done", a: "Not as easy as it appears to be", sn: "552"},
+    {q: "Easy money", a: "Make money without much effort", sn: "553"},
+    {q: "Eat anyone's salt", a: "To be one's guest", sn: "554"},
+    {q: "Eats like a horse", a: "Eats a lot of food", sn: "555"},
+    {q: "Egg on", a: "To encourage or urge", sn: "556"},
+    {q: "Elbow grease", a: "A lot of physical effort", sn: "557"},
+    {q: "Elbow room", a: "Freedom to move or work in", sn: "558"},
+    {q: "Ended in a fiasco", a: "A complete failure", sn: "559"},
+    {q: "Enough rope", a: "Enough freedom for action", sn: "560"},
+    {q: "Evening of life", a: "Old age", sn: "561"},
+    {q: "Every cloud has a silver lining", a: "Every unpleasant situation has a positive side", sn: "562"},
+    {q: "Every dog has his day", a: "Everyone has good luck at some point", sn: "563"},
+    {q: "Every inch a gentleman", a: "Completely gentleman", sn: "564"},
+    {q: "Evil twin", a: "An imaginary double to excuse bad behavior", sn: "565"},
+    {q: "Excuse my French", a: "Used to apologize for swearing", sn: "566"},
+    {q: "Explore all avenues", a: "Try out every possibility to get a result", sn: "567"},
+    {q: "Eye wash", a: "A deception or pretence", sn: "568"},
+    {q: "Face the music", a: "To accept punishment for mistake", sn: "569"},
+    {q: "Face to face", a: "In each other's presence", sn: "570"},
+    {q: "Face up to", a: "To accept a difficult situation", sn: "571"},
+    {q: "Faint hearted", a: "Timid", sn: "572"},
+    {q: "Fair weather friends", a: "Friends only in good times", sn: "573"},
+    {q: "Fair's fair", a: "Just treatment", sn: "574"},
+    {q: "Fall back on", a: "Resort to something out of necessity", sn: "575"},
+    {q: "Fall flat", a: "To fail to produce intended effect", sn: "576"},
+    {q: "Fall for", a: "To be tricked or fooled by", sn: "577"},
+    {q: "Fall foul of", a: "Quarrelling with", sn: "578"},
+    {q: "Fall into line", a: "Adhere to rules", sn: "579"},
+    {q: "Fall short", a: "To not reach a particular level", sn: "580"},
+    {q: "Falling head over heels", a: "Falling deeply in love with someone", sn: "581"},
+    {q: "Fall out", a: "To quarrel after an argument", sn: "582"},
+    {q: "Familiarity breeds contempt", a: "The better you know someone the less you like him", sn: "583"},
+    {q: "Far cry from", a: "To be very different from others", sn: "584"},
+    {q: "Feast one's eyes on", a: "Gaze at something with pleasure", sn: "585"},
+    {q: "Feather in one's cap", a: "An accomplishment to be proud of", sn: "586"},
+    {q: "Feather one's own nest", a: "Make money in an improper way", sn: "587"},
+    {q: "Fed up", a: "Annoyed", sn: "588"},
+    {q: "Feel the pinch", a: "Having financial problems all of a sudden", sn: "591"},
+    {q: "Fell back", a: "Turned back", sn: "592"},
+    {q: "Fell foul of", a: "Got into trouble with", sn: "593"},
+    {q: "Fell through", a: "Failed", sn: "594"},
+    {q: "Few and far between", a: "Rare or unusual", sn: "595"},
+    {q: "Fifth wheel", a: "An unneeded person", sn: "596"},
+    {q: "Fight fire with fire", a: "Use same methods as the opponent", sn: "597"},
+    {q: "Fight shy of", a: "To avoid encountering", sn: "598"},
+    {q: "Fight your own battles", a: "Overcome challenges without help", sn: "599"},
+    {q: "Figure out", a: "Finally understood", sn: "600"}
+];
+
+let answers = {}, bookmarks = new Set(), current = 0, startTime = Date.now();
+
+function $(id) { return document.getElementById(id); }
+
+function startTimer() {
+  setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const h = Math.floor(elapsed / 3600000).toString().padStart(2,'0');
+    const m = Math.floor((elapsed % 3600000) / 60000).toString().padStart(2,'0');
+    const s = Math.floor((elapsed % 60000) / 1000).toString().padStart(2,'0');
+    $('timer').textContent = `${h}:${m}:${s}`;
+  }, 1000);
+}
+
+function renderQuestion(i) {
+  current = i;
+  const q = questions[i];
+  $('questionNumber').innerText = `Question ${i + 1} (SN: ${q.sn})`;
+  $('questionText').innerText = `What is the meaning of: "${q.q}"?`;
+  $('optionsContainer').innerHTML = '';
+  
+  // Generate 1 correct + 3 random distractors
+  let options = [q.a];
+  while(options.length < 4) {
+    let rand = questions[Math.floor(Math.random()*questions.length)].a;
+    if(!options.includes(rand)) options.push(rand);
+  }
+  options.sort();
+
+  options.forEach(opt => {
+    const div = document.createElement('div');
+    div.className = 'option' + (answers[i] === opt ? ' selected' : '');
+    div.innerText = opt;
+    div.onclick = () => { answers[i] = opt; renderQuestion(i); updatePalette(); };
+    $('optionsContainer').appendChild(div);
+  });
+
+  $('bookmarkBtn').classList.toggle('active', bookmarks.has(i));
+  $('prevBtn').disabled = i === 0;
+  $('nextBtn').style.display = (i === questions.length - 1) ? 'none' : 'block';
+  $('submitBtn').style.display = (i === questions.length - 1) ? 'block' : 'none';
+  updatePalette();
+}
+
+function updatePalette() {
+  const grid = $('paletteGrid'); grid.innerHTML = '';
+  questions.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'palette-btn' + (i === current ? ' current' : '') + (answers[i] ? ' answered' : '') + (bookmarks.has(i) ? ' bookmarked' : '');
+    btn.innerText = i + 1;
+    btn.onclick = () => { renderQuestion(i); $('questionPalette').classList.remove('active'); };
+    grid.appendChild(btn);
+  });
+}
+
+function showResults() {
+  let correct = 0, wrong = 0;
+  questions.forEach((q, i) => {
+    if (answers[i] === q.a) correct++;
+    else if (answers[i]) wrong++;
+  });
+  
+  const score = (correct * 1) - (wrong * 0.25);
+  let html = `<h2>Test Result</h2><div class="score-big">${score.toFixed(2)}</div>
+  <p>Correct: <b style="color:green">${correct}</b> | Wrong: <b style="color:red">${wrong}</b></p>
+  <div class="promo-box">Strictly: Join channel to access full PDF and analysis.<br>
+  <a href="https://t.me/Blackbook_2027" class="tg-link">Join Telegram @Blackbook_2027</a></div><hr><h3>Review Mistakes</h3>`;
+  
+  questions.forEach((q, i) => {
+    const status = answers[i] === q.a ? 'correct-ans' : (answers[i] ? 'wrong-ans' : '');
+    html += `<div class="question-box ${status}" style="text-align:left">
+      <b>Q${i+1}: ${q.q}</b><br>
+      <small>Your Answer: ${answers[i] || 'Skipped'}</small><br>
+      <small>Correct Answer: ${q.a}</small>
+    </div>`;
+  });
+  
+  $('resultSection').innerHTML = html;
+  $('quizSection').style.display = 'none';
+  $('resultSection').style.display = 'block';
+  document.querySelector('.navigation').style.display = 'none';
+  window.scrollTo(0,0);
+}
+
+$('prevBtn').onclick = () => renderQuestion(current - 1);
+$('nextBtn').onclick = () => renderQuestion(current + 1);
+$('submitBtn').onclick = showResults;
+$('bookmarkBtn').onclick = () => { bookmarks.has(current) ? bookmarks.delete(current) : bookmarks.add(current); renderQuestion(current); };
+$('paletteFab').onclick = () => $('questionPalette').classList.add('active');
+$('paletteClose').onclick = () => $('questionPalette').classList.remove('active');
+$('themeToggle').onclick = () => document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+$('fullscreenBtn').onclick = () => document.documentElement.requestFullscreen();
+
+startTimer();
+renderQuestion(0);
+</script>
+</body>
+</html>

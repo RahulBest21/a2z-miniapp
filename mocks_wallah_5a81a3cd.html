@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocks Wallah</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --primary-dark: #5649c0;
+            --secondary: #00cec9;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --light: #f8f9fa;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --light-gray: #dfe6e9;
+            --card-bg: #ffffff;
+            --body-bg: #f5f6fa;
+            --header-bg: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            --footer-bg: #ffffff;
+            --box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --box-shadow-sm: 0 2px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: var(--body-bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            padding-bottom: 80px; /* Space for fixed navigation */
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--header-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .header-brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .header-brand i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .control-btn.active {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .timer-display {
+            background: rgba(0,0,0,0.2);
+            border-radius: 18px;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .timer-display i {
+            margin-right: 6px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-top: 60px;
+            padding: 16px;
+            min-height: calc(100vh - 140px);
+        }
+        
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--box-shadow-sm);
+            border: none;
+            transition: var(--transition);
+        }
+        
+        .question-counter {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-align: center;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .option-item {
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .option-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+            .question-text {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
+    }
+
+    .question-text img,
+    .option-label img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 8px 0;
+        border-radius: 8px;
+    }
+
+    .option-label {
+        overflow: hidden;
+    }
+
+    .question-card {
+        overflow: hidden;
+    }
+        
+        .option-label {
+            display: block;
+            padding: 14px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-label:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .option-input:checked + .option-label {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+        
+        .option-input:checked + .option-label::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        /* When reviewing answers */
+        .review-mode .option-input:checked + .option-label.correct {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.05);
+            box-shadow: 0 0 0 1px var(--success);
+        }
+        
+        .review-mode .option-input:checked + .option-label.correct::after {
+            background: var(--success);
+        }
+        
+        .review-mode .option-input:checked + .option-label.incorrect {
+            border-color: var(--danger);
+            background: rgba(214, 48, 49, 0.05);
+            box-shadow: 0 0 0 1px var(--danger);
+        }
+        
+        .MathJax, .mjx-chtml {
+            overflow-x: auto;
+            max-width: 100%;
+            display: inline-block;
+        }
+
+        
+        .review-mode .option-input:checked + .option-label.incorrect::after {
+            background: var(--danger);
+        }
+        
+        .review-mode .option-label.correct-answer {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.05);
+            box-shadow: 0 0 0 1px var(--success);
+        }
+        
+        .review-mode .option-label.correct-answer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--success);
+        }
+        
+        .solution-container {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(108, 92, 231, 0.05);
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .solution-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        /* Question Navigation */
+        .question-nav {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            bottom: 80px;
+            width: 100%;
+            max-width: 320px;
+            background: var(--card-bg);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            transition: var(--transition);
+            z-index: 900;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .question-nav.show {
+            transform: translateX(0);
+        }
+        
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .question-stats {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .stat-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .section-selector {
+            width: 100%;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            padding: 10px 16px;
+            border: 1px solid var(--light-gray);
+            background: var(--card-bg);
+            font-size: 0.9rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+        }
+        
+        .q-box {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            border: 1px solid var(--light-gray);
+            background: var(--card-bg);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .q-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .q-box.attempted {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .q-box.correct {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        
+        .q-box.incorrect {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+        
+        .q-box.current {
+            border: 2px solid var(--accent) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .q-box.unattempted {
+            background-color: var(--gray);
+            color: white;
+            border-color: var(--gray);
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--footer-bg);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 800;
+        }
+        
+        .nav-btn {
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            transition: var(--transition);
+            gap: 8px;
+        }
+        
+        .nav-btn i {
+            font-size: 1rem;
+        }
+        
+        .nav-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .nav-btn-outline:hover {
+            background: rgba(108, 92, 231, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Overlay when nav is open */
+        .nav-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 80px;
+            background: rgba(0,0,0,0.5);
+            z-index: 800;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        
+        .nav-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        /* Results Modal */
+        .results-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            padding: 16px;
+        }
+        
+        .results-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .results-card {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+        
+        .results-modal.show .results-card {
+            transform: translateY(0);
+        }
+        
+        .results-header {
+            background: var(--header-bg);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .results-title {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .results-body {
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .results-footer {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        /* Responsive Adjustments */
+        @media (min-width: 992px) {
+            .question-nav {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-right: 320px;
+            }
+            
+            .nav-overlay {
+                display: none;
+            }
+            
+            .bottom-nav {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .question-grid {
+                grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+                gap: 6px;
+            }
+            
+            .q-box {
+                width: 36px;
+                height: 36px;
+                font-size: 0.9rem;
+            }
+            
+            .option-label {
+                padding: 12px 14px;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+            }
+            
+            .header-brand {
+                font-size: 1rem;
+            }
+            
+            .control-btn {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .timer-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+            
+            .nav-btn {
+                height: 44px;
+                padding: 0 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="header-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Mocks Wallah</span>
+            </a>
+            
+            <div class="header-controls">
+                <!-- Timer -->
+                <div class="timer-display">
+                    <i class="far fa-clock"></i>
+                    <span id="timer-display">15:00</span>
+                </div>
+                
+                <!-- Language toggle -->
+                <button class="control-btn" id="lang-btn" onclick="toggleLanguage()">
+                    <span id="lang-text">En</span>
+                </button>
+                
+                <!-- Submit button -->
+                <button class="control-btn" id="submit-btn" onclick="confirmSubmit()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                
+                <!-- Questions toggle for mobile -->
+                <button class="control-btn nav-toggle-btn" id="nav-toggle" onclick="toggleNav()">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main content -->
+    <main class="main-content" id="main-content">
+        <div class="question-counter" id="question-counter">Question 1 of 17</div>
+        
+        <!-- Questions will be displayed here -->
+        <div id="questions-container"></div>
+    </main>
+    
+    <!-- Overlay for mobile nav -->
+    <div class="nav-overlay" id="nav-overlay" onclick="toggleNav(false)"></div>
+    
+    <!-- Question navigation sidebar -->
+    <aside class="question-nav" id="question-nav">
+        <div class="nav-header">
+            <h3 class="nav-title">Questions</h3>
+            <div class="question-stats">
+                <span class="stat-badge bg-primary" id="attempted-count">0</span>
+                <span class="stat-badge bg-gray" id="total-count">17</span>
+                <button class="control-btn d-lg-none" onclick="toggleNav(false)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Section selector -->
+        <select class="section-selector" id="section-selector" onchange="switchSection(this.value)">
+            <option value="all">All Sections</option>
+        </select>
+        
+        <!-- Question grid -->
+        <div class="question-grid" id="question-boxes"></div>
+    </aside>
+    
+    <!-- Bottom navigation for mobile -->
+    <nav class="bottom-nav d-lg-none">
+        <button class="nav-btn nav-btn-outline" onclick="prevQuestion()">
+            <i class="fas fa-chevron-left"></i>
+            <span>Previous</span>
+        </button>
+        <button class="nav-btn nav-btn-outline" onclick="nextQuestion()">
+            <span>Next</span>
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </nav>
+    
+    <!-- Results modal -->
+    <div class="results-modal" id="results-modal">
+        <div class="results-card">
+            <div class="results-header">
+                <h3 class="results-title">Test Results</h3>
+            </div>
+            <div class="results-body">
+                <div class="stats-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark))">
+                        <div class="stat-value" id="score-value">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--success), #1b9aaa)">
+                        <div class="stat-value" id="correct-value">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--danger), var(--accent))">
+                        <div class="stat-value" id="incorrect-value">0</div>
+                        <div class="stat-label">Incorrect</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--gray), var(--dark))">
+                        <div class="stat-value" id="unattempted-value">0</div>
+                        <div class="stat-label">Unattempted</div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-footer">
+                <button class="nav-btn nav-btn-primary" onclick="reviewTest()">
+                    <i class="fas fa-search me-1"></i>
+                    <span>Review Test</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Questions data
+        const questions = [];
+        const sections = {};
+        let currentLang = "en";
+        let currentQuestion = 0;
+        let answers = {};
+        let submitted = false;
+        let totalTime = 15 * 60;
+        
+        // Initialize the test
+        window.onload = function() {
+            initializeTest();
+            startTimer();
+            
+            // If on desktop, show the question navigation by default
+            if (window.innerWidth >= 992) {
+                document.getElementById('question-nav').classList.add('show');
+                document.getElementById('main-content').classList.add('with-nav');
+            }
+        };
+        
+        // Initialize test data
+        function initializeTest() {
+            // Add sections and questions
+            
+            sections["8"] = {
+                name: "GK",
+                start: 0,
+                end: 15
+            };
+            
+            document.getElementById('section-selector').innerHTML += 
+                `<option value="8">GK</option>`;
+            
+            sections["misc"] = {
+                name: "Miscellaneous",
+                start: 16,
+                end: 16
+            };
+            
+            document.getElementById('section-selector').innerHTML += 
+                `<option value="misc">Miscellaneous</option>`;
+            
+            
+                questions.push({
+                    id: "1",
+                    section: "8",
+                    question_en: "<p><span style=\"font-family: Cambria Math;\">1</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> Which of these is the energy conversion that happens in the process called photosynthesis?</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">4</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">3</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Evening)</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">1</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> &nbsp;</span><span style=\"font-family: Aparajita;\">इनमें</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कौन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">सा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रुपांतरण</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जो</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रकाश</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">संश्लेषण</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">नामक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रक्रिया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">होता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\">?</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">4</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">3</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Evening)</span></p>",
+                    options_en: ["<p>Potential Energy to Chemical Energy</p>", "<p>Light Energy to Chemical Energy</p>", 
+                                "<p>Heat Energy to Chemical Energy</p>", "<p>Heat Energy to Light Energy</p>"],
+                    options_hi: ["<p><span style=\"font-family: Aparajita;\">रासायनिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">स्थितिज</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span></p>", "<p><span style=\"font-family: Aparajita;\">प्रकाश</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रासायनिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span></p>",
+                                "<p><span style=\"font-family: Aparajita;\">ऊष्मीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रासायनिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Aparajita;\">ऊष्मीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रकाश</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span></p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">1</span><span style=\"font-family: Cambria Math;\">.(b)</span><span style=\"font-family: Cambria Math;\"> Photosynthesis is a process by which green plants and certain other organisms make their own food by transforming the light energy into chemical energy. </span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">1</span><span style=\"font-family: Cambria Math;\">.(b)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रकाश</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रासायनिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><br><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रकाश</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">संश्लेषण</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">एक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऐसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रक्रिया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जिसके</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">द्वारा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हरे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">पौधे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">और</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कुछ</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">अन्य</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जीव</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रकाश</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रासायनिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऊर्जा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">परिवर्तित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">करके</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">अपना</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">भोजन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">स्वयं</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">बनाते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हैं।</span></p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "2",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">2</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> How many molecules of ATP are obtained by the respiration of one molecule of glucose?</span></p> <p><span style=\"font-family:Cambria Math\"> SSC CGL </span><span style=\"font-family:Cambria Math\">09</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">2</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">ATP </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कितने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अणु</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ग्लूकोज</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अणु</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">श्वसन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">द्वारा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">प्राप्त</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">किए</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाते</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हैं</span><span style=\"font-family:Cambria Math\">?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">9</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    options_en: [" <p> </span><span style=\"font-family:Cambria Math\">4     </span></p>", " <p> </span><span style=\"font-family:Cambria Math\">2     </span></p>", 
+                                " <p> </span><span style=\"font-family:Cambria Math\">38      </span></p>", " <p> </span><span style=\"font-family:Cambria Math\">36</span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Cambria Math\">4    </span></p>", " <p> </span><span style=\"font-family:Cambria Math\">2    </span></p>",
+                                " <p> </span><span style=\"font-family:Cambria Math\">38      </span></p>", " <p> </span><span style=\"font-family:Cambria Math\">36</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">2</span><span style=\"font-family:Cambria Math\">.(b)</span><span style=\"font-family:Cambria Math\"> In aerobic conditions, the process converts one molecule of glucose into two molecules of pyruvate (pyruvic acid), generating energy in the form of two net molecules of ATP. Four molecules of ATP per glucose are actually produced, however, two are consumed as part of the preparatory phase.</span></p>",
+                    solution_hi: " <p> </span><span style=\"font-family:Cambria Math\">2</span><span style=\"font-family:Cambria Math\">.(b)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एरोबिक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">स्थितियों</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">प्रक्रिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ग्लूकोज</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अणु</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पाइरूवेट</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">(</span><span style=\"font-family:Aparajita\">पाइरुविक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अम्ल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">) </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">दो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अणुओं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">परिवर्तित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">करती</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">जिससे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">ATP </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">दो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">शुद्ध</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अणुओं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ऊर्जा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">उत्पन्न</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होती</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">प्रति</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ग्लूकोज</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">ATP </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">चार</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अणु</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वास्तव</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">उत्पादित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होते</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हैं</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">हालांकि</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">तैयारी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">चरण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हिस्से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">दो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सेवन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">किया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "3",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> Xerophthalmia is caused due to the deficiency of vitamin ______.</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Morning)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Aparajita\">ज़ेरोफथाल्मिया</span><span style=\"font-family:Cambria Math\">   </span><span style=\"font-family:Aparajita\">विटामिन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">______ </span><span style=\"font-family:Aparajita\">की</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कमी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कारण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Morning)</span></p>",
+                    options_en: [" <p> C    </span></p>", " <p> K     </span></p>", 
+                                " <p> D      </span></p>", " <p> A</span></p>"],
+                    options_hi: [" <p> C       </span></p>", " <p> K       </span></p>",
+                                " <p> D        </span></p>", " <p> A</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">.(d)</span><span style=\"font-family:Cambria Math\"> Xerophthalmia is an eye disorder that is caused due to the deficiency of vitamin A. Abnormal dryness of the conjunctiva and cornea of the eye, with inflammation and ridge formation is Xerophthalmia.</span></p>",
+                    solution_hi: " <p> </span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">.(d) </span><span style=\"font-family:Aparajita\">ज़ेरोफथाल्मिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नेत्र</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">विकार</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">विटामिन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">A </span><span style=\"font-family:Aparajita\">की</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कमी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कारण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नेत्रश्लेष्मला</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">और</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आंख</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कॉर्निया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">असामान्य</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सूखापन</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">सूजन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">और</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रिज</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">गठन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ही</span><span style=\"font-family:Cambria Math\">  </span><span style=\"font-family:Aparajita\">ज़ेरोफथाल्मिया</span><span style=\"font-family:Cambria Math\">  </span><span style=\"font-family:Aparajita\">कहलाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "4",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Cambria Math\">Pernicious anaemia is caused by the deficiency of vitamin ______. </span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">5</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">4</span><span style=\"font-family: Cambria Math;\">. </span>हानिकारक एनीमिया ( रक्तहीनता ) विटामिन ______ की कमी के कारण होता है।</p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL&nbsp;</span><span style=\"font-family: Cambria Math;\">5</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">3</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Afternoon)</span></p>",
+                    options_en: [" <p> B</span><span style=\"font-family:Cambria Math\">1   </span></p>", " <p> B</span><span style=\"font-family:Cambria Math\">2    </span></p>", 
+                                " <p> B</span><span style=\"font-family:Cambria Math\">6     </span></p>", " <p> B</span><span style=\"font-family:Cambria Math\">12</span></p>"],
+                    options_hi: [" <p> B </span><span style=\"font-family:Cambria Math\">1     </span></p>", " <p> B </span><span style=\"font-family:Cambria Math\">2    </span></p>",
+                                " <p> B </span><span style=\"font-family:Cambria Math\">6    </span></p>", " <p> B </span><span style=\"font-family:Cambria Math\">12 </span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">.(d)</span><span style=\"font-family:Cambria Math\"> Pernicious anemia is caused </span><span style=\"font-family:Cambria Math\"> by the deficiency</span><span style=\"font-family:Cambria Math\"> vitamin B</span><span style=\"font-family:Cambria Math\">12</span><span style=\"font-family:Cambria Math\">. It is a disease in which the body can</span><span style=\"font-family:Cambria Math\">’</span><span style=\"font-family:Cambria Math\">t absorb enough B</span><span style=\"font-family:Cambria Math\">12</span><span style=\"font-family:Cambria Math\">.</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">.(d)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हानिकारक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एनीमिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">( </span><span style=\"font-family:Aparajita\">रक्तहीनता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">) </span><span style=\"font-family:Aparajita\">विटामिन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">B</span><span style=\"font-family:Cambria Math\">12 </span><span style=\"font-family:Aparajita\">की</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कमी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कारण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">यह</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ऐसी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बीमारी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जिसमें</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">शरीर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पर्याप्त</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मात्रा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">B</span><span style=\"font-family:Cambria Math\">12 </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अवशोषित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नहीं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "5",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">5</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> Which of the following diseases is NOT transmitted from one person to another?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">6</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Morning)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">5</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Aparajita\">निम्नलिखित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कौन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बीमारी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">व्यक्ति</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">दूसरे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">व्यक्ति</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नहीं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होती</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">6</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Morning)</span></p>",
+                    options_en: [" <p> Cirrhosis             </span></p>", " <p> Hepatitis B</span></p>", 
+                                " <p> AIDS                    </span></p>", " <p> Syphilis</span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">सिरोसिस</span><span style=\"font-family:Cambria Math\">              </span></p>", " <p> </span><span style=\"font-family:Aparajita\">हेपेटाइटिस</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बी</span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">एड्स</span><span style=\"font-family:Cambria Math\">                   </span></p>", " <p> </span><span style=\"font-family:Aparajita\">सिफलिस</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">5</span><span style=\"font-family:Cambria Math\">.(a)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">Cirrhosis is not transmitted from one person to another. </span><span style=\"font-family:Cambria Math\">The harmful use of alcohol contributes to over </span><span style=\"font-family:Cambria Math\">200 </span><span style=\"font-family:Cambria Math\">health conditions, the majority of which are NCDs, including cancers, cardiovascular diseases, and liver cirrhosis.</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">5</span><span style=\"font-family:Cambria Math\">.(a) </span><span style=\"font-family:Aparajita\">सिरोसिस</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">व्यक्ति</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">दूसरे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">व्यक्ति</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नहीं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">फैलता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अल्कोहल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">( </span><span style=\"font-family:Aparajita\">शराब</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">) </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हानिकारक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">उपयोग</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">200 </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अधिक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बिमारिओ</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आमंत्रित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">करता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">जिनमें</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अधिकांश</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एनसीडी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हैं</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">जिनमें</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कैंसर</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">हृदय</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रोग</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">और</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">यकृत</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सिरोसिस</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">शामिल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हैं।</span></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "6",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">6</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> Which of the following can be diagnosed with the Widal test?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">07</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">6</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">निम्नलिखित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">किसे</span><span style=\"font-family:Cambria Math\">  </span><span style=\"font-family:Aparajita\">विडाल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">परीक्षण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">लगाया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सकता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">7</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    options_en: [" <p> Typhoid fever      </span></p>", " <p> Tuberculosis</span></p>", 
+                                " <p> Cancer                  </span></p>", " <p> AIDS</span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">टाइफाइड</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बुखार</span><span style=\"font-family:Cambria Math\">           </span></p>", " <p> </span><span style=\"font-family:Aparajita\">क्षय</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रोग</span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">कैंसर</span><span style=\"font-family:Cambria Math\">                            </span></p>", " <p> </span><span style=\"font-family:Aparajita\">एड्स</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">6</span><span style=\"font-family:Cambria Math\">.(a)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">The Widal test is one method that is used to help make a presumptive diagnosis of enteric fever, also known as typhoid fever</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">6</span><span style=\"font-family:Cambria Math\">.(a)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">विडाल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">परीक्षण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ऐसी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">विधि</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जिसका</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">उपयोग</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आंत्र</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ज्वर</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">जिसे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">टाइफाइड</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बुखार</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अनुमानित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">निदान</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">करने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मदद</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">लिए</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">किया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "7",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">7</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Cambria Math\">Which of the following is caused by a virus named \'Varicella Zoster\'?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">07</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">7</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">निम्नलिखित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कौन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">\'</span><span style=\"font-family:Aparajita\">वैरीसेला</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जोस्टर</span><span style=\"font-family:Cambria Math\">\' </span><span style=\"font-family:Aparajita\">नामक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वायरस</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कारण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">7</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    options_en: [" <p> Chickenpox           </span></p>", " <p> Polio</span></p>", 
+                                " <p> Cholera                  </span></p>", " <p> Rabies</span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">चिकनपॉक्स</span><span style=\"font-family:Cambria Math\">               </span></p>", " <p> </span><span style=\"font-family:Aparajita\">पोलियो</span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">हैजा</span><span style=\"font-family:Cambria Math\">                          </span></p>", " <p> </span><span style=\"font-family:Aparajita\">रेबीज</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">7</span><span style=\"font-family:Cambria Math\">.(a) </span><span style=\"font-family:Cambria Math\">Chickenpox is caused by Varicella zoster. Chickenpox is most commonly affecting children, teens and young adults. It is an airborne disease that is easily transferred  from one person to another by sneezing and coughing.</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">7</span><span style=\"font-family:Cambria Math\">.(a)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">चिकनपॉक्स</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वेरीसेल्ला</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ज़ेस्टर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कारण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">चिकनपॉक्स</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सबसे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अधिक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बच्चों</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">किशोर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">और</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">युवा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वयस्कों</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">प्रभावित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रहा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">यह</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वायु</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वाहित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रोग</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">छींकने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">और</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">खांसने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आसानी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">व्यक्ति</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">दूसरे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">व्यक्ति</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">स्थानांतरित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "8",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">8</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Cambria Math\">Haemophobia is the fear of:</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">09</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Evening)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">8</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Aparajita\">हेमोफोबिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">डर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">:</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">9</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Evening)</span></p>",
+                    options_en: [" <p> darkness             </span></p>", " <p> heights </span></p>", 
+                                " <p> water                   </span></p>", " <p> blood </span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">अंधकार</span><span style=\"font-family:Cambria Math\">             </span></p>", " <p> </span><span style=\"font-family:Aparajita\">ऊंचाई</span></p>",
+                                " <p>  </span><span style=\"font-family:Aparajita\">पानी</span><span style=\"font-family:Cambria Math\">                  </span></p>", " <p> </span><span style=\"font-family:Aparajita\">रक्त</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">8</span><span style=\"font-family:Cambria Math\">.(d)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">Blood phobia, also known as hematophobia or haemophobia is an extreme irrational fear of blood.</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">8</span><span style=\"font-family:Cambria Math\">.(d)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रक्त</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भय</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">जिसे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हेमेटोफोबिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">या</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हीमोफोबिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">रक्त</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अत्यधिक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">तर्कहीन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भय</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "9",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">9</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> The development of a fruit without fertilization is called______?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">9</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Aparajita\">बिना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">निषेचन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">फल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">विकास</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">_______ </span><span style=\"font-family:Aparajita\">कहलाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    options_en: [" <p> Gametogamy     </span></p>", " <p> Parthenocarpy</span></p>", 
+                                " <p> Hybridogenesis  </span></p>", " <p> Apomixis</span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">गैमेटोगैमी</span><span style=\"font-family:Cambria Math\">       </span></p>", " <p> </span><span style=\"font-family:Aparajita\">अनिषेकफलन</span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">हाइब्रिडोजेनेसिस</span><span style=\"font-family:Cambria Math\">       </span></p>", " <p> </span><span style=\"font-family:Aparajita\">असंगजनन</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">9</span><span style=\"font-family:Cambria Math\">.(b) </span><span style=\"font-family:Cambria Math\">Parthenocarpy is the natural or artificially induced production of fruit without fertilisation of ovules, which makes the fruit seedless.</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">9</span><span style=\"font-family:Cambria Math\">.(b) </span><span style=\"font-family:Aparajita\">अनिषेकफलन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बीजांड</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">निषेचन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बिना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">फल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">प्राकृतिक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">या</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कृत्रिम</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">प्रेरित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">उत्पादन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">, </span><span style=\"font-family:Aparajita\">जो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">फल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बीज</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रहित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">बनाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "10",
+                    section: "8",
+                    question_en: "<p><span style=\"font-family: Cambria Math;\">10</span><span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Cambria Math;\">What is the yellow dust present in the middle of a flower called?</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">09</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">03</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Morning)</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">10</span><span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Aparajita;\">फूल</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">बीच</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">मौजूद</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">पीली</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">डस्ट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">क्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कहा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\">?</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">9</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">03</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Morning)</span></p>",
+                    options_en: ["<p>Stomata</p>", "<p>Pollen</p>", 
+                                "<p>Sperm</p>", "<p>Zygote</p>"],
+                    options_hi: ["<p><span style=\"font-family: Aparajita;\">स्टोमेटा</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Aparajita;\">पराग</span></p>",
+                                "<p><span style=\"font-family: Aparajita;\">शुक्राणु</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Aparajita;\">ज़िगोटे</span></p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">10</span><span style=\"font-family: Cambria Math;\">.(b) </span><span style=\"font-family: Cambria Math;\">The yellow powder present in the middle of a flower is called pollen, which is present on the anthers pollen grains, and the stick that holds it is called a stamen. Flowers reproduce when bees or other pollinators carry pollen between flowers.</span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">10</span><span style=\"font-family: Cambria Math;\">.(b)</span><span style=\"font-size: 14pt;\"><span style=\"font-family: Cambria Math;\"> &nbsp;</span></span>फूल के बीच में मौजूद पीले रंग के पाउडर को पराग कहते हैं, जो परागकणों के परागकणों पर मौजूद होता है और इसे धारण करने वाली छड़ी को पुंकेसर कहते हैं। जब मधुमक्खियां या अन्य परागणक फूलों के बीच पराग ले जाते हैं तो फूल पुन: उत्पन्न होते हैं।</p>\n<p>&nbsp;</p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "11",
+                    section: "8",
+                    question_en: "<p><span style=\"font-family: Cambria Math;\">11</span><span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Cambria Math;\">The scentific study of a cell is called: </span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">07</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">03</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Morning)</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">11</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कोशिका</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">वैज्ञानिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">अध्ययन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कहा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\">:</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">7</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">03</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Morning)</span></p>",
+                    options_en: ["<p>cytology</p>", "<p>histology</p>", 
+                                "<p>physiology</p>", "<p>taxonomy</p>"],
+                    options_hi: ["<p><span style=\"font-family: Aparajita;\">कोशिका</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">विज्ञान</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Aparajita;\">हिस्टोलॉजी</span></p>",
+                                "<p><span style=\"font-family: Aparajita;\">शरीर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">विज्ञान</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Aparajita;\">टैक्सोनॉमी</span></p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">11</span><span style=\"font-family: Cambria Math;\">.(a)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\">Cytology: </span><span style=\"font-family: Cambria Math;\">the branches of biology and medicine concerned with the structure and function of plant and animal cells.<br></span><span style=\"font-family: Cambria Math;\">Histology </span><span style=\"font-family: Cambria Math;\"> is the branch of biology which studies the microscopic anatomy of biological tissues.<br></span><span style=\"font-family: Cambria Math;\">Physiology is the scientific study of functions and mechanisms in a living system.<br></span><span style=\"font-family: Cambria Math;\">Taxonomy</span><span style=\"font-family: Cambria Math;\"> is the science of naming, defining and classifying groups of biological organisms on the basis of shared characteristics</span></p>\n<p><span style=\"font-family: Cambria Math;\">.</span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">11</span><span style=\"font-family: Cambria Math;\">.(a)</span><span style=\"font-family: Cambria Math;\"> </span>कोशिका विज्ञान: जीव विज्ञान और चिकित्सा की शाखाएँ जो पौधे और पशु कोशिकाओं की संरचना और कार्य से संबंधित हैं।<br>ऊतक विज्ञान जीव विज्ञान की वह शाखा है जो जैविक ऊतकों की सूक्ष्म शरीर रचना का अध्ययन करती है। फिजियोलॉजी एक जीवित प्रणाली में कार्यों और तंत्र का वैज्ञानिक अध्ययन है।टैक्सोनॉमी साझा विशेषताओं के आधार पर जैविक जीवों के समूहों के नामकरण, परिभाषित और वर्गीकृत करने का विज्ञान है।</p>\n<p dir=\"ltr\">&nbsp;</p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "12",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">12</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Cambria Math\">_____are called the \'Powerhouses\' of the cell.</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">09</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Morning)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">12</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> ______ </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सेल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">\'</span><span style=\"font-family:Aparajita\">पावर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हाउस</span><span style=\"font-family:Cambria Math\">\' </span><span style=\"font-family:Aparajita\">कहा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">9</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Morning)</span></p>",
+                    options_en: [" <p> Lungs                    </span></p>", " <p> Mitochondria</span></p>", 
+                                " <p> Pituitary glands  </span></p>", " <p> Arteries </span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">फेफड़े</span><span style=\"font-family:Cambria Math\">        </span></p>", " <p> </span><span style=\"font-family:Aparajita\">माइटोकॉन्ड्रिया</span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">पिट्यूटरी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ग्रंथियाँ</span><span style=\"font-family:Cambria Math\">          </span></p>", " <p> </span><span style=\"font-family:Aparajita\">धमनियां</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">12</span><span style=\"font-family:Cambria Math\">.(b)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">Mitochondria are tiny organelles inside cells that are involved in releasing energy from food. This process is known as cellular respiration. It is for this reason that mitochondria are often referred to as the powerhouses of the cell. </span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">12</span><span style=\"font-family:Cambria Math\">.(b)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">माइटोकॉन्ड्रिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कोशिकाओं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अंदर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">छोटे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अंग</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होते</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हैं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भोजन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ऊर्जा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मुक्त</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">करने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">शामिल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होते</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हैं।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">इस</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">प्रक्रिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कोशिय</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">श्वसन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">यही</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कारण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कि</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">माइटोकॉन्ड्रिया</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अक्सर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कोशिका</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पावरहाउस</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "13",
+                    section: "8",
+                    question_en: "<p><span style=\"font-family: Cambria Math;\">13</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> The____helps in equalising the pressure on either side of the eardrum.</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">03</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">03</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Evening)</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">13</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कान</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">परदे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">भी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">तरफ</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">दाब</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">बराबर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">करने</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\">_______ </span><span style=\"font-family: Aparajita;\">सहायता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">करता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Palanquin;\">।</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">3</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">3</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Evening)</span></p>",
+                    options_en: ["<p>cochlear nerve</p>", "<p>malleus</p>", 
+                                "<p>incus</p>", "<p>eustachian tube</p>"],
+                    options_hi: ["<p><span style=\"font-family: Aparajita;\">कर्णावर्ती</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">तंत्रिका</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Aparajita;\">मैलियस</span><span style=\"font-family: Cambria Math;\"> </span></p>",
+                                "<p><span style=\"font-family: Aparajita;\">निहाई</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Aparajita;\">यूस्टेकीयन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">नलिका</span></p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">13</span><span style=\"font-family: Cambria Math;\">.(d) </span><span style=\"font-family: Cambria Math;\">The eustachian tube controls the pressure within the middle ear, maintaining pressure equal to outside the body. It is a canal that connects the middle ear to the nasopharynx, which consists of the upper throat and the back of the nasal cavity. </span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">13</span><span style=\"font-family: Cambria Math;\">.(d) यूस्टेकीयन नलिका मध्य कान के भीतर दबाव को नियंत्रित करता है, शरीर के बाहर के बराबर दबाव बनाए रखता है। यह एक नलिका &nbsp;है जो मध्य कान को नासोफेरिंक्स से जोड़ती है, जिसमें ऊपरी गले और नाक गुहा के पीछे होते हैं।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "14",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">14</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> Which part of the body is responsible for the red blood cells?  </span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(afternoon)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">14</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Aparajita\">लाल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रक्त</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कोशिकाओं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">लिए</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">शरीर</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कौन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अंग</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ज़िम्मेदार</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">? </span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">4</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    options_en: [" <p> Lungs                 </span></p>", " <p> Heart  </span></p>", 
+                                " <p> Brain                  </span></p>", " <p> Bone Marrow </span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">फेफड़े</span><span style=\"font-family:Cambria Math\">   </span></p>", " <p> </span><span style=\"font-family:Aparajita\">ह्रदय</span><span style=\"font-family:Cambria Math\"> </span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">मस्तिष्क</span><span style=\"font-family:Cambria Math\"> </span></p>", " <p> </span><span style=\"font-family:Aparajita\">मेरुदंड</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">14</span><span style=\"font-family:Cambria Math\">.(d)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\"> In an Adult human all the Red blood cells (RBC) are produced by bone marrow. Production takes place under the control of the hormone erythropoietin (EPO). </span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">14</span><span style=\"font-family:Cambria Math\">.(d)</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वयस्क</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मानव</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सभी</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">लाल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रक्त</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कोशिकाएं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">(RBC) </span><span style=\"font-family:Aparajita\">अस्थि</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मज्जा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">द्वारा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">निर्मित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होती</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हैं।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हार्मोन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एरिथ्रोपोइटिन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">(EPO) </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नियंत्रण</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">उत्पादन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "15",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">15</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Cambria Math\">Who performs the task of capturing oxygen in the blood?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">06</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Morning)</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">15</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रक्त</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऑक्सीजन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कैप्चर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">करने</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कार्य</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कौन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">करता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\">?</span></p>\n<p><span style=\"font-family: Cambria Math;\">SSC CGL </span><span style=\"font-family: Cambria Math;\">6</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">03</span><span style=\"font-family: Cambria Math;\">/</span><span style=\"font-family: Cambria Math;\">2020 </span><span style=\"font-family: Cambria Math;\">(Morning)</span></p>",
+                    options_en: [" <p> Red blood cells      </span></p>", " <p> Chlorophyll</span></p>", 
+                                "<p>White blood cells</p>", "<p>Haemoglobin</p>"],
+                    options_hi: ["<p><span style=\"font-family: Aparajita;\">लाल</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रक्त</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कोशिकाओं</span></p>", "<p><span style=\"font-family: Aparajita;\">क्लोरोफिल</span></p>",
+                                "<p><span style=\"font-family: Aparajita;\">श्वेत</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रक्त</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कोशिकाएं</span></p>", "<p><span style=\"font-family: Aparajita;\">हीमोग्लोबिन</span></p>"],
+                    solution_en: "<p style=\"text-align: justify;\"><span style=\"font-family: Cambria Math;\">15</span><span style=\"font-family: Cambria Math;\">.(d)</span><span style=\"font-family: Cambria Math;\"> Hemoglobin performs the task of capturing oxygen in the blood. They are basically the proteins inside RBCs and carry oxygen to cells. They also carry carbon dioxide to the lungs. It is made up of four symmetrical subunits and four heme groups. Irons which are associated with the heme actually bind oxygen. it is the same iron in hemoglobin that gives blood its red color. </span></p>",
+                    solution_hi: "<p style=\"text-align: justify;\"><span style=\"font-family: Cambria Math;\">15</span><span style=\"font-family: Cambria Math;\">.(d)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हीमोग्लोबिन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रक्त</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऑक्सीजन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कैप्चर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">करने</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कार्य</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">करता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">वे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">मूल</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\">RBC </span><span style=\"font-family: Aparajita;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">अंदर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">प्रोटीन </span><span style=\"font-family: Aparajita;\">होते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हैं</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">और</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कोशिकाओं</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">तक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऑक्सीजन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ले</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जाते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हैं।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">वे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">फेफड़ों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कार्बन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">डाइऑक्साइड</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">भी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ले</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जाते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हैं।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">यह</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">चार </span><span style=\"font-family: Aparajita;\">सममित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">उपइकाइयों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">और</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">चार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हीम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">समूहों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">बना</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हीम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जुड़े</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">आयरन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">वास्तव</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">ऑक्सीजन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">बांधते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हैं।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">कि</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">हीमोग्लोबिन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">वही</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">आयरन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">होता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">जो</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रक्त</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">उसका</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">लाल</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">रंग</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">देता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Aparajita;\">है।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "16",
+                    section: "8",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">16</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Cambria Math\">Which among the following is the food tube?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">06</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">16</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\">  </span><span style=\"font-family:Aparajita\">निम्नलिखित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कौन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भोजन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नली</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\">?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">6</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Afternoon)</span></p>",
+                    options_en: [" <p> Larynx                   </span></p>", " <p> Thymus </span></p>", 
+                                " <p> Oesophagus           </span></p>", " <p> Aorta </span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">स्वरयंत्र</span><span style=\"font-family:Cambria Math\">                  </span></p>", " <p> </span><span style=\"font-family:Aparajita\">थाइमस</span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">ग्रासनली</span><span style=\"font-family:Cambria Math\">                </span></p>", " <p> </span><span style=\"font-family:Aparajita\">महाधमनी</span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">16</span><span style=\"font-family:Cambria Math\">.(c) </span><span style=\"font-family:Cambria Math\">The food pipe or oesophagus is part of your digestive system. It is the tube that carries food from your mouth to your stomach. It lies behind the windpipe (trachea) and in front of the spine.</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">16</span><span style=\"font-family:Cambria Math\">.(c) </span><span style=\"font-family:Aparajita\">भोजन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नली</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">या</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अन्नप्रणाली</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आपके</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पाचन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">तंत्र</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हिस्सा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">यह</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">वह</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नली</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भोजन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आपके</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मुंह</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आपके</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पेट</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">तक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ले</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जाती</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">यह</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">श्वासनली</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">(</span><span style=\"font-family:Aparajita\">श्वासनली</span><span style=\"font-family:Cambria Math\">) </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पीछे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">और</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रीढ़</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सामने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">स्थित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "17",
+                    section: "misc",
+                    question_en: " <p><span style=\"font-family:Cambria Math\">17</span><span style=\"font-family:Cambria Math\">.</span><span style=\"font-family:Cambria Math\"> Which of the following is NOT a part of the brain?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">03</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Evening)</span></p>",
+                    question_hi: " <p><span style=\"font-family:Cambria Math\">17</span><span style=\"font-family:Cambria Math\">. </span><span style=\"font-family:Aparajita\">निम्न</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">से</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कौन</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मस्तिष्क</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हिस्सा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नहीं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">होता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">?</span></p> <p><span style=\"font-family:Cambria Math\">SSC CGL </span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">3</span><span style=\"font-family:Cambria Math\">/</span><span style=\"font-family:Cambria Math\">2020 </span><span style=\"font-family:Cambria Math\">(Evening)</span></p>",
+                    options_en: [" <p> Pinna                </span></p>", " <p> Medulla </span></p>", 
+                                " <p> Pons                 </span></p>", " <p> Thalamus </span></p>"],
+                    options_hi: [" <p> </span><span style=\"font-family:Aparajita\">पिना</span><span style=\"font-family:Cambria Math\">                </span></p>", " <p> </span><span style=\"font-family:Aparajita\">मेडुला</span><span style=\"font-family:Cambria Math\"> </span></p>",
+                                " <p> </span><span style=\"font-family:Aparajita\">पोंस</span><span style=\"font-family:Cambria Math\">                </span></p>", " <p> </span><span style=\"font-family:Aparajita\">थैलामस</span><span style=\"font-family:Cambria Math\"> </span></p>"],
+                    solution_en: " <p> </span><span style=\"font-family:Cambria Math\">17</span><span style=\"font-family:Cambria Math\">.(a) </span><span style=\"font-family:Cambria Math\">The pinna is the only visible part of the ear (the auricle) with its special helical shape. It</span><span style=\"font-family:Cambria Math\">’</span><span style=\"font-family:Cambria Math\">s main function is to act as a kind of funnel which assists in directing the sound further into the ear. It is not part of the brain.</span></p>",
+                    solution_hi: " <p><span style=\"font-family:Cambria Math\">17</span><span style=\"font-family:Cambria Math\">.(a) </span><span style=\"font-family:Aparajita\">पिन्ना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">अपने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">विशेष</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">पेचदार</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आकार</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">साथ</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कान</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Cambria Math\">(</span><span style=\"font-family:Aparajita\">ऑरिकल</span><span style=\"font-family:Cambria Math\">) </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एकमात्र</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">दृश्य</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">भाग</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">इसका</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मुख्य</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कार्य</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">एक</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">प्रकार</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">की</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">फ़नल</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">के</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">रूप</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कार्य</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">करना</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">जो</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">ध्वनि</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">को</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">कान</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">आगे</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">निर्देशित</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">करने</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">में</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">सहायता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">करता</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">यह</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">मस्तिष्क</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">का</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">हिस्सा</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">नहीं</span><span style=\"font-family:Cambria Math\"> </span><span style=\"font-family:Aparajita\">है।</span></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+            
+            // Generate question boxes
+            const boxesContainer = document.getElementById('question-boxes');
+            questions.forEach((q, index) => {
+                const box = document.createElement('div');
+                box.className = 'q-box';
+                box.textContent = index + 1;
+                box.onclick = () => showQuestion(index);
+                box.id = `box-${index}`;
+                boxesContainer.appendChild(box);
+            });
+            
+            // Show first question
+            showQuestion(0);
+            updateProgress();
+        }
+        
+        // Show a specific question
+        
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/<img/g, '<img style="max-width:100%;height:auto;"');
+        }
+        
+        function showQuestion(index) {
+            if (index < 0 || index >= questions.length) return;
+            
+            currentQuestion = index;
+            const question = questions[index];
+            
+            // Update question counter
+            document.getElementById('question-counter').textContent = `Question ${index + 1} of ${questions.length}`;
+            
+            // Update question boxes
+            document.querySelectorAll('.q-box').forEach(box => box.classList.remove('current'));
+            document.getElementById(`box-${index}`).classList.add('current');
+            
+            // Generate question HTML
+            let html = `
+                <div class="question-card">
+                    <div class="question-text">
+                        <div class="en">${formatContent(question.question_en)}</div>
+                        <div class="hi" style="display:none">${formatContent(question.question_hi)} </div>
+                    </div>
+                    <div class="options" id="options-container">`;
+            
+            // Add options
+            ['a', 'b', 'c', 'd'].forEach((opt, i) => {
+                let optionClass = '';
+                let isCorrectAnswer = opt === question.correct;
+                let isUserAnswer = answers[question.id] === opt;
+                
+                // When reviewing, add appropriate classes
+                if (submitted) {
+                    if (isCorrectAnswer) {
+                        optionClass += ' correct-answer';
+                    } else if (isUserAnswer && !isCorrectAnswer) {
+                        optionClass += ' incorrect';
+                    }
+                }
+                
+                html += `
+                    <div class="option-item">
+                        <input class="option-input" type="radio" name="q${index}" 
+                            id="opt-${index}-${opt}" value="${opt}" 
+                            ${isUserAnswer ? 'checked' : ''}
+                            onclick="selectAnswer('${question.id}', '${opt}')">
+                       <label class="option-label${optionClass}" for="opt-${index}-${opt}">
+                            <div class="en">${question.options_en[i]}</div>
+                            <div class="hi" style="display:none">${question.options_hi[i]}</div>
+                        </label>
+                    </div>`;
+            });
+            
+            // Add solution if submitted
+            if (submitted) {
+                const isCorrect = answers[question.id] === question.correct;
+                const resultText = answers[question.id] ? (isCorrect ? 'Correct!' : 'Incorrect!') : 'Not attempted';
+                
+                html += `
+                    <div class="solution-container">
+                        <div class="solution-title">${resultText}</div>
+                        <div class="solution-text">
+                            <div class="en">${question.solution_en}</div>
+                            <div class="hi" style="display:none">${question.solution_hi}</div>
+                        </div>
+                    </div>`;
+            }
+            
+            html += `</div></div>`;
+            
+            document.getElementById('questions-container').innerHTML = html;
+            
+            // Apply language settings
+            applyLanguage();
+            
+            // If in mobile view, close the menu
+            if (window.innerWidth < 992) {
+                toggleNav(false);
+            }
+            
+            // Add review mode class if submitted
+            if (submitted) {
+                document.getElementById('options-container').classList.add('review-mode');
+            }
+        }
+        
+        // Apply current language
+        function applyLanguage() {
+            document.querySelectorAll(`.${currentLang}`).forEach(el => el.style.display = 'block');
+            document.querySelectorAll(`.${currentLang === 'en' ? 'hi' : 'en'}`).forEach(el => el.style.display = 'none');
+            
+            // Update language button text
+            document.getElementById('lang-text').textContent = currentLang === 'en' ? 'Hi' : 'En';
+        }
+        
+        // Select an answer
+        function selectAnswer(qId, option) {
+            if (submitted) return;
+            
+            answers[qId] = option;
+            updateProgress();
+            
+            // Mark question as attempted in the navigation
+            const index = questions.findIndex(q => q.id === qId);
+            if (index >= 0) {
+                const box = document.getElementById(`box-${index}`);
+                box.classList.add('attempted');
+                box.classList.remove('unattempted');
+            }
+        }
+        
+        // Navigate to previous/next question
+        function prevQuestion() { 
+            if (currentQuestion > 0) showQuestion(currentQuestion - 1); 
+        }
+        
+        function nextQuestion() { 
+            if (currentQuestion < questions.length - 1) showQuestion(currentQuestion + 1); 
+        }
+        
+        // Switch section
+        function switchSection(sectionId) {
+            if (sectionId === 'all') {
+                showQuestion(0);
+                return;
+            }
+            
+            const section = sections[sectionId];
+            if (section) showQuestion(section.start);
+        }
+        
+        // Toggle language
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            applyLanguage();
+        }
+        
+        // Toggle navigation sidebar
+        function toggleNav(show) {
+            const nav = document.getElementById('question-nav');
+            const overlay = document.getElementById('nav-overlay');
+            
+            if (show === undefined) {
+                show = !nav.classList.contains('show');
+            }
+            
+            if (show) {
+                nav.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } else {
+                nav.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Update progress
+        function updateProgress() {
+            const attempted = Object.keys(answers).length;
+            document.getElementById('attempted-count').textContent = attempted;
+        }
+        
+        // Start timer
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer-display');
+            let timeLeft = totalTime;
+            
+            const timerInterval = setInterval(() => {
+                if (timeLeft <= 0 || submitted) {
+                    clearInterval(timerInterval);
+                    if (!submitted) submitTest();
+                    return;
+                }
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                timeLeft--;
+            }, 1000);
+        }
+        
+        // Confirm before submitting
+        function confirmSubmit() {
+            if (submitted) return;
+            
+            const attempted = Object.keys(answers).length;
+            const remaining = questions.length - attempted;
+            
+            // Create a more modern confirmation dialog
+            const confirmHtml = `
+                <div style="text-align: center; padding: 20px;">
+                    <h4 style="margin-bottom: 16px; color: var(--dark);">Confirm Submission</h4>
+                    <p style="margin-bottom: 24px; color: var(--gray);">
+                        You have attempted ${attempted} of ${questions.length} questions.<br>
+                        ${remaining} questions are unattempted.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 12px;">
+                        <button onclick="this.closest('.modal').querySelector('.cancel-btn').click()" 
+                            style="padding: 8px 20px; border: 1px solid var(--light-gray); background: white; border-radius: 8px; cursor: pointer;">
+                            Cancel
+                        </button>
+                        <button onclick="submitTest(); this.closest('.modal').querySelector('.cancel-btn').click()" 
+                            style="padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Submit Test
+                        </button>
+                    </div>
+                </div>`;
+            
+            // Create modal element
+            const modal = document.createElement('div');
+            modal.className = 'results-modal show';
+            modal.innerHTML = `
+                <div class="results-card" style="max-width: 400px;">
+                    <button class="cancel-btn" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--gray);" onclick="this.closest('.results-modal').remove()">
+                        ×
+                    </button>
+                    ${confirmHtml}
+                </div>`;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Submit test
+        function submitTest() {
+            if (submitted) return;
+            
+            submitted = true;
+            
+            let score = 0;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unattemptedCount = 0;
+            
+            questions.forEach((q, index) => {
+                const userAns = answers[q.id];
+                const box = document.getElementById(`box-${index}`);
+                
+                box.classList.remove('attempted');
+                
+                if (!userAns) {
+                    unattemptedCount++;
+                    box.classList.add('unattempted');
+                } else if (userAns === q.correct) {
+                    correctCount++;
+                    score += q.pos_marks;
+                    box.classList.add('correct');
+                } else {
+                    incorrectCount++;
+                    score -= q.neg_marks;
+                    box.classList.add('incorrect');
+                }
+            });
+            
+            // Update result values
+            document.getElementById('score-value').textContent = score.toFixed(2);
+            document.getElementById('correct-value').textContent = correctCount;
+            document.getElementById('incorrect-value').textContent = incorrectCount;
+            document.getElementById('unattempted-value').textContent = unattemptedCount;
+            
+            // Show the results modal
+            document.getElementById('results-modal').classList.add('show');
+            
+            // Disable submit button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-check"></i>';
+            submitBtn.style.backgroundColor = 'var(--success)';
+            
+            // Refresh current question view to show solution
+            showQuestion(currentQuestion);
+        }
+        
+        // Review test
+        function reviewTest() {
+            document.getElementById('results-modal').classList.remove('show');
+            showQuestion(0);
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('results-modal')) {
+                document.getElementById('results-modal').classList.remove('show');
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') prevQuestion();
+            if (e.key === 'ArrowRight') nextQuestion();
+        });
+    </script>
+</body>
+</html>

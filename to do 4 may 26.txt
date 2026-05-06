@@ -1,0 +1,781 @@
+═══════════════════════════════════════════════════════════════
+  A2Z UPDATES — COMPREHENSIVE IMPLEMENTATION PLAN
+  Last updated: 05 May 2026 | Status: PHASE 0 DONE, PHASE 1 IN PROGRESS
+═══════════════════════════════════════════════════════════════
+
+╔══════════════════════════════════════════════════════════════╗
+║  🆕 NEW REQUIREMENTS (05-May-2026) from Rahul + UI Doc      ║
+╚══════════════════════════════════════════════════════════════╝
+
+  REQ-A | Gemini Rephrase → Auto-Tag Every Question
+      └─ Jab Gemini rephrase kare, har question ko subject-wise,
+         chapter-wise, topic-wise, sub-topic-wise tags assign kare.
+      └─ Tags store honge in: questions table (tag columns) + new
+         taxonomy tables (subjects, chapters, topics, subtopics).
+      └─ Gemini prompt update: add "Also return subject, chapter,
+         topic, subtopic, difficulty_level, cognitive_level tags."
+
+  REQ-B | Per-User Topic-Level Analytics Storage
+      └─ Store karna h ki usne kis particular topic/subtopic me
+         kitne questions attempt kiye, kitne correct, kitne wrong,
+         kitne skip kiye.
+      └─ Isse user ko har subtopic/topic/chapter/subject ki
+         ACCURACY and ATTEMPT RATE milegi.
+      └─ New aggregation tables: user_topic_stats, user_subject_stats,
+         user_chapter_stats (updated on every mock submit).
+
+  REQ-C | Score History Per Mock Group (Series)
+      └─ Har mock group/ series ka score history track karna h.
+      └─ User dekhe: "SP Mock Series me 4/10 mocks attempted,
+         avg score 35/50, best 42/50, trend improving."
+      └─ New table: user_mock_group_stats.
+
+  REQ-D | AI-Pretending Analytics (Deterministic + Gemini Polish)
+      └─ Sab computation local/deterministic hoga (pure SQL + Python).
+      └─ But user ko dikhega "AI Analysis" label ke saath, jaise
+         premium AI tool ne analysis kiya ho.
+      └─ Gemini sirf "copywriter" ki tarah use hoga: analytics JSON
+         dekar Hinglish me 3-4 line personalized feedback generate.
+      └─ Fallback: template-based insights agar Gemini quota khatam.
+
+  REQ-E | Bilingual Hindi + English Explanations
+      └─ Har question ka explanation bilingual hona chahiye
+         (Hindi + English dono me).
+      └─ Gemini rephrase ke time hi both languages ka explanation
+         generate karega.
+      └─ Current schema already has: explanation (EN) + explanation_hi.
+
+  REQ-F | "Premium AI" Feel — Har Aspect Pe Best Advice
+      └─ Dashboard ya Advanced Analytics me har respect pe best
+         data-driven advice dikhe.
+      └─ Weak areas, strong areas, time management tips, silly
+         mistake detection, stamina analysis, etc.
+      └─ Sab data-centric + AI-polished presentation.
+
+  REQ-G | Website Login (Alongside Telegram Auth)
+      └─ Telegram Mini App ke saath-saath ek web login bhi hoga.
+      └─ Username unique hoga. Data JSON me store hoga.
+      └─ Separate web dashboard for deeper analytics view.
+      └─ Detailed spec in PHASE 5A and PHASE 10.
+
+⬛ LEGEND
+  [✓] Done     [~] In Progress     [ ] Pending     [x] Blocked
+  HIGH = must fix before deployment
+  MED  = core feature needed for launch
+  LOW  = nice-to-have, post-launch
+  P0-P4 = Priority tier (0 = critical, 4 = future)
+
+═══════════════════════════════════════════════════════════════
+PHASE 0 — CRITICAL BUG FIXES  (P0)
+═══════════════════════════════════════════════════════════════
+
+[✓] BUG-01 | mainmock.py     | Delete orphaned code block at lines 1967-2016
+      └─ Removed floating file-handler block referencing undefined
+         `update`, `status`, `context` at module level.
+      └─ Fix: ~50 lines deleted. (Done: 2026-05-04)
+
+[✓] BUG-02 | mainmock.py     | Add db_execute, db_commit, db_fetchone, db_fetchall
+      └─ Import at line 33 was missing these 4 essential DB helpers
+         which are used throughout the bot but never imported.
+      └─ Fix: Added to `from a2z_db import (...)` at line 34.
+         (Done: 2026-05-04)
+
+[✓] BUG-03 | a2z_miniapp.html| Remove extra `}` at line 396
+      └─ Duplicate closing brace after showLeaderboard() function
+         caused JS parse error.
+      └─ Fix: Deleted the orphaned `}`. (Done: 2026-05-04)
+
+[✓] BUG-04 | a2z_miniapp.html| Delete orphaned code at lines 479-483
+      └─ Floating shareApp body (let text... tg.openTelegramLink...)
+         with unmatched `}` outside any function scope.
+      └─ Fix: 5 lines deleted. Real shareApp() is at line 488.
+         (Done: 2026-05-04)
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 1 — CORE INTEGRATION (Mini App ↔ Bot)  (P0-P1)
+═══════════════════════════════════════════════════════════════
+
+[~] FEAT-05 | a2z_miniapp.html + mainmock.py | completeQuest() → Bot
+      └─ WAS: XP awarded client-side only, never persisted to DB.
+      └─ NOW: sendToBot('complete_quest', {xp, streak, rank}) added.
+              Bot _webapp_data handler calls complete_daily_quest()
+              from a2z_gamification.py. Client still updates UI
+              immediately for responsiveness.
+      └─ STATUS: Code written. Needs end-to-end test.
+      └─ Files: a2z_miniapp.html:548-560, mainmock.py:2301-2313
+
+[~] FEAT-06 | a2z_miniapp.html + mainmock.py | Dynamic Mock Browser
+      └─ WAS: MOCK_CATEGORIES hardcoded with 4 exams, 8 mock entries.
+      └─ NOW:
+           • DEFAULT_MOCK_CATEGORIES retained as fallback
+           • Added getMockCategories() → checks window.dynamicMockCategories
+             first, falls back to DEFAULT_MOCK_CATEGORIES
+           • Added updateMockCache(data) to parse bot's mock-list JSON
+             into the grouped-by-exam→subjects structure
+           • renderMockBrowser() now uses getMockCategories()
+           • Bot's get_mocks handler queries DB, builds mock_list
+      └─ STATUS: Mini-app side done. Bot side needs structured-data
+             reply (see FEAT-07). Currently bot only sends plain text.
+      └─ Files: a2z_miniapp.html:217-309, mainmock.py:2198-2214
+
+[ ] FEAT-07 | mainmock.py + a2z_miniapp.html | Structured Data Pipeline
+      └─ PROBLEM: _webapp_data builds state_json and mock_list as Python
+         dicts but only sends plain text via reply_text(). Mini app
+         cannot read the reply (sendData is one-way, closes app on mobile).
+      └─ SOLUTION A (Recommended): Store state_json + mock_list JSON
+         in users.state_json column. Mini app sends a second
+         sendToBot('get_updates') call. Bot reads state_json, replies
+         with JSON as text. Mini app can parse it from the reply
+         (works on desktop/web where sendData doesn't close).
+      └─ FOR NOW (Phase 1): Implement Solution A.
+         Steps:
+         1. Modify get_state handler to serialize state + mock_list
+            to JSON, store in users.state_json
+         2. Add get_updates action that reads state_json and replies
+            with the stored JSON
+         3. Mini app: after sendToBot('get_state'), call
+            sendToBot('get_updates') and parse the response
+         4. Wire parseBotResponse() → updateMockCache(), updateUI()
+      └─ SUB-TASKS:
+         [✓] 7a. Wrote store_state(user_id, json_data) + get_stored_state()
+                in a2z_db.py (lines ~256-270). Added state_json column to
+                users table schema + ALTER TABLE migration.
+         [✓] 7b. Modified get_state handler to build state_data + mock_list
+                + guild_info, store combined JSON via store_state().
+                (mainmock.py:2284-2326)
+         [✓] 7c. Added get_updates action to _webapp_data — reads
+                get_stored_state(), sends readable summary to chat.
+                (mainmock.py:2328-2351)
+         [✓] 7d. Added fetchUpdates() + syncAll() functions in mini app.
+                Added 🔄 Sync button in header. (a2z_miniapp.html:473-487)
+         [ ] 7e. Test end-to-end: mini app → bot → mini app roundtrip
+      └─ STATUS: Code written (2026-05-05). Needs end-to-end test.
+      └─ FILES: a2z_db.py:41,256-270, a2z_miniapp.html:473-487,
+                mainmock.py:2284-2351
+
+[~] FEAT-08 | a2z_miniapp.html | Leaderboard in Mini App
+      └─ Current state: showLeaderboard(mockId) sends
+         sendToBot('get_leaderboard', {mock_id}) but never
+         populates lb-entries with actual data.
+      └─ Bot's get_leaderboard handler already works — returns ranked
+         list from get_leaderboard() DB function.
+      └─ SUB-TASKS:
+         [✓] 8a. Bot stores leaderboard in state_json. Leaderboard preserved
+                across get_state calls. (mainmock.py:2247-2285)
+         [✓] 8b. Render ranked list in #lb-entries with medals 🥇🥈🥉.
+                renderLeaderboardEntries() added. (a2z_miniapp.html:406-460)
+         [✓] 8c. Show user's own rank highlighted with "YOU" badge.
+         [✓] 8d. Added "Refresh" button on leaderboard.
+      └─ STATUS: Code written (2026-05-05). UI renders from state.lbData.
+         Data flows: showLeaderboard → bot stores LB → syncAll preserves it.
+         LIMITATION: Mini app can't parse bot reply directly (one-way sendData).
+         LB visible after next sync/reload. Full fix needs HTTP endpoint (INFRA).
+      └─ Files: a2z_miniapp.html:395-460, mainmock.py:2247-2285
+
+[~] FEAT-09 | a2z_miniapp.html + mainmock.py | Guild UI
+      └─ Current state: renderGuild() uses state.guild which is never
+         populated. Guild create/join sendToBot works but UI never
+         updates with guild info.
+      └─ SUB-TASKS:
+         [✓] 9a. Added get_guild action to bot's _webapp_data
+                → reads user's guild from DB, returns guild info + members.
+                Also added guild_leave action. (mainmock.py:2303-2345)
+         [✓] 9b. get_state handler already includes guild_info via
+                get_guild_info(). Data stored in state_json and preserved
+                across sessions.
+         [✓] 9c. Updated renderGuild() to show member list with XP, quest
+                status, multiplier, guild ID. Added fetchGuild() refresh.
+                (a2z_miniapp.html:475-543)
+         [✓] 9d. Added leave guild button with confirmation popup.
+                leaveGuildAction() → sendToBot('guild_leave').
+      └─ STATUS: Code written (2026-05-05). Guild tab fetches on switch.
+         Same limitation as FEAT-08: data flows through state_json storage.
+
+[ ] FEAT-10 | a2z_miniapp.html | Profile "My Stats" Button
+      └─ requestMyStats() function exists (line 458) but no UI
+         button triggers it. Bot handler already generates Hunter
+         License HTML and sends as document.
+      └─ Task: Add a clickable button in Profile tab that calls
+         requestMyStats(). Show loading state until bot reply arrives.
+
+[ ] FEAT-11 | a2z_miniapp.html + mainmock.py | Website Login System
+      └─ REQ-G: Separate web login alongside Telegram auth.
+      └─ Username unique, data stored in JSON.
+      └─ Web dashboard for deeper analytics (later phase).
+      └─ SUB-TASKS:
+         [ ] 11a. Add login page (standalone HTML or mini-app tab)
+         [ ] 11b. Username/password + JWT token auth
+         [ ] 11c. Link Telegram user_id to web account
+         [ ] 11d. Cross-platform session sync (Telegram ↔ Web)
+      └─ PRIORITY: LOW — core features first, web login after.
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 2 — ADMIN DASHBOARD (Bot Side)  (P1)
+═══════════════════════════════════════════════════════════════
+
+Key requirement from Rahul:
+  "kitne referral h, kitne paid h, kaun-kya manage karna h,
+   kitne total users h, full secure, 1 mock me kitne attempts hue"
+
+[✓] ADMIN-01 | mainmock.py | /admin command — Full Dashboard
+      └─ Current: /dashboard exists but returns basic text stats.
+      └─ Required: Rich admin panel with sub-commands:
+         [✓] /admin overview   → Total users, active users, mocks_count,
+                                 total_attempts, invites_generated,
+                                 paid_users (placeholder)
+         [✓] /admin users      → List users with ID, name, XP, rank,
+                                 invites, access status.
+         [✓] /admin mocks      → List all mocks with ID, title, q_count,
+                                 attempt_count, avg_score, avg_accuracy
+         [✓] /admin user <id>  → Deep view: all attempts, invite chain,
+                                 access history, invited-by info.
+         [✓] /admin invites    → Invite leaderboard: who invited whom,
+                                 verification status.
+         [✓] /admin broadcast  → Send message to all active users.
+      └─ FILES: mainmock.py:1974-2195 (handler + 8 sub-functions)
+
+[✓] ADMIN-02 | mainmock.py | Mock registry via /admin mocks
+      └─ Lists all registered mocks with: mock_id, title, section,
+         question_count, attempts, avg_score, avg_accuracy.
+
+[✓] ADMIN-03 | mainmock.py | Admin-only security
+      └─ is_admin() check on /admin command.
+      └─ /admin add <user_id> to promote admins.
+      └─ log_admin_action() writes to admin_log table.
+
+[✓] ADMIN-04 | a2z_db.py | Admin query functions
+      └─ get_admin_overview()
+      └─ get_admin_mocks_list() → get_admin_mocks_list()
+      └─ get_user_deep_stats(user_id)
+      └─ get_admin_invite_network()
+      └─ get_admin_all_user_ids()
+      └─ log_admin_action()
+      └─ FILES: a2z_db.py:657-769
+
+[✓] MIGR-01 | Live DB | Applied gamification schema migration
+      └─ ALTER TABLE users: added xp, rank, streak_days, last_active_date,
+         guild_id, legacy_tag, state_json columns.
+      └─ Created tables: xp_log, daily_quests, guilds, guild_members,
+         raid_events, raid_damage, hidden_quests.
+      └─ Done: 2026-05-05
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 3 — GROWTH ECOSYSTEM (Referral + PvP + Gating)  (P1-P2)
+═══════════════════════════════════════════════════════════════
+
+The "Free Mock → Gated Premium Analysis" funnel:
+  1. Free mock = top-of-funnel hook
+  2. After test = desire for rank + analysis (Sunk Cost Fallacy)
+  3. To unlock analysis: invite friends OR pay
+  4. Tiers: 3 invites → 15 days | 5 invites → 30 days | Paid → 30 days
+
+[✓] GROWTH-01 | a2z_db.py + mainmock.py | Referral Verification
+      └─ WAS: invite counted on link-click / channel-join.
+      └─ NOW: "Active-Only" — referral verified when invited user
+         completes an action (submits a mock, does daily quest).
+      └─ SUB-TASKS:
+         [✓] 1a. Added 'action_verified' column to invites table (bool, default 0).
+         [✓] 1b. On user completes action → verify_referral_by_action() checks
+                if they were invited → marks invite as action_verified →
+                awards XP to inviter via award_xp().
+         [✓] 1c. Bot sends message to inviter: "🎯 Referral verified!
+                +50 XP. Your friend just completed their first mock/quest."
+      └─ FILES: a2z_db.py:120,375-394, mainmock.py:1747,2353
+      └─ Done: 2026-05-05
+
+[✓] GROWTH-02 | mainmock.py + a2z_db.py | Access Tiers
+      └─ Implement:
+         Tier 1: 3 verified invites = 15 days premium access
+         Tier 2: 5 verified invites = 30 days premium access
+         Tier 3: Paid = 30 days (placeholder, integrate UPI later)
+      └─ SUB-TASKS:
+         [✓] 2a. Added premium_access_expiry + premium_tier columns to
+                users table. has_free_access() checks both free and premium.
+         [✓] 2b. grant_premium_access() tracks tier and expiry.
+         [✓] 2c. /access command → user sees current tier, invites used,
+                days remaining, action-verified count.
+         [✓] 2d. check_and_grant_access() updated: 5 verified = Tier 2 (30d),
+                3 verified = Tier 1 (15d), 1 verified = 7d trial.
+      └─ FILES: a2z_db.py:37-38,260-309,401-429, mainmock.py:1987-2020
+      └─ Done: 2026-05-05
+
+[ ] GROWTH-03 | mainmock.py | 1v1 PvP Challenge Engine
+      └─ "You scored 42/50. Generate Challenge Link to dare a rival."
+      └─ SUB-TASKS:
+         [ ] 3a. After mock submit, bot offers /challenge command
+         [ ] 3b. Generates deep-link: t.me/A2ZUpdatesBot?start=challenge_<match_id>
+         [ ] 3c. Rival clicks → takes same mock → bot compares scores
+         [ ] 3d. Generate "Head-to-Head Scorecard" text/image:
+                User A: 42/50 (84%)  vs  User B: 38/50 (76%)
+                Winner: User A (+100 XP)
+         [ ] 3e. Challenge_completed action → awards XP, unlocks analysis
+
+[ ] GROWTH-04 | mainmock.py | AIR 209 Benchmark System
+      └─ "Target Score set by AIR 209: 165/200."
+      └─ SUB-TASKS:
+         [ ] 4a. Add benchmark_score column to mocks table
+         [ ] 4b. /set_benchmark <mock_id> <score> (admin only)
+         [ ] 4c. On mock submit, compare user score to benchmark
+         [ ] 4d. If user beats benchmark → instant premium access unlock
+         [ ] 4e. If not → "Mission Failed. Complete 1 PvP Challenge
+                to unlock." (triggers sunk-cost action)
+
+[ ] GROWTH-05 | mainmock.py | Spectator Mode (Lounge Broadcast)
+      └─ Auto-post high-scoring PvP results to A2Z Updates Lounge
+      └─ SUB-TASKS:
+         [ ] 5a. After PvP match completes, format result message
+         [ ] 5b. Send to LOUNGE_CHAT_ID (configure in env)
+         [ ] 5c. "🚨 RIVALRY ALERT: Aman (45) def. Vikash (38)!
+                Aman +50 XP! Take the challenge: [link]"
+         [ ] 5d. Throttle: max 3 broadcasts/hour to avoid spam
+
+[ ] GROWTH-06 | mainmock.py + a2z_miniapp.html | Study Trio Campaign
+      └─ "Invite 2 friends. All 3 complete the weekend mock.
+         Unlock Advanced Analysis for 15 days."
+      └─ SUB-TASKS:
+         [ ] 6a. Track "trio" groups (3 users linked)
+         [ ] 6b. When all 3 submit same mock → grant trio_bonus_access
+         [ ] 6c. Trio leaderboard: which trio has highest combined score
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 4 — CONTENT PIPELINE  (P2)
+═══════════════════════════════════════════════════════════════
+
+[ ] CONTENT-01 | mainmock.py | Editorial Upload Workflow
+      └─ IS: editorials table exists, register_editorial() function
+         exists in a2z_db.py, but no way to upload.
+      └─ NEED:
+         [ ] 1a. /upload_editorial command (admin-only): accepts
+                .html file, extracts vocab/idioms/cloze data,
+                stores in editorials table
+         [ ] 1b. _webapp_data handler for upload_editorial action
+                (admin sends from mini app)
+         [ ] 1c. Daily editorial auto-post: bot sends today's
+                editorial to channel at configured time
+         [ ] 1d. Editorial archive: /editorial list | /editorial <id>
+
+[ ] CONTENT-02 | mainmock.py | Daily Quest Integration
+      └─ Tie editorial quiz to XP system:
+         [ ] 2a. After editorial upload, generate 5-question Vocab/Cloze quiz
+         [ ] 2b. Editorial quiz = +10 XP per complete
+         [ ] 2c. 5-day streak = "Consistency Ticket" = 1-day premium
+                mock vault access
+         [ ] 2d. Track quest completion in mini app AND bot DB
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 5 — UI REDESIGN (Testbook/Oliveboard-Style)  (P2)
+═══════════════════════════════════════════════════════════════
+
+Rahul's requirements:
+  "Testbook jaise — list pehle se schedule karke, date likhi hogi
+   kab active hoga ya hua hai. Jo scheduled but active nahi hai
+   wo grey color ka hoga. Mock series card showing kitne mocks
+   attempted out of total in that group."
+
+Detailed UI spec from design doc (>&gt; Rahul_ Aur ek UI design ka prompt bana k dena.md):
+
+  SCREEN 1: Mock Series List (Home/Mocks Tab)
+    └─ Cards per series group with:
+       · Series title + exam tag (SSC CGL, UPSC, Banking, etc.)
+       · Subtext: "10 mocks · Difficulty: Moderate–High · Hindi + English"
+       · Progress bar: "4/10 mocks attempted"
+       · STATUS BADGES:
+         → 🔒 Upcoming: grey card, disabled, shows "Opens on 14 May, 10:00 AM"
+         → 🟢 Active: full color, "Available till 20 May"
+         → ✅ Completed: "Completed · View AI Analysis" CTA button
+       · Right-side stats: accuracy %, avg score, "AI Insights" pill
+
+  SCREEN 2: Inside a Mock Series (Group View)
+    └─ Tabs: [Tests] [AI Analysis]
+    └─ Tests tab: each mock row with:
+       · Status: Locked/Live/Available/Completed badge
+       · Score, percentile, rank for attempted mocks
+       · "AI breakdown available" spark label
+    └─ AI Analysis tab (series-level):
+       · Summary: "4 mocks attempted. Strongest: Quant (82%). Weakest: English (54%)."
+       · Subject-wise accuracy bar chart
+       · Topic-wise weak areas (top 3 per subject)
+       · Score trend line across mocks
+
+  SCREEN 3: Single Mock Analysis View
+    └─ Summary card: score, correct/wrong/skipped, accuracy, rank, percentile
+    └─ Time vs Accuracy grid: fast+right, slow+right, fast+wrong, slow+wrong
+    └─ Weak areas: subject→topic→subtopic with accuracy & attempts
+    └─ Question list with filters (by subject, topic, correct/wrong/skipped)
+    └─ Each question tile: tags, your answer, correct answer, time, "Reattempt" button
+
+  SCREEN 4: Global "My Analytics" Dashboard
+    └─ Heatmap: subject vs topic mastery grid (green/amber/red)
+    └─ Score trend line across all mocks
+    └─ Cards: "Strongest areas", "Weakest areas", "Most silly mistakes"
+    └─ Study Plan: weekly schedule from engine + auto-adjust
+    └─ AI Mentor Chat (optional, bot-side)
+
+  SCREEN 5: Gamification Profile
+    └─ XP bar + Rank badge (E→C→A→S)
+    └─ Achievements grid (unlocked coloured, locked grey)
+    └─ Shareable scorecards with AI comments
+
+  UX POLISH (from design doc):
+    └─ Use spark/star icons for AI sections
+    └─ Green=strength, Red=weak, Amber=caution colour coding
+    └─ Skeleton loaders + micro-animations on charts
+    └─ Telegram theme CSS variables (--tg-theme-bg-color etc.)
+    └─ MainButton/BackButton integration for CTAs
+    └─ Pull-to-refresh + "🔄 Sync Data" button
+    └─ Multi-language: English/Hindi UI, AI insights in Hinglish
+
+[ ] UI-01 | a2z_miniapp.html | Mock Browser Redesign
+      └─ Current: Simple exam→subject→mock list with 3 views.
+      └─ Target: Testbook-style with:
+         [ ] 1a. Schedule/calendar view: upcoming mocks with dates
+         [ ] 1b. Status badges: 🟢 Live | 🟡 Upcoming | ⚪ Completed
+         [ ] 1c. Greyed-out cards for scheduled-but-not-yet-active mocks
+                (unclickable, shows "Available on <date>")
+         [ ] 1d. Series cards: "SP Mock Series" showing "3/10 attempted"
+                with progress bar
+
+[ ] UI-02 | a2z_miniapp.html | Mock Card Design
+      └─ Each mock card shows:
+         [ ] 2a. Mock title + exam tag (SSC CGL / UPSC / Banking)
+         [ ] 2b. Question count + timer + difficulty (Easy/Med/Hard)
+         [ ] 2c. Attempt count: "1,234 attempts"
+         [ ] 2d. Date scheduled / date active
+         [ ] 2e. User's attempt status: "Not Started" / "In Progress" /
+                "Completed (Score: 42/50)"
+         [ ] 2f. Free/Premium badge
+         [ ] 2g. Progress bar for series: "■■■□□ 3/10"
+
+[ ] UI-03 | a2z_db.py + mainmock.py | Mock Scheduling
+      └─ Support for scheduled mocks:
+         [ ] 3a. Add scheduled_at, active_at, expires_at to mocks table
+         [ ] 3b. Admin command: /schedule_mock <id> <YYYY-MM-DD>
+         [ ] 3c. Mock visibility logic: show in browser only from
+                active_at to expires_at, show as "Upcoming" before
+                active_at with grey card
+
+[ ] UI-04 | a2z_miniapp.html | Mock Analysis Screen (NEW)
+      └─ Post-mock submission analysis UI:
+         [ ] 4a. Summary: score, correct/wrong/skipped, accuracy, rank
+         [ ] 4b. Time vs accuracy breakdown (fast/slow × right/wrong)
+         [ ] 4c. Topic-wise weak areas with accuracy %
+         [ ] 4d. Question-by-question review with filters
+         [ ] 4e. "Reattempt wrong questions" button
+         [ ] 4f. Share scorecard button
+
+[ ] UI-05 | a2z_miniapp.html | Analytics Dashboard Tab (NEW)
+      └─ New "Analytics" tab in mini app:
+         [ ] 5a. Heatmap grid: subject × topic mastery (green/amber/red)
+         [ ] 5b. Score trend line chart (last N mocks)
+         [ ] 5c. Strongest/weakest areas cards
+         [ ] 5d. "AI Insights" section: Hinglish personalized text
+         [ ] 5e. Time-based stats: speed, stamina, consistency
+         [ ] 5f. Silly mistake detection display
+
+[ ] UI-06 | a2z_miniapp.html | Profile + Gamification Tab Upgrade
+      └─ Upgrade Profile tab:
+         [ ] 6a. XP bar with progress to next rank
+         [ ] 6b. Rank badge with colour + name
+         [ ] 6c. Achievements/badges grid (unlocked + locked)
+         [ ] 6d. Guild card (if in guild)
+         [ ] 6e. Access tier + days remaining display
+         [ ] 6f. "My Stats" button (Hunter License)
+
+[ ] UI-07 | a2z_miniapp.html | Telegram Theme Integration
+      └─ [ ] 7a. Use --tg-theme-* CSS variables for auto dark/light
+      └─ [ ] 7b. Integrate Telegram MainButton for primary CTAs
+      └─ [ ] 7c. Integrate BackButton for navigation
+      └─ [ ] 7d. Haptic feedback on key interactions
+      └─ [ ] 7e. Pull-to-refresh + sync button
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 5A — TAXONOMY & ANALYTICS ENGINE  (P2)
+═══════════════════════════════════════════════════════════════
+
+This phase implements the question tagging taxonomy (Subject → Chapter
+→ Topic → Subtopic) and the per-user analytics aggregation that drives
+the "AI Analysis" screens. All computation is deterministic (SQL + Python);
+Gemini is only used for initial question tagging during rephrase.
+
+[ ] TAX-01 | a2z_db.py | Taxonomy Tables Schema
+      └─ Create new tables:
+         [ ] 1a. subjects (id, name, exam_category)
+                └─ e.g. Quantitative Aptitude, Reasoning, English, GA, Vocab
+         [ ] 1b. chapters (id, subject_id FK, name, order_index)
+                └─ e.g. Arithmetic, Algebra, Geometry under Quant
+         [ ] 1c. topics (id, chapter_id FK, name, weightage, order_index)
+                └─ e.g. Percentage, Ratio, Time & Work under Arithmetic
+         [ ] 1d. subtopics (id, topic_id FK, name, order_index)
+                └─ e.g. "LCM-based", "Ratio-based" under Time & Work
+      └─ Seed default taxonomy for SSC CGL, UPSC, Banking exams.
+
+[ ] TAX-02 | a2z_db.py | Add Tag Columns to Questions Table
+      └─ ALTER TABLE questions ADD COLUMN:
+         [ ] 2a. subject_id INTEGER FK → subjects
+         [ ] 2b. chapter_id INTEGER FK → chapters
+         [ ] 2c. topic_id INTEGER FK → topics
+         [ ] 2d. subtopic_id INTEGER FK → subtopics
+         [ ] 2e. difficulty_level TEXT (easy/medium/hard)
+         [ ] 2f. cognitive_level TEXT (knowledge/application/analysis)
+         [ ] 2g. concept_tags TEXT (JSON array of extra tags)
+      └─ Backfill existing questions with default tags.
+
+[ ] TAX-03 | mainmock.py | Gemini Tagging During Rephrase
+      └─ Update SYSTEM_PROMPT in Gemini rephrase pipeline:
+         [ ] 3a. Add instruction: "For each question, also return:
+                subject, chapter, topic, subtopic, difficulty_level,
+                cognitive_level, and concept_tags."
+         [ ] 3b. Parse tags from Gemini response alongside rephrased text.
+         [ ] 3c. Normalize tags to existing taxonomy (or create new entries).
+         [ ] 3d. Store tags on questions table during register_questions().
+      └─ Gemini model: gemini-3.1-flash-lite-preview (as per Rahul+Ajay decision).
+
+[ ] ANA-01 | a2z_db.py | User Analytics Aggregation Tables
+      └─ Create aggregation tables (updated on every mock submit):
+         [ ] 1a. user_topic_stats
+                (user_id, topic_id, subject_id, chapter_id,
+                 attempts, correct, wrong, skipped,
+                 accuracy REAL, last_attempted_at TEXT)
+         [ ] 1b. user_subject_stats
+                (user_id, subject_id,
+                 attempts, correct, wrong, skipped,
+                 accuracy REAL, last_attempted_at TEXT)
+         [ ] 1c. user_chapter_stats
+                (user_id, chapter_id, subject_id,
+                 attempts, correct, wrong, skipped,
+                 accuracy REAL, last_attempted_at TEXT)
+         [ ] 1d. user_mock_group_stats
+                (user_id, group_id, mocks_attempted,
+                 avg_score REAL, best_score REAL, latest_score REAL,
+                 trend_json TEXT, last_attempted_at TEXT)
+      └─ All stats are deterministic counts, updated via trigger/function.
+
+[ ] ANA-02 | a2z_db.py | Analytics Aggregation Functions
+      └─ [ ] 2a. update_user_topic_stats(user_id, mock_id)
+             └─ Called after submit_attempt(). Aggregates responses
+                by topic/subtopic and updates all stats tables.
+      └─ [ ] 2b. get_user_topic_breakdown(user_id, subject_id=None)
+             └─ Returns topic-wise: attempts, correct, wrong, skipped, accuracy.
+      └─ [ ] 2c. get_user_subject_summary(user_id)
+             └─ Returns subject-wise: total attempts, accuracy, strong/weak.
+      └─ [ ] 2d. get_user_score_trend(user_id, group_id=None, limit=10)
+             └─ Returns score history: mock_title, score, max, accuracy, date.
+      └─ [ ] 2e. get_user_weak_areas(user_id, min_attempts=3, top_n=5)
+             └─ Returns topics with lowest accuracy where attempts ≥ min_attempts.
+      └─ [ ] 2f. get_user_silly_mistakes(user_id, mock_id=None)
+             └─ Detects easy questions answered wrong (easy=1, correct=0).
+
+[ ] ANA-03 | mainmock.py | Analytics Endpoints for Mini App
+      └─ Add _webapp_data actions for analytics:
+         [ ] 3a. get_my_analytics → returns full analytics JSON
+                (subject_summary, topic_breakdown, weak_areas,
+                 score_trend, silly_mistakes, strongest_areas)
+         [ ] 3b. get_mock_analysis → returns per-mock analysis JSON
+                (score, accuracy, time_breakdown, topic_performance,
+                 question_list with tags)
+         [ ] 3c. get_group_analysis → returns series-level analytics
+                (mocks_attempted, avg_score, best_score, trend,
+                 subject_comparison)
+
+[ ] ANA-04 | mainmock.py | Per-Question Response Tracking
+      └─ Wire existing responses table into actual mock submission flow:
+         [ ] 4a. In submit_attempt: iterate all questions, record each
+                response with: selected_option, is_correct, time_spent_sec.
+         [ ] 4b. Populate question tags (subject/chapter/topic/subtopic)
+                from question row into response for fast aggregation.
+      └─ This enables: per-question review, topic-wise stats, time analysis.
+
+═══════════════════════════════════════════════════════════════
+PHASE 5B — AI INSIGHTS LAYER (Deterministic + Gemini Polish)  (P2-P3)
+═══════════════════════════════════════════════════════════════
+
+"AI Analysis" that LOOKS like premium AI but is actually deterministic
+data analysis with optional Gemini-generated Hinglish copy.
+
+[ ] AI-01 | mainmock.py | Template-Based Insights Engine (FREE)
+      └─ Deterministic analytics → human-readable text:
+         [ ] 1a. classify_accuracy(acc) → "Strong" (>70%), "Moderate" (40-70%), "Weak" (<40%)
+         [ ] 1b. For each subject/topic, map to pre-written Hinglish templates:
+              └─ Strong: "{topic} me aap strong hain (accuracy {acc}%).
+                 Weekly revision se maintain karo."
+              └─ Weak+HighAttempts: "{topic} me bahut attempts hain
+                 lekin accuracy sirf {acc}%. Conceptual clarity improve karo."
+              └─ Weak+LowAttempts: "{topic} pe focus badhao. Abhi tak
+                 sirf {attempts} sawaal kiye hain."
+         [ ] 1c. combine_insights(analytics_json) → 4-5 line paragraph
+         [ ] 1d. Time management tips from time_spent data
+              └─ "Jab aap 30 sec se kam lete ho, accuracy 38% gir jaati hai."
+         [ ] 1e. Stamina indicators: first-half vs second-half performance
+
+[ ] AI-02 | mainmock.py | Gemini-Powered Insights (PREMIUM)
+      └─ When Gemini quota available, use LLM for natural Hinglish:
+         [ ] 2a. Prompt template:
+              "You are an exam performance coach for SSC/RRB students.
+               Based on this JSON data, write 3-4 lines personalized
+               feedback in Hinglish. Focus on weakest topics first,
+               then time management tips. Be encouraging but direct.
+               JSON: {analytics_json}"
+         [ ] 2b. Cache insights for 24h to avoid re-generation
+         [ ] 2c. Fallback to template-based if Gemini fails/quota exhausted
+      └─ Gemini model: gemini-3.1-flash-lite-preview
+
+[ ] AI-03 | mainmock.py | Mock-Level AI Analysis Generator
+      └─ After mock submit, generate "AI Mock Analysis":
+         [ ] 3a. Aggregate per-question responses
+         [ ] 3b. Compute: silly mistakes, guessing patterns, speed issues
+         [ ] 3c. Generate 2-line Hinglish summary per subject
+         [ ] 3d. Return as JSON → stored in attempts table (ai_analysis_json)
+         [ ] 3e. Mini app renders in "AI Analysis" tab
+
+[ ] AI-04 | mainmock.py | AI Insights Endpoints
+      └─ _webapp_data actions:
+         [ ] 4a. get_ai_insights → returns generated insights JSON
+                (mock_level, subject_level, overall_level)
+         [ ] 4b. refresh_ai_insights → forces regeneration (bypass cache)
+         [ ] 4c. get_study_plan → AI-generated weekly plan based on analytics
+      └─ All insights stored with timestamp + cache_key for reuse
+
+[ ] GAME-01 | mainmock.py | Raid Boss System
+      └─ "🚨 RAID EVENT: Boss HP: 100. Every new user quiz solve = -1 HP"
+      └─ a2z_gamification.py already has create_raid + deal_raid_damage.
+         Wire into bot:
+         [ ] 1a. /raid_create <title> <hp> <reward> (admin)
+         [ ] 1b. On user action (quiz complete, new user join) → deal_raid_damage
+         [ ] 1c. Raid status broadcast to channel
+         [ ] 1d. On HP=0 → unlock reward (premium mock) for all
+
+[ ] GAME-02 | mainmock.py | Rank Decay Auto-Check
+      └─ If user drops below Rank C, restrict premium access.
+      └─ apply_rank_decay() in a2z_gamification.py already exists.
+         Wire to scheduler (see SCHEDULER-01).
+
+[ ] GAME-03 | mainmock.py | Daily Quest Auto-Send
+      └─ create_daily_quest() exists. Wire to scheduler to
+         auto-generate and send quest each morning.
+
+[ ] GAME-04 | mainmock.py | Per-Question Answer Tracking
+      └─ Currently stores only summary (total score). Need
+         per-question response tracking for detailed analysis.
+      └─ SUB-TASKS:
+         [ ] 4a. On submit_attempt: save each Q's answer + time_spent
+         [ ] 4b. Analysis HTML: show correct/wrong/skipped per question
+                with topic tags and time-spent breakdown
+         [ ] 4c. Weak-area detection: "You struggle with Geometry (30% accuracy)"
+         [ ] 4d. Generate focused practice mock from weak topics
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 7 — DEPLOYMENT  (P0 — Do after Phase 1)
+═══════════════════════════════════════════════════════════════
+
+[ ] DEPLOY-01 | Git | Push to GitHub
+      └─ git add -A
+      └─ git commit -m "Phase 0 bugfixes + Phase 1 integration (quest, mock browser)"
+      └─ git push -u origin main
+
+[ ] DEPLOY-02 | GitHub | Enable GitHub Pages
+      └─ Repo → Settings → Pages → Source: main branch → Save
+      └─ Verify: https://rahulbest21.github.io/a2z-miniapp/a2z_miniapp.html loads
+
+[ ] DEPLOY-03 | BotFather | Set Menu Button
+      └─ /setmenubutton → @A2ZUpdatesBot
+      └─ URL: https://rahulbest21.github.io/a2z-miniapp/a2z_miniapp.html
+      └─ Button text: "📝 Take Mock"
+
+[ ] DEPLOY-04 | Verify End-to-End
+      └─ Open bot → click menu button → mini app loads
+      └─ Mock browser renders → select mock → take test
+      └─ Submit → score shows → leaderboard updates
+      └─ Quest completion → XP stored in DB
+      └─ Admin dashboard → data visible
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 8 — INFRASTRUCTURE  (P2-P3)
+═══════════════════════════════════════════════════════════════
+
+[ ] INFRA-01 | mainmock.py | Background Scheduler
+      └─ Use APScheduler or asyncio.create_task with loop:
+         [ ] 1a. Daily quest auto-send (6:00 AM IST)
+         [ ] 1b. Rank decay check (daily at midnight)
+         [ ] 1c. Premium access expiry check (hourly)
+         [ ] 1d. Raid boss status update broadcast
+
+[ ] INFRA-02 | mainmock.py | Data Export/Backup
+      └─ /admin_backup command: exports all tables as JSON + SQL dump
+      └─ /admin_export_users: CSV of all users with stats
+      └─ /admin_export_mocks: CSV of all mocks with attempt data
+
+[✓] API-01 | a2z_api.py + mainmock.py + a2z_miniapp.html | HTTP API Endpoint
+      └─ Solves bot→mini-app two-way communication (sendData is one-way).
+      └─ aiohttp server runs alongside bot on port 8765.
+      └─ ENDPOINTS:
+         [✓] GET /api/health → health check
+         [✓] GET /api/state?token=<auth_token> → full stored state JSON
+         [✓] GET /api/leaderboard?token=<auth_token>&mock_id=<id> → leaderboard
+         [✓] GET /api/analytics?token=<auth_token> → user stats + recent attempts
+      └─ MINI APP:
+         [✓] syncFromAPI() → fetches state, merges into UI
+         [✓] syncLeaderboardFromAPI(mockId) → fetches leaderboard
+         [✓] Configurable API_BASE_URL (set to Cloudflare Tunnel URL)
+         [✓] Auth via auth_token (from URL param or CloudStorage)
+      └─ BOT: get_auth_token action returns user's API token.
+      └─ Requires Cloudflare Tunnel (INFRA-03) for public HTTPS access.
+      └─ FILES: a2z_api.py (new, 160 lines), mainmock.py, a2z_miniapp.html
+      └─ Done: 2026-05-05
+
+[ ] INFRA-03 | Cloudflare Tunnel Setup (for API + Mini App HTTPS access)
+      └─ Bot API runs on localhost:8765. Cloudflare Tunnel exposes it publicly.
+      └─ Steps:
+         [ ] 3a. Install: winget install cloudflare.cloudflared
+         [ ] 3b. Run: cloudflared tunnel --url http://localhost:8765
+         [ ] 3c. Copy the *.trycloudflare.com URL
+         [ ] 3d. Set API_BASE_URL in a2z_miniapp.html to that URL
+         [ ] 3e. For permanent domain: cloudflared tunnel create + route DNS
+      └─ Add pull-to-refresh gesture or "🔄 Sync Data" button
+      └─ Calls fetchState() → sendToBot + re-render all tabs
+
+
+═══════════════════════════════════════════════════════════════
+PHASE 9 — MONETIZATION & ANALYTICS  (P3-P4)
+═══════════════════════════════════════════════════════════════
+
+[ ] MON-01 | Paid Access Integration
+      └─ UUID/UPI payment flow placeholder
+      └─ Track: paid_users table, revenue dashboard
+      └─ Admin can grant/revoke paid access
+
+[ ] MON-02 | Analytics Dashboard (Mini App)
+      └─ Admin tab in mini app showing:
+         - Real-time user count, active today
+         - Mock attempts per day (chart)
+         - Referral network graph
+         - Revenue tracking
+
+[ ] MON-03 | A/B Testing Framework
+      └─ Test different invite thresholds (3 vs 5)
+      └─ Track conversion rates per test group
+
+
+═══════════════════════════════════════════════════════════════
+QUICK SUMMARY — NEXT 10 ACTIONS
+═══════════════════════════════════════════════════════════════
+
+  1. [~] Complete FEAT-07 (structured data pipeline) — unblocks FEAT-08,09,10
+  2. [ ] Apply gamification schema migration to live DB (unblocks all gamification)
+  3. [ ] Complete FEAT-08 (leaderboard) and FEAT-09 (guild UI)
+  4. [ ] Complete FEAT-10 (my stats button) + FEAT-11 (web login basics)
+  5. [ ] Run DEPLOY-01 through DEPLOY-04 (push + GitHub Pages + BotFather)
+  6. [ ] Build ADMIN-01 (/admin dashboard) — Rahul's #1 request
+  7. [ ] PHASE 3 GROWTH ecosystem (referral verification, PvP, access tiers)
+  8. [ ] PHASE 5A TAX-01,02 — Create taxonomy tables + seed data
+  9. [ ] PHASE 5A TAX-03 — Gemini tagging during rephrase
+  10. [ ] PHASE 5A ANA-01—04 — Analytics aggregation + endpoints
+
+═══════════════════════════════════════════════════════════════

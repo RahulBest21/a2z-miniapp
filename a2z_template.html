@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<title>{{MOCK_TITLE}}</title>
+<meta name="a2z-mock-id" content="{{MOCK_ID}}">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f2f5;--panel:rgba(255,255,255,.85);--text:#1e293b;--border:rgba(0,0,0,.08);--sub:#64748b;--primary:#6a5af9;--primary-glow:rgba(106,90,249,.35);--gold:#d4af37;--gold-dark:#c5a030;--glass:rgba(255,255,255,.65);--glass-border:rgba(255,255,255,.4);--shadow-3d:0 4px 24px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);--shadow-lg:0 12px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);--radius:16px;--radius-sm:12px;--radius-xs:8px}
+[data-theme=dark]{--bg:#0a0f1a;--panel:rgba(20,28,45,.88);--text:#e2e8f0;--border:rgba(255,255,255,.08);--sub:#94a3b8;--primary:#9d8fff;--primary-glow:rgba(157,143,255,.35);--gold:#fbbf24;--gold-dark:#f59e0b;--glass:rgba(20,28,45,.7);--glass-border:rgba(255,255,255,.1);--shadow-3d:0 4px 24px rgba(0,0,0,.25),0 1px 4px rgba(0,0,0,.15);--shadow-lg:0 12px 40px rgba(0,0,0,.4),0 2px 8px rgba(0,0,0,.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── Gold Shimmer Text ── */
+.gold-text{background:linear-gradient(135deg,#f0d060 0%,#d4af37 25%,#fff3c7 50%,#e6c27a 75%,#c5a030 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:goldShimmer 3s linear infinite}
+@keyframes goldShimmer{to{background-position:200% center}}
+
+/* ── Glass Panel ── */
+.glass{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border)}
+
+/* ── 3D Card ── */
+.card-3d{background:var(--panel);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-3d);transition:transform .2s,box-shadow .2s}
+.card-3d:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+
+/* ── Status Buttons ── */
+.btn-answered{background:#22c55e!important;color:#fff!important;box-shadow:0 2px 12px rgba(34,197,94,.4)!important}
+.btn-not-answered{background:#ef4444!important;color:#fff!important;box-shadow:0 2px 12px rgba(239,68,68,.4)!important}
+.btn-marked{background:#8b5cf6!important;color:#fff!important;border-radius:50%!important;box-shadow:0 2px 12px rgba(139,92,246,.4)!important}
+.btn-not-visited{background:var(--panel)!important;color:var(--sub)!important;border:2px solid var(--border)!important}
+
+/* ── Animations ── */
+.fade-in{animation:fadeIn .4s cubic-bezier(.16,1,.3,1)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.pulse-red{animation:pulseRed 1s infinite}
+@keyframes pulseRed{0%,100%{background:#fee2e2}50%{background:#fca5a5}}
+@keyframes twinkle{0%{opacity:.3;transform:scale(.8)}100%{opacity:1;transform:scale(1.2)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes borderGlow{0%,100%{border-color:rgba(106,90,249,.3);box-shadow:0 0 8px rgba(106,90,249,.15)}50%{border-color:rgba(106,90,249,.7);box-shadow:0 0 20px rgba(106,90,249,.3)}}
+@keyframes neonPulse{0%,100%{box-shadow:0 0 8px var(--primary-glow),0 0 20px var(--primary-glow)}50%{box-shadow:0 0 16px var(--primary-glow),0 0 40px var(--primary-glow)}}
+
+/* ── Home Header ── */
+.home-header-bg{background:radial-gradient(ellipse at 20% 0%,#1a1a2e 0%,#0a0a15 50%,#000 100%);position:relative;overflow:hidden}
+.home-header-bg::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,rgba(106,90,249,.05));pointer-events:none}
+
+/* ── Language Pill Switcher ── */
+.lang-pill-group{display:flex;align-items:center;gap:0;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;border:1px solid rgba(255,255,255,.1)}
+.lang-pill{border:none;padding:4px 10px;border-radius:8px;font-size:.7rem;font-weight:600;cursor:pointer;color:rgba(255,255,255,.55);background:transparent;transition:all .25s cubic-bezier(.16,1,.3,1);position:relative;letter-spacing:.3px}
+.lang-pill:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.08)}
+.lang-pill.active{background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,.1));color:#fff;font-weight:700;box-shadow:0 0 12px rgba(255,255,255,.15),0 2px 8px rgba(0,0,0,.2)}
+.lang-pill:active{transform:scale(.93)}
+.a2z-bar{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:200;min-height:56px;box-shadow:0 2px 20px rgba(0,0,0,.3)}
+.a2z-bar .logo{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.a2z-bar .logo-icon{background:linear-gradient(135deg,#e94560,#0f3460);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 0 14px rgba(233,69,96,.4);animation:neonPulse 3s ease-in-out infinite}
+.a2z-bar .logo-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.a2z-bar .logo-text .brand-name{color:#fff;font-weight:800;font-size:.95rem;letter-spacing:.5px;overflow:hidden;text-overflow:ellipsis}
+.a2z-bar .logo-text .brand-sub{color:rgba(255,255,255,.6);font-size:.7rem;overflow:hidden;text-overflow:ellipsis}
+.a2z-bar .join-btn{background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;text-decoration:none;padding:7px 16px;border-radius:20px;font-weight:700;font-size:.8rem;display:flex;align-items:center;gap:6px;transition:all .25s;flex-shrink:0;white-space:nowrap;box-shadow:0 4px 16px rgba(233,69,96,.3)}
+.a2z-bar .join-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 24px rgba(233,69,96,.5)}
+
+/* ── Countdown ── */
+#countdown-overlay{position:fixed;inset:0;background:rgba(10,15,26,.98);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center}
+#countdown-number{font-size:8rem;font-weight:900;animation:pulse .7s ease-in-out infinite}
+
+/* ── Mock Test Screen ── */
+#mock-screen{display:none;position:fixed;inset:0;flex-direction:column;background:var(--bg);z-index:300}
+.mock-topbar{height:60px;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:2px solid rgba(212,175,55,.3);flex-shrink:0;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.mock-topbar .title{font-weight:800;font-size:.9rem;color:#d4af37;text-transform:uppercase;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+#timer-display{font-family:'SF Mono','Fira Code',monospace;font-weight:700;font-size:1.1rem;background:rgba(0,0,0,.4);padding:6px 14px;border-radius:8px;color:#e6c27a;border:1px solid rgba(212,175,55,.25);min-width:72px;text-align:center;letter-spacing:1px;transition:all .3s}
+.mock-content{display:flex;flex:1;overflow:hidden}
+
+/* ── Question Area ── */
+.question-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+#question-container{flex:1;overflow-y:auto;overflow-x:auto;padding:20px;background:var(--panel);margin:12px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-3d);-webkit-overflow-scrolling:touch;word-wrap:break-word;overflow-wrap:break-word}
+.question-text{font-size:1.1rem;font-weight:700;line-height:1.65;margin-bottom:20px;color:#0f172a}
+[data-theme=dark] .question-text{color:#e2e8f0}
+
+/* ── Option Buttons (3D + neumorphic feel) ── */
+.option-btn{display:block;width:100%;text-align:left;padding:14px 18px;margin:8px 0;border:2px solid var(--border);border-radius:var(--radius-sm);background:var(--panel);cursor:pointer;font-size:.95rem;font-weight:500;transition:all .18s cubic-bezier(.16,1,.3,1);box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.option-btn:hover{border-color:var(--primary);background:rgba(106,90,249,.04);transform:translateY(-1px);box-shadow:0 4px 16px var(--primary-glow)}
+.option-btn.selected{border-color:var(--primary);background:linear-gradient(135deg,rgba(106,90,249,.12),rgba(106,90,249,.06));color:var(--primary);font-weight:600;box-shadow:0 4px 16px var(--primary-glow)}
+.option-btn.correct-show{border-color:#22c55e;background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(34,197,94,.04));color:#166534;box-shadow:0 4px 16px rgba(34,197,94,.25)}
+.option-btn.wrong-show{border-color:#ef4444;background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(239,68,68,.04));color:#991b1b;box-shadow:0 4px 16px rgba(239,68,68,.25)}
+
+/* ── Explanation ── */
+.explanation-box{margin-top:16px;padding:14px 18px;background:linear-gradient(135deg,rgba(106,90,249,.04),rgba(106,90,249,.01));border-left:4px solid var(--primary);border-radius:var(--radius-xs);font-size:.88rem;line-height:1.65;color:#334155;overflow-x:auto;word-wrap:break-word;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+[data-theme=dark] .explanation-box{color:#cbd5e1}
+.question-text img,.explanation-box img{max-width:100%;height:auto;border-radius:8px}
+.question-text table,.explanation-box table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.85rem}
+.question-text td,.question-text th,.explanation-box td,.explanation-box th{padding:6px 10px;border:1px solid var(--border);text-align:left}
+.question-text th,.explanation-box th{background:#f1f5f9;font-weight:600}
+[data-theme=dark] .question-text th,[data-theme=dark] .explanation-box th{background:rgba(255,255,255,.05)}
+.question-text pre,.explanation-box pre{background:#1e293b;color:#e2e8f0;padding:12px;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.5}
+
+/* ── Bottom Nav Bar ── */
+.bottom-bar{height:65px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;flex-shrink:0;flex-wrap:wrap;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+.bottom-bar button{padding:10px 18px;border:none;border-radius:10px;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-review{background:#ede9fe;color:#6d28d9}.btn-review:hover{background:#ddd6fe}
+.btn-clear{background:#f1f5f9;color:#64748b}.btn-clear:hover{background:#e2e8f0}
+.btn-save{background:var(--primary);color:#fff;font-weight:700;box-shadow:0 4px 12px var(--primary-glow)}.btn-save:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-submit{background:#22c55e;color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(34,197,94,.3)}.btn-submit:hover{filter:brightness(1.1);transform:translateY(-1px)}
+
+/* ── Palette Panel ── */
+#palette-panel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;box-shadow:-4px 0 24px rgba(0,0,0,.06)}
+.palette-stats{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.7rem;font-weight:600;background:linear-gradient(180deg,var(--panel),rgba(0,0,0,.02));border-bottom:1px solid var(--border)}
+.palette-stats div{display:flex;align-items:center;gap:4px}
+.palette-stats .dot{width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800}
+.palette-section{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:1.5px}
+#palette-grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start}
+.palette-btn{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;cursor:pointer;border:none;transition:all .18s cubic-bezier(.16,1,.3,1);min-width:0;position:relative}
+.palette-btn:hover{transform:scale(1.1);box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.palette-btn.current{border:3px solid var(--primary)!important;box-shadow:0 0 0 4px var(--primary-glow)!important;transform:scale(1.05)}
+
+/* ── Result Screen ── */
+#result-screen{display:none;min-height:100vh;padding:16px;max-width:800px;margin:0 auto}
+.result-card{background:var(--panel);border-radius:var(--radius);padding:24px;margin-bottom:16px;border:1px solid var(--border);box-shadow:var(--shadow-3d)}
+.result-card h2{font-size:1.3rem;font-weight:800;margin-bottom:16px;color:var(--primary);display:flex;align-items:center;gap:8px}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.metric{text-align:center;padding:20px 16px;border-radius:var(--radius-sm);background:var(--panel);position:relative;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.04);transition:transform .25s}
+.metric:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.metric .bar-accent{position:absolute;top:0;left:0;width:100%;height:4px}
+.metric .label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sub);margin-bottom:6px}
+.metric .value{font-size:2.2rem;font-weight:900}
+.review-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.review-dot{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;cursor:pointer;border:none;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.review-dot:hover{transform:scale(1.12);box-shadow:0 4px 16px rgba(0,0,0,.15)}
+
+/* ── About / Footer ── */
+.about-section{max-width:800px;margin:0 auto;padding:0 16px 30px}
+.about-card{background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(106,90,249,.08));border:1px solid rgba(212,175,55,.35);border-radius:var(--radius);padding:26px;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:var(--shadow-3d)}
+.about-card .bg-icon{position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.05;line-height:1;pointer-events:none}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badge{padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;transition:transform .2s}
+.badge:hover{transform:translateY(-2px)}
+.share-footer{max-width:800px;margin:0 auto 30px;padding:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:var(--radius);text-align:center;border:1px solid rgba(233,69,96,.3);box-shadow:0 4px 24px rgba(233,69,96,.15)}
+.share-footer .title{color:#fff;font-weight:700;font-size:1rem;margin-bottom:6px}
+.share-footer .sub{color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:14px}
+.share-footer .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.share-btn{background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;text-decoration:none;padding:10px 22px;border-radius:25px;font-weight:700;font-size:.85rem;display:inline-flex;align-items:center;gap:7px;transition:all .25s;box-shadow:0 4px 16px rgba(233,69,96,.35)}
+.share-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 8px 28px rgba(233,69,96,.5)}
+
+/* ── Misc ── */
+#palette-overlay{display:none}
+
+/* ── Mobile (≤768px) ── */
+.hide-mobile{display:inline-flex}
+.show-mobile{display:none}
+@media(max-width:768px){
+  body{font-size:15px;-webkit-text-size-adjust:100%}
+  .a2z-bar{padding:8px 12px;gap:6px;min-height:48px}
+  .a2z-bar .logo-icon{width:28px;height:28px;font-size:14px;border-radius:8px}
+  .a2z-bar .logo-text .brand-name{font-size:.8rem}
+  .a2z-bar .logo-text .brand-sub{font-size:.62rem}
+  .a2z-bar .join-btn{padding:5px 10px;font-size:.68rem}
+  .hide-mobile{display:none!important}
+  .show-mobile{display:inline-flex!important}
+  #mock-screen{padding-top:0}
+  .mock-topbar{height:50px;padding:0 8px;gap:4px;border-bottom-width:2px}
+  .mock-topbar .title{font-size:.7rem;max-width:100px}
+  #lang-switch{padding:3px 6px;font-size:.65rem}
+  #timer-display{padding:4px 8px;font-size:.85rem;min-width:55px}
+  .btn-submit{padding:4px 10px!important;font-size:.7rem!important}
+  #palette-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:350;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+  #palette-overlay.show{display:block}
+  #palette-panel{position:fixed;right:0;top:50px;bottom:0;width:85vw;max-width:300px;z-index:400;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+  #palette-panel.open{transform:translateX(0)}
+  .palette-stats{padding:8px;gap:4px;font-size:.65rem}
+  .palette-section{padding:8px 12px;font-size:.7rem}
+  #palette-grid{grid-template-columns:repeat(5,1fr);gap:6px;padding:10px}
+  .palette-btn{font-size:.7rem;border-radius:8px}
+  .mock-content{flex-direction:column}
+  .question-area{flex:1;overflow:hidden;min-height:0}
+  #question-container{flex:1;overflow-y:auto;overflow-x:auto;margin:8px;padding:14px;border-radius:12px}
+  .question-text{font-size:1rem;line-height:1.5}
+  .option-btn{padding:12px 14px;margin:6px 0;font-size:.9rem;border-radius:10px}
+  .bottom-bar{height:auto;padding:8px 4px;gap:6px;flex-wrap:wrap;justify-content:center;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  .bottom-bar button{padding:12px 10px;font-size:.75rem;border-radius:10px;flex:1;min-width:0}
+  #home-screen .home-header-bg{padding:25px 16px 20px}
+  #home-screen .home-header-bg h1{font-size:1.3rem}
+  #home-screen .home-header-bg p{font-size:.75rem}
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .result-card{padding:16px}
+  .result-card h2{font-size:1.1rem}
+  .metric{padding:14px}
+  .metric .value{font-size:1.6rem}
+  .review-grid{grid-template-columns:repeat(5,1fr);gap:4px}
+  .review-dot{font-size:.65rem;border-radius:8px}
+  .about-card{padding:16px}
+  .about-card p{font-size:.82rem}
+  .about-card .badges{gap:6px}
+  .about-card .badge{font-size:.7rem;padding:4px 10px}
+  .share-footer{padding:14px}
+  .share-footer .title{font-size:.85rem}
+  .share-btn{padding:8px 16px;font-size:.75rem}
+  #confirm-modal > div{width:90%;padding:24px}
+  #confirm-modal h3{font-size:1.1rem}
+}
+@media(max-width:380px){
+  .mock-topbar{gap:2px}
+  #lang-switch{font-size:.6rem;padding:2px 4px}
+  #timer-display{font-size:.75rem;min-width:45px;padding:4px 6px}
+  .palette-btn{font-size:.6rem}
+}
+
+/* ── Dark Mode Comprehensive Overrides ── */
+[data-theme=dark] .glass{background:var(--glass);border-color:var(--glass-border)}
+[data-theme=dark] .card-3d{box-shadow:0 4px 24px rgba(0,0,0,.3),0 1px 4px rgba(0,0,0,.2)}
+[data-theme=dark] .card-3d:hover{box-shadow:0 12px 40px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3)}
+[data-theme=dark] #home-screen .home-header-bg::after{background:linear-gradient(to bottom,transparent,rgba(157,143,255,.08))}
+[data-theme=dark] #question-container{background:var(--panel)}
+[data-theme=dark] .question-text{color:#e2e8f0}
+[data-theme=dark] .option-btn{background:var(--panel);color:var(--text);border-color:var(--border)}
+[data-theme=dark] .option-btn:hover{background:rgba(157,143,255,.08);border-color:var(--primary)}
+[data-theme=dark] .option-btn.selected{background:linear-gradient(135deg,rgba(157,143,255,.2),rgba(157,143,255,.08));color:var(--primary);border-color:var(--primary)}
+[data-theme=dark] .option-btn.correct-show{background:linear-gradient(135deg,rgba(34,197,94,.2),rgba(34,197,94,.08));color:#4ade80;border-color:#22c55e}
+[data-theme=dark] .option-btn.wrong-show{background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.08));color:#fca5a5;border-color:#ef4444}
+[data-theme=dark] .explanation-box{background:rgba(157,143,255,.06);color:#cbd5e1}
+[data-theme=dark] .bottom-bar{background:var(--panel);box-shadow:0 -4px 20px rgba(0,0,0,.3)}
+[data-theme=dark] .btn-review{background:rgba(139,92,246,.2);color:#a78bfa}
+[data-theme=dark] .btn-clear{background:rgba(148,163,184,.15);color:#94a3b8}
+[data-theme=dark] .palette-stats{background:linear-gradient(180deg,var(--panel),rgba(0,0,0,.15))}
+[data-theme=dark] #palette-panel{box-shadow:-4px 0 24px rgba(0,0,0,.3)}
+[data-theme=dark] .result-card{box-shadow:0 4px 24px rgba(0,0,0,.25)}
+[data-theme=dark] .metric{background:var(--panel);border-color:var(--border)}
+[data-theme=dark] .about-card{background:linear-gradient(135deg,rgba(212,175,55,.06),rgba(157,143,255,.06))}
+[data-theme=dark] .instruction-card{background:var(--panel)!important}
+[data-theme=dark] .instruction-card p{color:var(--sub)!important}
+[data-theme=dark] .instruction-card li{color:var(--text)!important}
+</style>
+</head>
+<body>
+
+<!-- A2Z BRANDING BAR -->
+<header class="a2z-bar">
+  <div class="logo">
+    <div class="logo-icon">A</div>
+    <div class="logo-text">
+      <div class="brand-name">A2Z Updates4U</div>
+      <div class="brand-sub">FREE Mock Tests · Editorials · Vocab</div>
+    </div>
+  </div>
+  <a href="https://t.me/A2Zupdates4U" target="_blank" class="join-btn">📢 Join Channel</a>
+</header>
+
+<!-- HOME SCREEN -->
+<div id="home-screen" style="min-height:calc(100vh - 56px);display:flex;flex-direction:column;">
+  <div class="home-header-bg" style="text-align:center;padding:40px 20px 30px;border-bottom:3px solid var(--gold);position:relative;overflow:hidden;">
+    <div style="position:absolute;top:10%;left:8%;width:6px;height:6px;background:#fff;border-radius:50%;box-shadow:0 0 10px #fff,0 0 20px #fcf6ba;animation:twinkle 2s infinite"></div>
+    <div style="position:absolute;top:60%;right:12%;width:4px;height:4px;background:#fff;border-radius:50%;box-shadow:0 0 8px #fff,0 0 15px #fcf6ba;animation:twinkle 1.5s infinite .5s"></div>
+    <div style="position:absolute;top:80%;left:25%;width:5px;height:5px;background:#fff;border-radius:50%;box-shadow:0 0 10px #fff,0 0 18px #fcf6ba;animation:twinkle 2.2s infinite 1s"></div>
+    <h1 class="gold-text" style="font-size:2.2rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;">{{MOCK_TITLE}}</h1>
+    <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-top:8px;">{{SECTION_NAME}} &bull; {{TOTAL_QS}} Questions &bull; {{TIMER_MINUTES}} Minutes</p>
+  </div>
+
+  <div style="flex:1;max-width:700px;margin:0 auto;width:100%;padding:20px;">
+    <!-- Premium Unlock CTA -->
+    <div style="background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(233,69,96,.1));border:1px solid rgba(212,175,55,.4);border-radius:14px;padding:16px;margin-bottom:16px;text-align:center;">
+      <p style="font-weight:800;color:#d4af37;font-size:.9rem;margin-bottom:4px;">⚡ Unlock Unlimited Access</p>
+      <p style="color:var(--sub);font-size:.78rem;line-height:1.5;">
+        Invite 3 friends to @A2Zupdates4U and earn <b style="color:#d4af37;">Rank C</b> (300 XP) to unlock all mocks free.<br>
+        <span style="color:rgba(233,69,96,.8);">Limited beta — premium pricing launching soon.</span>
+      </p>
+      <a href="https://t.me/A2Zupdates4U_bot?start=inv" target="_blank" style="display:inline-block;margin-top:10px;padding:8px 20px;background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;border-radius:20px;text-decoration:none;font-weight:700;font-size:.8rem;box-shadow:0 4px 16px rgba(233,69,96,.3);">👥 Unlock Now</a>
+    </div>
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;" class="instruction-card">
+      <div style="background:#1a1a2e;color:#fff;padding:12px 20px;font-weight:700;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-clipboard-list"></i> Instructions
+      </div>
+      <div style="padding:20px;line-height:1.8;font-size:.9rem;color:var(--sub);">
+        <p style="font-weight:700;color:var(--text);margin-bottom:12px;">Please read the instructions carefully:</p>
+        <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+          <li>Total duration: <b>{{TIMER_MINUTES}} minutes</b>. Timer starts when you begin.</li>
+          <li><b>Red alert</b> flashes in the last 60 seconds. Test auto-submits when time expires.</li>
+          <li>Question palette on the right shows status: <span style="display:inline-flex;gap:6px;margin-left:4px;"><span style="width:22px;height:22px;border-radius:4px;background:#22c55e;color:#fff;text-align:center;line-height:22px;font-size:.65rem;font-weight:700;">✓</span> Answered <span style="width:22px;height:22px;border-radius:4px;background:#ef4444;color:#fff;text-align:center;line-height:22px;font-size:.65rem;font-weight:700;">✗</span> Not Answered <span style="width:22px;height:22px;border-radius:50%;background:#8b5cf6;color:#fff;text-align:center;line-height:22px;font-size:.65rem;font-weight:700;">M</span> Marked</span></li>
+          <li>You can mark questions for review and revisit them anytime.</li>
+        </ol>
+      </div>
+    </div>
+
+    <button onclick="startMock()" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:1.1rem;cursor:pointer;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 24px rgba(34,197,94,.4),0 0 0 0 rgba(34,197,94,.4);transition:all .25s cubic-bezier(.16,1,.3,1);" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(34,197,94,.5),0 0 0 4px rgba(34,197,94,.15)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 24px rgba(34,197,94,.4),0 0 0 0 rgba(34,197,94,.4)'">
+      I am ready to begin <i class="fas fa-arrow-right ml-2"></i>
+    </button>
+  </div>
+</div>
+
+<!-- COUNTDOWN OVERLAY -->
+<div id="countdown-overlay">
+  <div id="countdown-number" class="gold-text">5</div>
+  <div style="color:#d4af37;font-size:1.2rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;">Get Ready</div>
+</div>
+
+<!-- MOCK TEST SCREEN -->
+<div id="mock-screen">
+  <div class="mock-topbar">
+    <span class="title">{{MOCK_TITLE}}</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="hide-mobile lang-pill-group" id="lang-btns">
+        <button onclick="switchLanguage('en')" id="lang-en" class="lang-pill active">EN</button>
+        <button onclick="switchLanguage('hi')" id="lang-hi" class="lang-pill">HI</button>
+        <button onclick="switchLanguage('both')" id="lang-both" class="lang-pill">Both</button>
+      </div>
+      <button onclick="toggleTheme()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;" title="Dark/Light">🌓</button>
+      <button onclick="togglePalette()" class="show-mobile" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;"><i class="fas fa-th"></i></button>
+      <div id="timer-display">{{TIMER_MINUTES}}:00</div>
+      <button onclick="confirmSubmit()" class="btn-submit" style="padding:6px 16px;font-size:.8rem;">Submit</button>
+    </div>
+  </div>
+  <div class="mock-content">
+    <div class="question-area">
+      <div id="question-container"><div style="text-align:center;padding:40px;color:var(--sub);">Loading questions...</div></div>
+      <div class="bottom-bar">
+        <button class="btn-review" onclick="markForReview()"><i class="fas fa-bookmark mr-1"></i><span class="hide-mobile">Mark for Review</span><span class="show-mobile">Review</span></button>
+        <button class="btn-clear" onclick="clearResponse()"><i class="fas fa-eraser mr-1"></i><span class="hide-mobile">Clear Response</span><span class="show-mobile">Clear</span></button>
+        <button class="btn-save" onclick="saveAndNext()">Save & Next <i class="fas fa-chevron-right ml-1"></i></button>
+        <button class="btn-submit show-mobile" onclick="confirmSubmit()">📤 Submit</button>
+      </div>
+    </div>
+    <div id="palette-overlay" onclick="togglePalette()"></div>
+    <div id="palette-panel">
+      <div class="palette-stats">
+        <div><span class="dot btn-answered" id="cnt-answered">0</span> Answered</div>
+        <div><span class="dot btn-not-answered" id="cnt-not-answered">{{TOTAL_QS}}</span> Not Answered</div>
+        <div><span class="dot btn-marked" id="cnt-marked">0</span> Marked</div>
+        <div><span class="dot btn-not-visited" id="cnt-not-visited">{{TOTAL_QS}}</span> Not Visited</div>
+      </div>
+      <div class="palette-section">{{SECTION_NAME}} <span style="opacity:.7;font-size:.7rem;margin-left:auto;">{{TOTAL_QS}} Qs</span></div>
+      <div id="palette-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT CONFIRMATION MODAL -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.85);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--panel);border-radius:20px;padding:32px;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+    <div style="font-size:3rem;margin-bottom:12px;">📋</div>
+    <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Submit Test?</h3>
+    <p style="color:var(--sub);font-size:.9rem;margin-bottom:20px;">You have <b><span id="confirm-unanswered">0</span> unanswered</b> questions. Submit anyway?</p>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeConfirm()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--panel);font-weight:600;cursor:pointer;">Review</button>
+      <button onclick="submitMock()" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen">
+  <div class="result-card" style="text-align:center;">
+    <div style="font-size:3rem;margin-bottom:8px;">🎯</div>
+    <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:4px;">Test Complete</h1>
+    <p style="color:var(--sub);">{{MOCK_TITLE}}</p>
+  </div>
+
+  <div class="result-card">
+    <h2><i class="fas fa-chart-bar mr-2"></i>Performance Summary</h2>
+    <div class="metrics-grid">
+      <div class="metric"><div class="bar-accent" style="background:var(--gold);"></div><div class="label">Score</div><div class="value" style="color:var(--gold-dark);" id="res-score">0</div></div>
+      <div class="metric"><div class="bar-accent" style="background:var(--primary);"></div><div class="label">Correct</div><div class="value" style="color:var(--primary);" id="res-correct">0</div></div>
+      <div class="metric"><div class="bar-accent" style="background:#ef4444;"></div><div class="label">Wrong</div><div class="value" style="color:#ef4444;" id="res-wrong">0</div></div>
+      <div class="metric"><div class="bar-accent" style="background:#22c55e;"></div><div class="label">Accuracy</div><div class="value" style="color:#22c55e;" id="res-accuracy">0%</div></div>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:#f1f5f9;border-radius:10px;display:flex;justify-content:space-around;text-align:center;">
+      <div><div style="font-size:.7rem;color:var(--sub);font-weight:600;">TIME TAKEN</div><div style="font-weight:800;font-size:1.1rem;" id="res-time">0:00</div></div>
+      <div><div style="font-size:.7rem;color:var(--sub);font-weight:600;">ATTEMPTED</div><div style="font-weight:800;font-size:1.1rem;" id="res-attempted">0</div></div>
+      <div><div style="font-size:.7rem;color:var(--sub);font-weight:600;">SKIPPED</div><div style="font-weight:800;font-size:1.1rem;" id="res-skipped">0</div></div>
+    </div>
+  </div>
+
+  <div class="result-card">
+    <h2><i class="fas fa-list-check mr-2"></i>Question Review</h2>
+    <div class="review-grid" id="review-grid"></div>
+    <div id="review-detail" style="margin-top:16px;"></div>
+  </div>
+
+  <button onclick="location.reload()" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--primary),#5041d5);color:#fff;font-weight:800;font-size:1.05rem;cursor:pointer;margin-bottom:12px;">🏠 Back to Home</button>
+  <button onclick="submitToBot()" id="submit-bot-btn" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;font-weight:800;font-size:1.05rem;cursor:pointer;margin-bottom:20px;box-shadow:0 4px 20px rgba(233,69,96,.4);">📤 Submit Results to Bot</button>
+</div>
+
+<!-- ABOUT SECTION -->
+<div class="about-section" id="about-section" style="display:none;">
+  <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:16px;color:var(--primary);padding:0 4px;"><i class="fas fa-info-circle mr-2"></i>About A2Z Updates4U</h2>
+
+  <!-- Founder Story -->
+  <div class="about-card">
+    <div class="bg-icon">🏆</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;position:relative;z-index:1;">
+      <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#8b1a1a);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(212,175,55,.4);">R</div>
+      <div>
+        <div style="font-weight:800;font-size:1.05rem;">Rahul Best</div>
+        <div style="color:#d4af37;font-size:.8rem;">Founder &amp; Creator &nbsp;·&nbsp; <span style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">SSC CGL AIR 209 🏆</span></div>
+      </div>
+    </div>
+    <p style="line-height:1.9;font-size:.9rem;margin-bottom:14px;position:relative;z-index:1;">
+      <b style="color:#d4af37;">A2Z Updates4U</b> was born from a single student's obsession with cracking India's toughest competitive exams. <b>Rahul Best</b> spent years grinding through newspaper editorials every single morning, building vocabulary flashcard by flashcard, and decoding idioms that left most students stumped. His secret? He turned every editorial into a structured study session — exactly what this tool does for you.
+    </p>
+    <p style="line-height:1.9;font-size:.9rem;margin-bottom:14px;position:relative;z-index:1;">
+      That obsession paid off. Rahul cleared <b>SSC CGL with an All India Rank of 209</b> — placing him among the top exam toppers in the country. His English section score was near-perfect, powered entirely by the vocabulary and editorial reading habits he had built over years.
+    </p>
+    <p style="line-height:1.9;font-size:.9rem;position:relative;z-index:1;">
+      After his selection, Rahul decided he couldn't keep these battle-tested techniques to himself. He built <b>A2Z Updates4U</b> so that every serious aspirant could access the same powerful study system — completely free. If it got him to <b>AIR 209</b>, imagine what it can do for you. 🚀
+    </p>
+    <div class="badges">
+      <span class="badge" style="background:rgba(245,158,11,.15);border:1px solid #f59e0b;color:#fbbf24;">🏆 SSC CGL</span>
+      <span class="badge" style="background:rgba(201,146,42,.12);border:1px solid #8b5cf6;color:#d4a843;">📊 AIR 209</span>
+      <span class="badge" style="background:rgba(34,197,94,.15);border:1px solid #22c55e;color:#4ade80;">📰 Daily Editorial Reader</span>
+      <span class="badge" style="background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#fca5a5;">📚 5000+ Vocab Mastered</span>
+    </div>
+  </div>
+
+  <!-- Feature Cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:24px;">
+    <!-- Vocab Card -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 4px 16px rgba(0,0,0,.06);">
+      <div style="font-size:2rem;margin-bottom:8px;">📚</div>
+      <h3 style="color:var(--primary);margin-bottom:10px;font-size:1.1rem;font-weight:800;">Vocabulary Builder Bot</h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--sub);">
+        Add any English word and instantly get its <strong style="color:var(--text);">meaning in English &amp; Hindi</strong>, synonyms, antonyms, phonetics, a <strong style="color:var(--text);">root-based mnemonic</strong> to never forget it, and an example sentence. Export your entire word list as a beautiful HTML flashcard set with mock tests &amp; mind maps!
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--sub);">
+        <li>🔤 Word meaning in EN + HI</li>
+        <li>🧠 Memory mnemonic (root-based)</li>
+        <li>🃏 Flashcard practice</li>
+        <li>🧪 Mock vocabulary test</li>
+        <li>🗺️ Mind map of word tones</li>
+      </ul>
+    </div>
+    <!-- Editorial Card -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 4px 16px rgba(0,0,0,.06);">
+      <div style="font-size:2rem;margin-bottom:8px;">📰</div>
+      <h3 style="color:var(--primary);margin-bottom:10px;font-size:1.1rem;font-weight:800;">Daily Editorial Study</h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--sub);">
+        Every day we post The Hindu &amp; Indian Express editorials transformed into a <strong style="color:var(--text);">complete study package</strong>. Difficult words are highlighted and explained, idioms are listed, and you get full Hindi translation paragraph by paragraph.
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--sub);">
+        <li>🔴 Tough words highlighted in red</li>
+        <li>💬 Idioms &amp; fixed phrases</li>
+        <li>🇮🇳 Word-by-word Hindi translation</li>
+        <li>✏️ Cloze Test (fill in the blank)</li>
+        <li>🧪 Vocabulary MCQ</li>
+        <li>🔀 Para Jumble with ordering options</li>
+      </ul>
+    </div>
+    <!-- A2Z Mocks Card -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:0 4px 16px rgba(0,0,0,.06);">
+      <div style="font-size:2rem;margin-bottom:8px;">📝</div>
+      <h3 style="color:var(--primary);margin-bottom:10px;font-size:1.1rem;font-weight:800;">A2Z MCQ Mocks</h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--sub);">
+        Practice with <strong style="color:var(--text);">premium timed mock tests</strong> built for competitive exams. Every mock comes with a full question palette, instant scoring, accuracy tracking, and question-by-question review — just like the real exam.
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--sub);">
+        <li>⏱ Timed test with countdown</li>
+        <li>🎨 Live question palette</li>
+        <li>🌐 EN / HI / Both language modes</li>
+        <li>🔖 Mark &amp; review answers</li>
+        <li>📊 Instant score &amp; accuracy</li>
+        <li>🔍 Full question-by-question review</li>
+        <li>🌓 Dark &amp; Light mode</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Share CTA Block -->
+  <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#1a1a2e,#0f3460);border-radius:16px;border:1px solid rgba(233,69,96,.3);margin-bottom:12px;">
+    <p style="color:rgba(255,255,255,.8);font-size:.92rem;margin-bottom:16px;line-height:1.6;">
+      Found this helpful? Share it with your friends and study partners! 🎯
+    </p>
+    <a href="https://t.me/share/url?url=https://t.me/A2ZUpdates4U&text=%F0%9F%93%9D%20FREE%20Mock%20Tests%20by%20A2Z%20Updates4U%20%F0%9F%9A%80%0A%0ATake%20premium%20MCQ%20mock%20tests%20with%3A%0A%E2%8F%B1%20Timer%20%26%20Countdown%0A%F0%9F%8E%A8%20Question%20Palette%20with%20status%0A%F0%9F%8C%90%20EN%2FHI%2FBoth%20language%20mode%0A%F0%9F%94%96%20Mark%20for%20Review%0A%F0%9F%93%8A%20Instant%20Results%20%2B%20Accuracy%0A%F0%9F%94%8D%20Question-by-Question%20Review%0A%F0%9F%8C%93%20Dark%2FLight%20Mode%0A%0A%F0%9F%8E%AF%20Perfect%20for%20SSC%20CGL%2C%20UPSC%2C%20IBPS%2C%20CAT%20%26%20all%20exams!%0A%0A%F0%9F%8F%86%20Founded%20by%20Rahul%20Best%20%E2%80%94%20SSC%20CGL%20AIR%20209%0A%F0%9F%91%89%20Join%20FREE%3A%20https%3A%2F%2Ft.me%2FA2ZUpdates4U" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;font-weight:700;font-size:.95rem;box-shadow:0 4px 20px rgba(233,69,96,.4);transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      ✈️ Share on Telegram
+    </a>
+    <a href="https://wa.me/?text=%F0%9F%93%9D%20FREE%20Mock%20Tests%20by%20A2Z%20Updates4U%20%F0%9F%9A%80%0A%0A%E2%8F%B1%20Timer%20%26%20Countdown%0A%F0%9F%8E%A8%20Question%20Palette%0A%F0%9F%8C%90%20EN%2FHI%2FBoth%20language%0A%F0%9F%94%96%20Mark%20for%20Review%0A%F0%9F%93%8A%20Instant%20Results%0A%F0%9F%94%8D%20Question%20Review%0A%F0%9F%8C%93%20Dark%2FLight%20Mode%0A%0A%F0%9F%8E%AF%20SSC%20CGL%20%7C%20UPSC%20%7C%20IBPS%20%7C%20CAT%0A%0A%F0%9F%8F%86%20Rahul%20Best%20-%20SSC%20CGL%20AIR%20209%0A%F0%9F%91%89%20Join%20FREE%3A%20https%3A%2F%2Ft.me%2FA2ZUpdates4U" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;font-weight:700;font-size:.95rem;box-shadow:0 4px 20px rgba(37,211,102,.35);margin-top:10px;transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      📲 Share on WhatsApp
+    </a>
+    <p style="color:rgba(255,255,255,.4);font-size:.75rem;margin-top:10px;">
+      Opens Telegram with a pre-filled message to forward to friends
+    </p>
+  </div>
+</div>
+
+<!-- SHARE FOOTER -->
+<div class="share-footer" id="share-footer">
+  <div class="title">Powered by A2Z Updates4U</div>
+  <div class="sub">Daily Mock Tests &bull; Editorials &bull; Vocab &bull; Current Affairs</div>
+  <div class="btns">
+    <a href="https://t.me/A2Zupdates4U" target="_blank" class="share-btn">📢 A2Z Updates Channel</a>
+    <a href="https://t.me/A2Zupdates4uLounge" target="_blank" class="share-btn" style="background:linear-gradient(135deg,#0f3460,#16213e);border:1px solid rgba(233,69,96,.4);">📚 Vocab Bot Lounge</a>
+  </div>
+</div>
+
+<script>
+// ========== QUESTIONS DATA ==========
+const QUESTIONS = {{QUESTIONS_JSON}};
+const TOTAL_QS = QUESTIONS.length;
+const TOTAL_SECONDS = {{TIMER_MINUTES}} * 60;
+
+// ========== LANGUAGE STATE ==========
+let currentLang = 'en';  // 'en', 'hi', 'both'
+
+function getText(q, lang) {
+  if (lang === 'hi' && q.text_hi) return q.text_hi;
+  if (lang === 'en') return q.text;
+  // both: show EN then HI if available
+  if (lang === 'both' && q.text_hi) return q.text + '<br><span style="font-size:.85rem;color:#64748b;">' + q.text_hi + '</span>';
+  return q.text;
+}
+
+function getOptions(q, lang) {
+  if (lang === 'hi' && q.options_hi && q.options_hi.length > 0) return q.options_hi;
+  return q.options;
+}
+
+function getExplanation(q, lang) {
+  if (mockEnded) {
+    if (lang === 'both' && q.explanation_hi) {
+      return '<div class="explanation-box">' + q.explanation + '<hr style="margin:10px 0;opacity:.3">' + q.explanation_hi + '</div>';
+    }
+    if (lang === 'hi' && q.explanation_hi) return '<div class="explanation-box">' + q.explanation_hi + '</div>';
+  }
+  if (mockEnded && q.explanation) return '<div class="explanation-box">' + q.explanation + '</div>';
+  return '';
+}
+
+function switchLanguage(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-pill').forEach(b => b.classList.remove('active'));
+  let activeBtn = document.getElementById('lang-' + lang);
+  if (activeBtn) activeBtn.classList.add('active');
+  renderQuestion(currentIdx);
+}
+
+// ========== STATE ==========
+let currentIdx = 0;
+let answers = {};
+let visited = {};
+let marked = {};
+let timerInterval = null;
+let timeLeft = TOTAL_SECONDS;
+let mockStarted = false;
+let mockEnded = false;
+let questionTimings = [];       // per-question time spent in ms
+let questionEntryTime = 0;     // performance.now() when current question was shown
+let mockId = '';               // from meta tag
+
+function startMock() {
+  mockId = document.querySelector('meta[name="a2z-mock-id"]')?.content || '';
+  document.getElementById('home-screen').style.display = 'none';
+  let overlay = document.getElementById('countdown-overlay');
+  overlay.style.display = 'flex';
+  let numEl = document.getElementById('countdown-number');
+  let count = 5;
+  numEl.textContent = count;
+  let cd = setInterval(() => {
+    count--;
+    if (count <= 0) { clearInterval(cd); overlay.style.display = 'none'; beginTest(); return; }
+    numEl.textContent = count;
+  }, 700);
+}
+
+function beginTest() {
+  document.getElementById('mock-screen').style.display = 'flex';
+  document.getElementById('about-section').style.display = 'none';
+  document.getElementById('share-footer').style.display = 'none';
+  buildPalette();
+  renderQuestion(0);
+  startTimer();
+}
+
+function startTimer() {
+  mockStarted = true;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    let td = document.getElementById('timer-display');
+    if (timeLeft <= 60 && timeLeft > 0) {
+      td.style.background = 'rgba(239,68,68,.3)';
+      td.style.color = '#fca5a5';
+      td.style.borderColor = 'rgba(239,68,68,.6)';
+    }
+    if (timeLeft <= 0) { clearInterval(timerInterval); submitMock(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  let m = Math.floor(timeLeft / 60);
+  let s = timeLeft % 60;
+  document.getElementById('timer-display').textContent = m + ':' + String(s).padStart(2, '0');
+}
+
+function buildPalette() {
+  let grid = document.getElementById('palette-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < TOTAL_QS; i++) {
+    let btn = document.createElement('button');
+    btn.className = 'palette-btn btn-not-visited';
+    btn.textContent = (i + 1);
+    btn.title = 'Not Visited';
+    btn.onclick = () => { renderQuestion(i); };
+    btn.id = 'pal-' + i;
+    grid.appendChild(btn);
+  }
+  updatePaletteStats();
+}
+
+function updatePalette() {
+  for (let i = 0; i < TOTAL_QS; i++) {
+    let btn = document.getElementById('pal-' + i);
+    if (!btn) continue;
+    btn.className = 'palette-btn';
+    if (marked[i]) {
+      btn.className += ' btn-marked';
+      btn.title = 'Marked for Review';
+      btn.innerHTML = (i+1) + '<span style="display:block;font-size:.4rem;line-height:1;">🔖</span>';
+    } else if (answers[i] !== undefined) {
+      btn.className += ' btn-answered';
+      btn.title = 'Answered';
+      btn.innerHTML = (i+1) + '<span style="display:block;font-size:.4rem;line-height:1;">✓</span>';
+    } else if (visited[i]) {
+      btn.className += ' btn-not-answered';
+      btn.title = 'Not Answered';
+      btn.innerHTML = (i+1) + '<span style="display:block;font-size:.4rem;line-height:1;">⚠</span>';
+    } else {
+      btn.className += ' btn-not-visited';
+      btn.title = 'Not Visited';
+      btn.textContent = (i + 1);
+    }
+    if (i === currentIdx) btn.classList.add('current');
+  }
+  updatePaletteStats();
+}
+
+function updatePaletteStats() {
+  let an = 0, na = 0, mk = 0, nv = 0;
+  for (let i = 0; i < TOTAL_QS; i++) {
+    if (marked[i]) mk++;
+    else if (answers[i] !== undefined) an++;
+    else if (visited[i]) na++;
+    else nv++;
+  }
+  document.getElementById('cnt-answered').textContent = an;
+  document.getElementById('cnt-not-answered').textContent = na;
+  document.getElementById('cnt-marked').textContent = mk;
+  document.getElementById('cnt-not-visited').textContent = nv;
+}
+
+function togglePalette() {
+  document.getElementById('palette-panel').classList.toggle('open');
+  let overlay = document.getElementById('palette-overlay');
+  if (overlay) overlay.classList.toggle('show');
+}
+
+function renderQuestion(idx) {
+  if (idx < 0 || idx >= TOTAL_QS) return;
+  // Record time spent on previous question
+  if (questionEntryTime > 0) {
+    let spent = performance.now() - questionEntryTime;
+    questionTimings[currentIdx] = (questionTimings[currentIdx] || 0) + spent;
+  }
+  currentIdx = idx;
+  visited[idx] = true;
+  let q = QUESTIONS[idx];
+  let container = document.getElementById('question-container');
+  let html = '<div class="fade-in">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+  html += '<span style="font-weight:700;color:var(--sub);font-size:.8rem;">Question ' + (idx + 1) + ' of ' + TOTAL_QS + '</span>';
+  let status = '';
+  if (marked[idx]) status = '<span style="background:#ede9fe;color:#6d28d9;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;">🔖 Marked</span>';
+  else if (answers[idx] !== undefined) status = '<span style="background:#f0fdf4;color:#166534;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;">✓ Answered</span>';
+  else status = '<span style="background:#fef2f2;color:#991b1b;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;">⚠ Not Answered</span>';
+  html += status + '</div>';
+  html += '<div class="question-text">' + getText(q, currentLang) + '</div>';
+
+  let opts = getOptions(q, currentLang);
+  if (opts && opts.length > 0) {
+    let labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    for (let oi = 0; oi < opts.length; oi++) {
+      let cls = 'option-btn';
+      if (answers[idx] === oi) cls += ' selected';
+      if (mockEnded) {
+        if (oi === q.correctIndex) cls += ' correct-show';
+        else if (answers[idx] === oi && oi !== q.correctIndex) cls += ' wrong-show';
+      }
+      html += '<button class="' + cls + '" onclick="selectOption(' + idx + ',' + oi + ')"' + (mockEnded ? ' disabled' : '') + '>';
+      html += '<b style="margin-right:10px;display:inline-block;width:22px;height:22px;border-radius:50%;border:2px solid #cbd5e1;text-align:center;line-height:18px;font-size:.75rem;">' + labels[oi] + '</b>';
+      html += opts[oi] + '</button>';
+    }
+  }
+
+  html += getExplanation(q, currentLang);
+
+  html += '</div>';
+  container.innerHTML = html;
+  updatePalette();
+  questionEntryTime = performance.now();
+}
+
+function selectOption(qIdx, optIdx) {
+  if (mockEnded) return;
+  answers[qIdx] = optIdx;
+  if (marked[qIdx]) delete marked[qIdx];
+  renderQuestion(qIdx);
+}
+
+function saveAndNext() {
+  let next = currentIdx + 1;
+  if (next >= TOTAL_QS) next = 0;
+  renderQuestion(next);
+}
+
+function clearResponse() {
+  delete answers[currentIdx];
+  renderQuestion(currentIdx);
+}
+
+function markForReview() {
+  marked[currentIdx] = !marked[currentIdx];
+  if (marked[currentIdx]) delete answers[currentIdx];
+  renderQuestion(currentIdx);
+}
+
+function confirmSubmit() {
+  if (mockEnded) return;
+  let unanswered = 0;
+  for (let i = 0; i < TOTAL_QS; i++) { if (answers[i] === undefined && !marked[i]) unanswered++; }
+  document.getElementById('confirm-unanswered').textContent = unanswered;
+  document.getElementById('confirm-modal').style.display = 'flex';
+}
+
+function closeConfirm() { document.getElementById('confirm-modal').style.display = 'none'; }
+
+function submitMock() {
+  if (mockEnded) return;
+  mockEnded = true;
+  clearInterval(timerInterval);
+  document.getElementById('confirm-modal').style.display = 'none';
+  document.getElementById('mock-screen').style.display = 'none';
+  showResults();
+}
+
+function showResults() {
+  let correct = 0, wrong = 0, skipped = 0, attempted = 0;
+  for (let i = 0; i < TOTAL_QS; i++) {
+    if (answers[i] !== undefined) {
+      attempted++;
+      if (answers[i] === QUESTIONS[i].correctIndex) correct++; else wrong++;
+    } else { skipped++; }
+  }
+  let accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+  let timeTaken = TOTAL_SECONDS - timeLeft;
+  let tm = Math.floor(timeTaken / 60), ts = timeTaken % 60;
+
+  document.getElementById('res-score').textContent = correct + '/' + TOTAL_QS;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-accuracy').textContent = accuracy + '%';
+  document.getElementById('res-time').textContent = tm + ':' + String(ts).padStart(2, '0');
+  document.getElementById('res-attempted').textContent = attempted;
+  document.getElementById('res-skipped').textContent = skipped;
+
+  let grid = document.getElementById('review-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < TOTAL_QS; i++) {
+    let dot = document.createElement('button');
+    dot.className = 'review-dot';
+    dot.textContent = (i + 1);
+    if (answers[i] !== undefined) {
+      dot.className += (answers[i] === QUESTIONS[i].correctIndex) ? ' btn-answered' : ' btn-not-answered';
+    } else { dot.className += ' btn-not-visited'; }
+    dot.onclick = () => showReviewDetail(i);
+    grid.appendChild(dot);
+  }
+
+  document.getElementById('result-screen').style.display = 'block';
+  document.getElementById('about-section').style.display = 'block';
+  document.getElementById('share-footer').style.display = 'block';
+  window.scrollTo(0, 0);
+  showReviewDetail(0);
+}
+
+function showReviewDetail(idx) {
+  let q = QUESTIONS[idx];
+  let detail = document.getElementById('review-detail');
+  let labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  let html = '<div class="result-card fade-in">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+  html += '<b>Question ' + (idx + 1) + '</b>';
+  if (answers[idx] !== undefined) {
+    html += (answers[idx] === q.correctIndex) ? '<span style="color:#22c55e;font-weight:700;">✓ Correct</span>' : '<span style="color:#ef4444;font-weight:700;">✗ Wrong</span>';
+  } else { html += '<span style="color:var(--sub);font-weight:700;">— Skipped</span>'; }
+  html += '</div>';
+  html += '<div class="question-text" style="font-size:.95rem;">' + getText(q, currentLang) + '</div>';
+  let opts = getOptions(q, currentLang);
+  if (opts && opts.length > 0) {
+    for (let oi = 0; oi < opts.length; oi++) {
+      let cls = 'option-btn';
+      if (oi === q.correctIndex) cls += ' correct-show';
+      else if (answers[idx] === oi && oi !== q.correctIndex) cls += ' wrong-show';
+      html += '<button class="' + cls + '" disabled><b style="margin-right:8px;">' + labels[oi] + '.</b>' + opts[oi] + '</button>';
+    }
+  }
+  html += getExplanation(q, currentLang);
+  // Show per-question timing in review
+  if (questionTimings[idx] !== undefined) {
+    let qtSec = Math.round(questionTimings[idx] / 1000);
+    let bestTimeSec = Math.round((questionTimings[idx] || 0) / 1000);
+    html += '<div style="margin-top:8px;font-size:.7rem;color:var(--sub);">⏱ Time spent: ' + qtSec + 's</div>';
+  }
+  html += '</div>';
+  detail.innerHTML = html;
+  detail.scrollIntoView({ behavior: 'smooth' });
+}
+// ========== THEME ==========
+function submitToBot() {
+  let correct = parseInt(document.getElementById('res-correct').textContent) || 0;
+  let wrong = parseInt(document.getElementById('res-wrong').textContent) || 0;
+  let skipped = parseInt(document.getElementById('res-skipped').textContent) || 0;
+  let accuracy = parseInt(document.getElementById('res-accuracy').textContent) || 0;
+  let totalScore = correct;
+  let timeTaken = TOTAL_SECONDS - timeLeft;
+
+  // Build per-question timing string
+  let qtimes = [];
+  for (let i = 0; i < TOTAL_QS; i++) {
+    qtimes.push(Math.round((questionTimings[i] || 0) / 1000));
+  }
+  let qtimesStr = qtimes.join('-');
+
+  let deepLink = 'https://t.me/A2Zupdates4U_bot?start=submit_' + mockId +
+    '_score-' + totalScore +
+    '_time-' + Math.round(timeTaken) +
+    '_acc-' + accuracy +
+    '_correct-' + correct +
+    '_wrong-' + wrong +
+    '_skipped-' + skipped +
+    '_qtimes_' + qtimesStr;
+
+  document.getElementById('submit-bot-btn').textContent = '⏳ Opening bot...';
+  document.getElementById('submit-bot-btn').disabled = true;
+  window.open(deepLink, '_blank');
+}
+
+function toggleTheme() {
+  let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+}
+// ========== INIT ==========
+(function init() {
+  let hasHi = QUESTIONS.some(q => q.text_hi || q.options_hi);
+  if (!hasHi) {
+    let hiBtn = document.getElementById('lang-hi');
+    let bothBtn = document.getElementById('lang-both');
+    if (hiBtn) { hiBtn.style.opacity = '0.4'; hiBtn.title = 'No Hindi text in this mock'; hiBtn.onclick = null; }
+    if (bothBtn) { bothBtn.style.opacity = '0.4'; bothBtn.title = 'No Hindi text in this mock'; bothBtn.onclick = null; }
+  }
+})();
+</script>
+
+</body>
+</html>

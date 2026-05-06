@@ -1,0 +1,2162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>@Night-NewBie</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --primary: #6a5af9; --secondary: #5041d5; --accent: #f72585;
+    --bg-light: #f4f7fc; --bg-dark: #161925;
+    --surface-light: #ffffff; --surface-dark: #232a40;
+    --text-light: #212529; --text-dark: #e8eaed;
+    --border-light: rgba(0, 0, 0, 0.1); --border-dark: rgba(255, 255, 255, 0.1);
+    --glass-light: rgba(255, 255, 255, 0.7); --glass-dark: rgba(35, 42, 64, 0.7);
+    --success: #20c997; --danger: #e63946; --warning: #ffb703; --info: #0096c7;
+
+    /* Dynamic Font Size Variable - Default 16px */
+    --dynamic-size: 16px;
+  }
+
+  html {
+      font-size: 14px; 
+      -webkit-text-size-adjust: 100%;
+      height: 100%;
+  }
+
+  * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent; 
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    margin: 0;
+    transition: background-color 0.3s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden; 
+    height: 100%;
+    min-height: 100vh; 
+    min-height: -webkit-fill-available;
+  }
+  body.dark-mode {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  /* --- Home Screen --- */
+  #home-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    padding: 0 !important; 
+    overflow-y: auto;
+  }
+  .home-header {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+  }
+  .home-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 2rem 1rem; 
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    background-color: var(--surface-light);
+  }
+  body.dark-mode .home-card {
+    background-color: var(--surface-dark);
+    border-color: var(--border-dark);
+  }
+
+  /* Inner wrapper to keep text centered and readable */
+  .home-content-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+  }
+
+  .home-card h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+  }
+  .test-details p {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.8rem;
+  }
+  body.dark-mode .test-details p {
+      border-bottom-color: var(--border-dark);
+  }
+  .test-details p span:first-child {
+      font-weight: 500;
+      opacity: 0.8;
+      white-space: nowrap;
+      margin-right: 15px;
+  }
+  .test-details p span:last-child {
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word; 
+  }
+  #startQuizBtn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      touch-action: manipulation;
+      margin-top: 10px;
+  }
+   #startQuizBtn:hover {
+      background-color: var(--secondary);
+   }
+  .home-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 30px;
+      font-weight: 600;
+      opacity: 0.9;
+      font-size: 0.9rem;
+  }
+  .home-footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+  }
+  .home-footer a:hover {
+      color: var(--primary);
+      text-decoration: underline;
+  }
+
+
+  /* --- Main Layout --- */
+  .quiz-layout {
+    display: block; 
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* MAIN CONTAINER */
+  .quiz-main {
+    padding: 0; 
+    position: relative;
+    height: 100vh; 
+    height: 100dvh; 
+    overflow: hidden; 
+    display: flex;
+    flex-direction: column;
+    width: 100%; 
+  }
+
+  /* --- POPUP MODAL FOR PALETTE (Replaces Sidebar) --- */
+  
+  .palette-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2000;
+      background-color: rgba(0, 0, 0, 0.7); 
+
+      display: flex; 
+      justify-content: center;
+      align-items: center;
+
+      
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+
+      
+      transition: opacity 0.2s ease-out, visibility 0s linear 0.2s;
+      will-change: opacity;
+  }
+
+  .palette-modal.show {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 0.2s ease-out, visibility 0s linear 0s; 
+  }
+
+  .palette-content-box {
+      width: 90%;
+      max-width: 380px; 
+      max-height: 85vh;
+      background-color: var(--surface-light);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+
+      /* Optimised transform animation */
+      transform: scale(0.95) translate3d(0, 10px, 0);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform;
+      backface-visibility: hidden;
+  }
+  .palette-modal.show .palette-content-box {
+      transform: scale(1) translate3d(0, 0, 0);
+  }
+  body.dark-mode .palette-content-box {
+      background-color: var(--surface-dark);
+      border: 1px solid var(--border-dark);
+  }
+
+  .palette-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-light);
+  }
+  body.dark-mode .palette-header {
+      border-bottom-color: var(--border-dark);
+      background: var(--bg-dark);
+  }
+
+  .palette-body {
+      padding: 15px;
+      overflow-y: auto;
+      flex-grow: 1;
+  }
+
+  .palette-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-light);
+      background: var(--bg-light);
+  }
+  body.dark-mode .palette-footer {
+      border-top-color: var(--border-dark);
+      background: var(--bg-dark);
+  }
+
+
+  /* --- Shared Card Style --- */
+  .card-ui {
+    background-color: var(--surface-light);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  body.dark-mode .card-ui {
+    background-color: var(--surface-dark);
+    border-color: var(--border-dark);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* --- Integrated Sidebar Blocks --- */
+  .sidebar-section {
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-light);
+      margin-bottom: 15px;
+  }
+  body.dark-mode .sidebar-section { border-bottom-color: var(--border-dark); }
+  .sidebar-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .timer-box { text-align: center; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 10px; }
+  body.dark-mode .timer-box { background: rgba(255,255,255,0.05); }
+  .timer-display { font-size: 1.8rem; font-weight: 700; letter-spacing: 2px; line-height: 1; margin-bottom: 5px; }
+  #timeProgress { height: 6px; border-radius: 3px; }
+
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px; }
+  .stat-item { 
+      text-align: center; 
+      background: rgba(0,0,0,0.03); 
+      padding: 4px 2px; 
+      border-radius: 6px; 
+  }
+  body.dark-mode .stat-item { background: rgba(255,255,255,0.05); }
+  .stat-item .value { font-weight: 700; font-size: 0.9rem; line-height: 1.2; } 
+  .stat-item .label { font-size: 0.65rem; opacity: 0.7; }
+  .value.correct { color: var(--success); }
+  .value.incorrect { color: var(--danger); }
+  .value.marked { color: var(--info); }
+  .value.unattempted { color: var(--warning); }
+
+
+  /* --- Main Content Area --- */
+  .quiz-main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    flex-shrink: 0; 
+    background-color: var(--bg-light);
+    z-index: 10;
+    border-bottom: 1px solid transparent;
+  }
+  body.dark-mode .quiz-main-header {
+      background-color: var(--bg-dark);
+  }
+
+  /* Header Timer Style */
+  .header-timer {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-left: 15px;
+      margin-right: auto;
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s;
+  }
+  .header-timer:active { transform: scale(0.95); opacity: 0.8; }
+  .header-timer::after { content: '⛶'; font-size: 0.8em; margin-left: 5px; opacity: 0.5; vertical-align: middle; }
+
+  /* Trigger Button for Palette - Visible on All Screens */
+  .palette-trigger { 
+      background: none; 
+      border: none; 
+      font-size: 1.375rem; 
+      color: var(--text-light); 
+      padding: 5px; 
+      cursor: pointer; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+  body.dark-mode .palette-trigger { color: var(--text-dark); }
+  .palette-trigger:hover { color: var(--primary); }
+
+  /* --- SCROLLABLE QUESTION AREA --- */
+  .quiz-content-area {
+      flex: 1; 
+      overflow-y: auto; 
+      
+      padding: 10px 0 90px 0; 
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+  }
+
+  /* Specific styling for Question Card to be Full Width (Clean Mode) */
+  .quiz-content-area .card-ui {
+      border-radius: 0; 
+      border-left: none;
+      border-right: none;
+      margin-left: 0;
+      margin-right: 0;
+      box-shadow: none;
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      
+      padding: 8px 15px 15px 15px; 
+  }
+  
+  .results-container.card-ui {
+      border-radius: 12px;
+      margin: 15px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 20px;
+  }
+
+  .thin-progress-bar {
+    height: 4px;
+    background-color: var(--border-light);
+    border-radius: 0; 
+    margin-bottom: 0;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  body.dark-mode .thin-progress-bar {
+      background-color: var(--border-dark);
+  }
+  .thin-progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background-color: var(--primary);
+      border-radius: 2px;
+      transition: width 0.3s ease-in-out;
+  }
+
+  /* --- DYNAMIC FONT SIZING CLASSES --- */
+  .q-text { 
+      font-size: var(--dynamic-size); 
+      font-weight: 500; 
+      margin: 0; 
+      line-height: 1.5; 
+      white-space: normal; 
+      word-wrap: break-word;
+  }
+
+  /* Context box adjustment to remove gap */
+  .q-text > .context-box:first-child {
+      margin-top: 0;
+  }
+
+  .context-box {
+      background-color: #f0f4f8;
+      border-left: 4px solid var(--info);
+      padding: 10px 12px; 
+      border-radius: 8px;
+      margin-bottom: 8px; 
+      font-size: calc(var(--dynamic-size) * 0.9);
+      line-height: 1.45;
+      color: var(--text-light);
+      white-space: normal; 
+  }
+  body.dark-mode .context-box {
+      background-color: rgba(36, 129, 204, 0.15);
+      color: var(--text-dark);
+      border-left-color: var(--info);
+  }
+
+  .q-context-preview {
+      font-size: calc(var(--dynamic-size) * 0.9);
+      margin-bottom: 12px;
+      padding: 10px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 8px;
+      white-space: normal; 
+  }
+  body.dark-mode .q-context-preview {
+      background: rgba(255,255,255,0.05);
+  }
+
+  .option-btn {
+    width: 100%; text-align: left;
+    border: 1px solid var(--border-light);
+    background: transparent; color: inherit;
+    border-radius: 10px; padding: 12px 16px;
+    margin: 6px 0; transition: .2s ease all; 
+    font-size: var(--dynamic-size);
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    white-space: normal; 
+  }
+  body.dark-mode .option-btn { border-color: var(--border-dark); }
+  .option-btn:hover { border-color: var(--primary); background: rgba(106,90,249, 0.05); transform: translateY(-1px); }
+  .option-btn.selected { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+  .option-btn.correct { background: var(--success) !important; color: #fff; border-color: var(--success) !important; }
+  .option-btn.incorrect { background: var(--danger) !important; color: #fff; border-color: var(--danger) !important; }
+
+  /* User Selection Checkmark */
+  .user-check {
+      font-size: 1.1em;
+      margin-left: 10px;
+      display: none; 
+      flex-shrink: 0;
+  }
+  .option-btn.selected .user-check { display: inline-block; }
+
+  .explanation {
+    background: rgba(106,90,249, 0.05);
+    border-left: 4px solid var(--primary);
+    border-radius: 8px; padding: 12px; margin-top: 15px;
+    font-size: calc(var(--dynamic-size) * 0.9);
+    white-space: normal; 
+  }
+
+  /* --- STATIC FONT SIZING (Header, Meta, Nav) --- */
+  .q-meta-container {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+  }
+  /* Meta text keeps static size */
+  .q-meta-container h5 { font-size: 1.1rem; margin-bottom: 0; } 
+
+  .q-timer {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: rgba(106,90,249, 0.1);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+
+  /* Marking Indicator Style */
+  .q-marks {
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(0,0,0,0.05);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      color: var(--text-light);
+  }
+  body.dark-mode .q-marks { background: rgba(255,255,255,0.1); color: var(--text-dark); }
+
+  /* Marks Colors for Review Mode */
+  .q-marks.positive { color: var(--success); background: rgba(32, 201, 151, 0.1); }
+  .q-marks.negative { color: var(--danger); background: rgba(230, 57, 70, 0.1); }
+
+  .q-accuracy {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--success);
+      background: rgba(32, 201, 151, 0.1);
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+  }
+  body.dark-mode .q-timer { color: #9d8fff; background: rgba(106,90,249, 0.2); }
+  body.dark-mode .q-accuracy { color: #4ade80; background: rgba(32, 201, 151, 0.2); }
+
+  /* --- Fixed Bottom Navigation (ABSOLUTE POSITIONING FIX) --- */
+  .quiz-nav-buttons { 
+      position: absolute; 
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex; 
+      justify-content: space-between; 
+      margin: 0;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border-light);
+      background: var(--surface-light);
+      z-index: 500;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+  }
+  body.dark-mode .quiz-nav-buttons {
+      border-top-color: var(--border-dark);
+      background: var(--surface-dark);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  }
+  .btn-nav { padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; touch-action: manipulation; }
+
+  /* --- Palette Grid --- */
+  .palette-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 8px; }
+  .q-tile {
+    width: 100%; aspect-ratio: 1 / 1;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-light);
+    border-radius: 8px; font-weight: 600; cursor: pointer;
+    transition: .2s ease all;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+  body.dark-mode .q-tile { border-color: var(--border-dark); }
+  .q-tile:hover { transform: scale(1.08); }
+  .q-tile.current { background-color: var(--primary); color: #fff; border-color: var(--primary); }
+  .q-tile.answered { background-color: var(--success); color: #fff; border-color: var(--success); }
+  .q-tile.marked { box-shadow: 0 0 0 2px var(--info) inset; }
+  .q-tile.review-correct { background-color: var(--success); color: #fff; border-color: transparent; }
+  .q-tile.review-incorrect { background-color: var(--danger); color: #fff; border-color: transparent; }
+  .q-tile.review-unattempted { background-color: var(--warning); color: #fff; border-color: transparent; }
+
+  /* Palette Legend specific styles to fix color issues */
+  .palette-legend-box {
+      width: 14px; height: 14px;
+      border-radius: 3px;
+      margin-right: 5px;
+      border: 1px solid var(--border-light);
+  }
+  body.dark-mode .palette-legend-box { border-color: var(--border-dark); }
+  .palette-legend-box.visit { background: transparent; }
+  .palette-legend-box.done { background: var(--success); border-color: var(--success); }
+  .palette-legend-box.mark { background: transparent; border-color: var(--info); box-shadow: 0 0 0 2px var(--info) inset; }
+  .palette-legend-box.curr { background: var(--primary); border-color: var(--primary); }
+
+  /* --- Results View --- */
+  .results-container { text-align: center; }
+  .final-score { font-size: 4rem; font-weight: 800; color: var(--primary); }
+  .results-tabs .nav-link { color: inherit; opacity: 0.7; }
+  .results-tabs .nav-link.active { color: var(--primary); font-weight: 600; opacity: 1; border-bottom: 2px solid var(--primary); border-radius: 0; background: none; }
+  .chart-container { height: 250px; }
+
+  /* Leaderboard Styles */
+  .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
+  .leaderboard-table th, .leaderboard-table td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-light); }
+  body.dark-mode .leaderboard-table th, body.dark-mode .leaderboard-table td { border-bottom-color: var(--border-dark); }
+  .leaderboard-table th { font-weight: 600; opacity: 0.8; }
+  .rank-1 { color: #FFD700; font-weight: bold; }
+  .rank-2 { color: #C0C0C0; font-weight: bold; }
+  .rank-3 { color: #CD7F32; font-weight: bold; }
+
+  /* --- Header Action Buttons --- */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+    gap: 5px;
+  }
+  .action-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .action-btn:hover {
+    transform: scale(1.1);
+    background-color: rgba(0,0,0,0.05);
+  }
+  body.dark-mode .action-btn {
+    color: var(--text-dark);
+  }
+  body.dark-mode .action-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+  }
+
+  /* Single Font Button Style */
+  #fontToggleBtn {
+      font-weight: 700;
+      font-family: serif;
+      width: auto;
+      padding: 0 10px;
+  }
+
+  #languageSwitch button {
+    font-weight: 700;
+    min-width: 50px;
+    padding: 0 5px;
+    height: 36px;
+    border-radius: 8px;
+    background-color: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--text-light);
+    box-shadow: none;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  body.dark-mode #languageSwitch button {
+    background-color: transparent;
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+  }
+  #languageSwitch button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+  }
+
+  /* --- Responsive Design (Mobile) --- */
+  @media (max-width: 992px) {
+    
+    .header-timer { font-size: 1rem; margin-left: 10px; }
+
+    .quiz-main-header {
+        padding: 15px 15px 10px 15px; 
+    }
+
+    /* Mobile Fixed Bottom Nav handled by main absolute styling */
+    .quiz-nav-buttons {
+        padding: 15px 15px;
+    }
+
+    .home-card, .results-container {
+        border-radius: 12px; 
+        margin: 20px;
+        width: auto;
+    }
+
+    /* Ensure home-card overrides general mobile margin rules to stay full width */
+    .home-card {
+        margin: 0;
+        border-radius: 0;
+        width: 100%;
+    }
+  }
+  
+  /* --- Image Optimization for Telegram Content --- */
+  img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 10px auto;
+      border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div id="home-screen">
+    <h1 class="home-header">Night™</h1>
+    <div class="card-ui home-card">
+        <div class="home-content-wrapper">
+            <h2>Test</h2>
+            <div class="test-details">
+                <p><span>Topic</span> <span id="homeTopic">Topic Name Here</span></p>
+                <p><span>Q.</span> <span id="homeQuestions">0</span></p>
+                <p><span>Timer</span> <span id="homeTime">0 Minutes</span></p>
+                <p><span>N.Mark</span> <span id="homeNegative">0</span></p>
+            </div>
+            <button id="startQuizBtn">Start</button>
+        </div>
+    </div>
+    <footer class="home-footer">
+        <!-- Clickable Links -->
+        <a href="https://t.me/AI_quiz_bot_pro" target="_blank">@AI_quiz_bot_pro</a>
+        <a href="https://t.me/elite_quiz_bot" target="_blank">@elite_quiz_bot</a>
+    </footer>
+</div>
+
+
+<div id="quiz-screen" style="display: none;">
+    <audio id="clickSound" src="https://assets.mixkit.co/active_storage/sfx/269/269.wav" preload="auto"></audio>
+    <audio id="swipeSound" src="https://assets.mixkit.co/active_storage/sfx/1897/1897.wav" preload="auto"></audio>
+    <audio id="correctSound" src="https://assets.mixkit.co/active_storage/sfx/2870/2870.wav" preload="auto"></audio>
+    <audio id="wrongSound" src="https://assets.mixkit.co/active_storage/sfx/2964/2964.wav" preload="auto"></audio>
+
+    <div class="quiz-layout">
+      <!-- MAIN CONTENT AREA -->
+      <main class="quiz-main">
+        <div class="quiz-main-header">
+          <!-- Spacer or Logo -->
+          <div class="quiz-brand fw-bold text-primary m-0" style="font-size: 1.1rem;">N I G H T</div>
+
+          <!-- MAIN HEADER TIMER (Fullscreen Toggle Integrated) -->
+          <div class="header-timer" id="headerTimerDisp" title="Click to Toggle Fullscreen">00:00</div>
+
+          <div class="header-actions">
+              <div id="languageSwitch">
+                  <button id="langToggleBtn">BILI</button>
+              </div>
+              <button class="action-btn" id="fontToggleBtn" aria-label="Cycle font size">Aa+</button>
+              <button class="action-btn" id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+          </div>
+
+          <!-- PALETTE TOGGLE (Visible on ALL devices) -->
+          <button class="palette-trigger ms-2" id="openPaletteBtn" aria-label="Open Question Palette">
+              <i class="fas fa-th-large"></i>
+          </button>
+        </div>
+
+        <div class="thin-progress-bar">
+            <div id="thinProgressBarInner" class="thin-progress-bar-inner"></div>
+        </div>
+
+        <div class="quiz-content-area">
+            <div id="questionArea"></div>
+            <div id="resultsContainer" class="results-container card-ui" style="display: none;"></div>
+        </div>
+
+        <div id="quizNav" class="quiz-nav-buttons" style="display: none;"></div>
+
+      </main>
+    </div>
+
+    <!-- POPUP MODAL PALETTE (Replaces Sidebar) -->
+    <div class="palette-modal" id="paletteModal">
+        <div class="palette-content-box">
+            <div class="palette-header">
+                <h5 class="fw-bold m-0">Quiz Control</h5>
+                <button class="palette-trigger" id="closePaletteBtn"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="palette-body">
+                <!-- Integrated Timer & Stats Section -->
+                <div class="sidebar-section">
+                    <div class="timer-box mb-3">
+                        <div class="timer-display"><span id="minutes">00</span>:<span id="seconds">00</span></div>
+                        <div class="progress mt-2" style="height: 6px;">
+                          <div id="timeProgress" class="progress-bar bg-primary" style="width:100%"></div>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="value correct" id="statAnswered">0</div>
+                            <div class="label">Answered</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value unattempted" id="statUnanswered">0</div>
+                            <div class="label">Left</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value marked" id="statMarked">0</div>
+                            <div class="label">Marked</div>
+                        </div>
+                         <div class="stat-item">
+                            <div class="value" id="statTotal">0</div>
+                            <div class="label">Total</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Palette Grid -->
+                <h6 class="fw-bold mb-3 mt-2">Question Palette</h6>
+                <div class="palette-grid" id="qList"></div>
+            </div>
+
+            <div class="palette-footer">
+                <div class="d-flex flex-wrap gap-2 small text-muted mb-3 justify-content-center">
+                    <div class="d-flex align-items-center"><div class="palette-legend-box visit"></div> Visit</div>
+                    <div class="d-flex align-items-center"><div class="palette-legend-box done"></div> Done</div>
+                    <div class="d-flex align-items-center"><div class="palette-legend-box mark"></div> Mark</div>
+                    <div class="d-flex align-items-center"><div class="palette-legend-box curr"></div> Curr</div>
+                </div>
+                <button id="submitBtn" class="btn btn-primary w-100 py-2 fw-bold">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Placeholder quizData, will be replaced by Python
+const quizData = {
+  "settings": {
+    "topic": "Northern Plains and Islands\n\nhttps://t.me/dailyupdates_009",
+    "totalTimeSec": 750,
+    "negativeMarkPerWrong": 0.25
+  },
+  "questions": [
+    {
+      "text": "<b>Q1.</b> The Northern Plains of India are formed by the alluvial deposits of which three major river systems? / \u092d\u093e\u0930\u0924 \u0915\u0947 \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928 \u0915\u093f\u0928 \u0924\u0940\u0928 \u092a\u094d\u0930\u092e\u0941\u0916 \u0928\u0926\u0940 \u092a\u094d\u0930\u0923\u093e\u0932\u093f\u092f\u094b\u0902 \u0915\u0947 \u091c\u0932\u094b\u0922\u093c \u0928\u093f\u0915\u094d\u0937\u0947\u092a\u094b\u0902 \u0938\u0947 \u092c\u0928\u0947 \u0939\u0948\u0902?",
+      "options": [
+        "Indus, Ganga, Brahmaputra / \u0938\u093f\u0902\u0927\u0941, \u0917\u0902\u0917\u093e, \u092c\u094d\u0930\u0939\u094d\u092e\u092a\u0941\u0924\u094d\u0930",
+        "Ganga, Yamuna, Saraswati / \u0917\u0902\u0917\u093e, \u092f\u092e\u0941\u0928\u093e, \u0938\u0930\u0938\u094d\u0935\u0924\u0940",
+        "Krishna, Kaveri, Godavari / \u0915\u0943\u0937\u094d\u0923\u093e, \u0915\u093e\u0935\u0947\u0930\u0940, \u0917\u094b\u0926\u093e\u0935\u0930\u0940",
+        "Narmada, Tapti, Mahi / \u0928\u0930\u094d\u092e\u0926\u093e, \u0924\u093e\u092a\u094d\u0924\u0940, \u092e\u093e\u0939\u0940"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q2.</b> A narrow belt of pebbles about 8-16 km wide lying parallel to the slopes of the Shiwaliks is known as: / \u0936\u093f\u0935\u093e\u0932\u093f\u0915 \u0915\u0940 \u0922\u0932\u093e\u0928\u094b\u0902 \u0915\u0947 \u0938\u092e\u093e\u0928\u093e\u0902\u0924\u0930 \u0932\u0917\u092d\u0917 8-16 \u0915\u093f\u092e\u0940 \u091a\u094c\u0921\u093c\u0940 \u0915\u0902\u0915\u0921\u093c \u0915\u0940 \u090f\u0915 \u0938\u0902\u0915\u0940\u0930\u094d\u0923 \u092a\u091f\u094d\u091f\u0940 \u0915\u094b \u0915\u093f\u0938 \u0928\u093e\u092e \u0938\u0947 \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Terai / \u0924\u0930\u093e\u0908",
+        "Bhangar / \u092d\u093e\u0902\u0917\u0930",
+        "Khadar / \u0916\u093e\u0926\u0930",
+        "Bhabar / \u092d\u093e\u092c\u0930"
+      ],
+      "correctIndex": 3,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q3.</b> Which region is known for being a wet, swampy, and marshy area in the Northern Plains? / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u092e\u0947\u0902 \u0915\u094c\u0928 \u0938\u093e \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0917\u0940\u0932\u093e, \u0926\u0932\u0926\u0932\u0940 \u0914\u0930 \u0928\u092e \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u0939\u094b\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Bhabar / \u092d\u093e\u092c\u0930",
+        "Terai / \u0924\u0930\u093e\u0908",
+        "Doab / \u0926\u094b\u0906\u092c",
+        "Reh / \u0930\u0947\u0939"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q4.</b> The older alluvium of the Northern Plains is called: / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u0947 \u092a\u0941\u0930\u093e\u0928\u0947 \u091c\u0932\u094b\u0922\u093c \u0915\u094b \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0939\u0948:",
+      "options": [
+        "Khadar / \u0916\u093e\u0926\u0930",
+        "Bhangar / \u092d\u093e\u0902\u0917\u0930",
+        "Bhabar / \u092d\u093e\u092c\u0930",
+        "Terai / \u0924\u0930\u093e\u0908"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q5.</b> The newer, younger deposits of the flood plains are called: / \u092c\u093e\u0922\u093c \u0915\u0947 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u0947 \u0928\u090f, \u092f\u0941\u0935\u093e \u0928\u093f\u0915\u094d\u0937\u0947\u092a\u094b\u0902 \u0915\u094b \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0939\u0948:",
+      "options": [
+        "Bhangar / \u092d\u093e\u0902\u0917\u0930",
+        "Khadar / \u0916\u093e\u0926\u0930",
+        "Reh / \u0930\u0947\u0939",
+        "Kallar / \u0915\u0932\u094d\u0932\u0930"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q6.</b> What is the length of the Northern Plains of India? / \u092d\u093e\u0930\u0924 \u0915\u0947 \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928 \u0915\u0940 \u0932\u0902\u092c\u093e\u0908 \u0915\u093f\u0924\u0928\u0940 \u0939\u0948?",
+      "options": [
+        "1200 km",
+        "2400 km",
+        "3200 km",
+        "1500 km"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q7.</b> The land between two rivers is known as: / \u0926\u094b \u0928\u0926\u093f\u092f\u094b\u0902 \u0915\u0947 \u092c\u0940\u091a \u0915\u0940 \u092d\u0942\u092e\u093f \u0915\u094b \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0939\u0948:",
+      "options": [
+        "Delta / \u0921\u0947\u0932\u094d\u091f\u093e",
+        "Doab / \u0926\u094b\u0906\u092c",
+        "Island / \u0926\u094d\u0935\u0940\u092a",
+        "Valley / \u0918\u093e\u091f\u0940"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q8.</b> Which island group of India is of coral origin? / \u092d\u093e\u0930\u0924 \u0915\u093e \u0915\u094c\u0928 \u0938\u093e \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939 \u092e\u0942\u0902\u0917\u093e (\u0915\u094b\u0930\u0932) \u092e\u0942\u0932 \u0915\u093e \u0939\u0948?",
+      "options": [
+        "Andaman Islands / \u0905\u0902\u0921\u092e\u093e\u0928 \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939",
+        "Nicobar Islands / \u0928\u093f\u0915\u094b\u092c\u093e\u0930 \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939",
+        "Lakshadweep Islands / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939",
+        "Wheeler Island / \u0935\u094d\u0939\u0940\u0932\u0930 \u0926\u094d\u0935\u0940\u092a"
+      ],
+      "correctIndex": 2,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q9.</b> Which channel separates the Andaman Islands from the Nicobar Islands? / \u0915\u094c\u0928 \u0938\u093e \u091a\u0948\u0928\u0932 \u0905\u0902\u0921\u092e\u093e\u0928 \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939 \u0915\u094b \u0928\u093f\u0915\u094b\u092c\u093e\u0930 \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939 \u0938\u0947 \u0905\u0932\u0917 \u0915\u0930\u0924\u093e \u0939\u0948?",
+      "options": [
+        "9 Degree Channel / 9 \u0921\u093f\u0917\u094d\u0930\u0940 \u091a\u0948\u0928\u0932",
+        "10 Degree Channel / 10 \u0921\u093f\u0917\u094d\u0930\u0940 \u091a\u0948\u0928\u0932",
+        "8 Degree Channel / 8 \u0921\u093f\u0917\u094d\u0930\u0940 \u091a\u0948\u0928\u0932",
+        "Palk Strait / \u092a\u093e\u0915 \u091c\u0932\u0921\u092e\u0930\u0942\u092e\u0927\u094d\u092f"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q10.</b> What is the administrative headquarters of Lakshadweep? / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a \u0915\u093e \u092a\u094d\u0930\u0936\u093e\u0938\u0928\u093f\u0915 \u092e\u0941\u0916\u094d\u092f\u093e\u0932\u092f \u0915\u094d\u092f\u093e \u0939\u0948?",
+      "options": [
+        "Port Blair / \u092a\u094b\u0930\u094d\u091f \u092c\u094d\u0932\u0947\u092f\u0930",
+        "Kavaratti / \u0915\u0935\u0930\u0924\u094d\u0924\u0940",
+        "Minicoy / \u092e\u093f\u0928\u093f\u0915\u0949\u092f",
+        "Agatti / \u0905\u0917\u0924\u094d\u0924\u0940"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q11.</b> Where is India&#x27;s only active volcano located? / \u092d\u093e\u0930\u0924 \u0915\u093e \u090f\u0915\u092e\u093e\u0924\u094d\u0930 \u0938\u0915\u094d\u0930\u093f\u092f \u091c\u094d\u0935\u093e\u0932\u093e\u092e\u0941\u0916\u0940 \u0915\u0939\u093e\u0901 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Narcondam Island / \u0928\u093e\u0930\u0915\u094b\u0902\u0921\u092e \u0926\u094d\u0935\u0940\u092a",
+        "Barren Island / \u092c\u0948\u0930\u0928 \u0926\u094d\u0935\u0940\u092a",
+        "Pitti Island / \u092a\u093f\u091f\u094d\u091f\u0940 \u0926\u094d\u0935\u0940\u092a",
+        "Havelock Island / \u0939\u0948\u0935\u0932\u0949\u0915 \u0926\u094d\u0935\u0940\u092a"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q12.</b> The &#x27;Saddle Peak&#x27;, the highest peak of the Andaman &amp; Nicobar Islands, is located in: / \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930 \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939 \u0915\u0940 \u0938\u092c\u0938\u0947 \u090a\u0901\u091a\u0940 \u091a\u094b\u091f\u0940 &#x27;\u0938\u0948\u0921\u0932 \u092a\u0940\u0915&#x27; \u0915\u0939\u093e\u0901 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Great Nicobar / \u0917\u094d\u0930\u0947\u091f \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Middle Andaman / \u092e\u0927\u094d\u092f \u0905\u0902\u0921\u092e\u093e\u0928",
+        "North Andaman / \u0909\u0924\u094d\u0924\u0930\u0940 \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Little Andaman / \u0932\u093f\u091f\u093f\u0932 \u0905\u0902\u0921\u092e\u093e\u0928"
+      ],
+      "correctIndex": 2,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q13.</b> Which island was renamed as Netaji Subhash Chandra Bose Dweep? / \u0915\u093f\u0938 \u0926\u094d\u0935\u0940\u092a \u0915\u093e \u0928\u093e\u092e \u092c\u0926\u0932\u0915\u0930 \u0928\u0947\u0924\u093e\u091c\u0940 \u0938\u0941\u092d\u093e\u0937 \u091a\u0902\u0926\u094d\u0930 \u092c\u094b\u0938 \u0926\u094d\u0935\u0940\u092a \u0915\u0930 \u0926\u093f\u092f\u093e \u0917\u092f\u093e?",
+      "options": [
+        "Ross Island / \u0930\u0949\u0938 \u0926\u094d\u0935\u0940\u092a",
+        "Neil Island / \u0928\u0940\u0932 \u0926\u094d\u0935\u0940\u092a",
+        "Havelock Island / \u0939\u0948\u0935\u0932\u0949\u0915 \u0926\u094d\u0935\u0940\u092a",
+        "Viper Island / \u0935\u093e\u0907\u092a\u0930 \u0926\u094d\u0935\u0940\u092a"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q14.</b> The 8 Degree Channel separates which of the following? / 8 \u0921\u093f\u0917\u094d\u0930\u0940 \u091a\u0948\u0928\u0932 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938\u0947 \u0905\u0932\u0917 \u0915\u0930\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Lakshadweep and Maldives / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a \u0914\u0930 \u092e\u093e\u0932\u0926\u0940\u0935",
+        "Andaman and Nicobar / \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Minicoy and Kavaratti / \u092e\u093f\u0928\u093f\u0915\u0949\u092f \u0914\u0930 \u0915\u0935\u0930\u0924\u094d\u0924\u0940",
+        "India and Sri Lanka / \u092d\u093e\u0930\u0924 \u0914\u0930 \u0936\u094d\u0930\u0940\u0932\u0902\u0915\u093e"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q15.</b> Majuli, the largest river island in the world, is located in which river? / \u0926\u0941\u0928\u093f\u092f\u093e \u0915\u093e \u0938\u092c\u0938\u0947 \u092c\u0921\u093c\u093e \u0928\u0926\u0940 \u0926\u094d\u0935\u0940\u092a \u092e\u093e\u091c\u0941\u0932\u0940 \u0915\u093f\u0938 \u0928\u0926\u0940 \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Ganga / \u0917\u0902\u0917\u093e",
+        "Brahmaputra / \u092c\u094d\u0930\u0939\u094d\u092e\u092a\u0941\u0924\u094d\u0930",
+        "Indus / \u0938\u093f\u0902\u0927\u0941"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q16.</b> Which of the following is the largest part of the Northern Plains? / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928 \u0915\u093e \u0938\u092c\u0938\u0947 \u092c\u0921\u093c\u093e \u0939\u093f\u0938\u094d\u0938\u093e \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u0939\u0948?",
+      "options": [
+        "Bhabar / \u092d\u093e\u092c\u0930",
+        "Terai / \u0924\u0930\u093e\u0908",
+        "Bhangar / \u092d\u093e\u0902\u0917\u0930",
+        "Khadar / \u0916\u093e\u0926\u0930"
+      ],
+      "correctIndex": 2,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q17.</b> The &#x27;Reh&#x27; or &#x27;Kallar&#x27; are the saline efflorescences found in which soil? / &#x27;\u0930\u0947\u0939&#x27; \u092f\u093e &#x27;\u0915\u0932\u094d\u0932\u0930&#x27; \u0915\u093f\u0938 \u092e\u093f\u091f\u094d\u091f\u0940 \u092e\u0947\u0902 \u092a\u093e\u090f \u091c\u093e\u0928\u0947 \u0935\u093e\u0932\u0947 \u0932\u0935\u0923\u0940\u092f \u091c\u092e\u093e\u0935 \u0939\u0948\u0902?",
+      "options": [
+        "Khadar / \u0916\u093e\u0926\u0930",
+        "Bhangar / \u092d\u093e\u0902\u0917\u0930",
+        "Alluvial / \u091c\u0932\u094b\u0922\u093c",
+        "Laterite / \u0932\u0948\u091f\u0947\u0930\u093e\u0907\u091f"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q18.</b> The Brahmaputra plains are primarily located in which state? / \u092c\u094d\u0930\u0939\u094d\u092e\u092a\u0941\u0924\u094d\u0930 \u0915\u093e \u092e\u0948\u0926\u093e\u0928 \u092e\u0941\u0916\u094d\u092f \u0930\u0942\u092a \u0938\u0947 \u0915\u093f\u0938 \u0930\u093e\u091c\u094d\u092f \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "West Bengal / \u092a\u0936\u094d\u091a\u093f\u092e \u092c\u0902\u0917\u093e\u0932",
+        "Assam / \u0905\u0938\u092e",
+        "Bihar / \u092c\u093f\u0939\u093e\u0930",
+        "Arunachal Pradesh / \u0905\u0930\u0941\u0923\u093e\u091a\u0932 \u092a\u094d\u0930\u0926\u0947\u0936"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q19.</b> Which city is known as the &#x27;Gateway to the North-East&#x27; located in the Northern Plains? / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0915\u093f\u0938 \u0936\u0939\u0930 \u0915\u094b &#x27;\u0909\u0924\u094d\u0924\u0930-\u092a\u0942\u0930\u094d\u0935 \u0915\u093e \u092a\u094d\u0930\u0935\u0947\u0936 \u0926\u094d\u0935\u093e\u0930&#x27; \u0915\u0939\u093e \u091c\u093e\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Patna / \u092a\u091f\u0928\u093e",
+        "Guwahati / \u0917\u0941\u0935\u093e\u0939\u093e\u091f\u0940",
+        "Siliguri / \u0938\u093f\u0932\u0940\u0917\u0941\u0921\u093c\u0940",
+        "Dibrugarh / \u0921\u093f\u092c\u094d\u0930\u0942\u0917\u0922\u093c"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q20.</b> The &#x27;Indira Point&#x27;, India&#x27;s southernmost point, is located in which island? / \u092d\u093e\u0930\u0924 \u0915\u093e \u0938\u092c\u0938\u0947 \u0926\u0915\u094d\u0937\u093f\u0923\u0940 \u092c\u093f\u0902\u0926\u0941 &#x27;\u0907\u0928\u094d\u0926\u093f\u0930\u093e \u092a\u0949\u0907\u0902\u091f&#x27; \u0915\u093f\u0938 \u0926\u094d\u0935\u0940\u092a \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Car Nicobar / \u0915\u093e\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Little Andaman / \u0932\u093f\u091f\u093f\u0932 \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Great Nicobar / \u0917\u094d\u0930\u0947\u091f \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "South Andaman / \u0926\u0915\u094d\u0937\u093f\u0923 \u0905\u0902\u0921\u092e\u093e\u0928"
+      ],
+      "correctIndex": 2,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q21.</b> Which island group is also known as the &#x27;Emerald Islands&#x27;? / \u0915\u093f\u0938 \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939 \u0915\u094b &#x27;\u092e\u0930\u0915\u0924 \u0926\u094d\u0935\u0940\u092a&#x27; (Emerald Islands) \u0915\u0947 \u0928\u093e\u092e \u0938\u0947 \u092d\u0940 \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Lakshadweep / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a",
+        "Andaman and Nicobar / \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Daman and Diu / \u0926\u092e\u0928 \u0914\u0930 \u0926\u0940\u0935",
+        "New Moore Island / \u0928\u094d\u092f\u0942 \u092e\u0942\u0930 \u0926\u094d\u0935\u0940\u092a"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q22.</b> The 9 Degree Channel separates: / 9 \u0921\u093f\u0917\u094d\u0930\u0940 \u091a\u0948\u0928\u0932 \u0915\u093f\u0938\u0947 \u0905\u0932\u0917 \u0915\u0930\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Kavaratti and Minicoy / \u0915\u0935\u0930\u0924\u094d\u0924\u0940 \u0914\u0930 \u092e\u093f\u0928\u093f\u0915\u0949\u092f",
+        "Minicoy and Maldives / \u092e\u093f\u0928\u093f\u0915\u0949\u092f \u0914\u0930 \u092e\u093e\u0932\u0926\u0940\u0935",
+        "Little Andaman and Car Nicobar / \u0932\u093f\u091f\u093f\u0932 \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0915\u093e\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "North Andaman and Middle Andaman / \u0909\u0924\u094d\u0924\u0930\u0940 \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u092e\u0927\u094d\u092f \u0905\u0902\u0921\u092e\u093e\u0928"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q23.</b> Which of the following islands has a bird sanctuary named &#x27;Pitti Island&#x27;? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u093f\u0938 \u0926\u094d\u0935\u0940\u092a \u092e\u0947\u0902 &#x27;\u092a\u093f\u091f\u094d\u091f\u0940 \u0926\u094d\u0935\u0940\u092a&#x27; \u0928\u093e\u092e\u0915 \u092a\u0915\u094d\u0937\u0940 \u0905\u092d\u092f\u093e\u0930\u0923\u094d\u092f \u0939\u0948?",
+      "options": [
+        "Andaman / \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Lakshadweep / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a",
+        "Nicobar / \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Majuli / \u092e\u093e\u091c\u0941\u0932\u0940"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q24.</b> &#x27;Duncan Passage&#x27; is located between: / &#x27;\u0921\u0902\u0915\u0928 \u092a\u0948\u0938\u0947\u091c&#x27; \u0915\u093f\u0938\u0915\u0947 \u092c\u0940\u091a \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "South Andaman and Little Andaman / \u0926\u0915\u094d\u0937\u093f\u0923 \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0932\u093f\u091f\u093f\u0932 \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Little Andaman and Car Nicobar / \u0932\u093f\u091f\u093f\u0932 \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0915\u093e\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "North and Middle Andaman / \u0909\u0924\u094d\u0924\u0930\u0940 \u0914\u0930 \u092e\u0927\u094d\u092f \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Minicoy and Amindivi / \u092e\u093f\u0928\u093f\u0915\u0949\u092f \u0914\u0930 \u0905\u092e\u0940\u0928\u0926\u0940\u0935\u0940"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q25.</b> The soil of the Northern Plains is formed by: / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u0940 \u092e\u093f\u091f\u094d\u091f\u0940 \u0915\u093f\u0938\u0915\u0947 \u0926\u094d\u0935\u093e\u0930\u093e \u0928\u093f\u0930\u094d\u092e\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Weathering of Igneous rocks / \u0906\u0917\u094d\u0928\u0947\u092f \u091a\u091f\u094d\u091f\u093e\u0928\u094b\u0902 \u0915\u093e \u0905\u092a\u0915\u094d\u0937\u092f",
+        "Alluvial deposition / \u091c\u0932\u094b\u0922\u093c \u0928\u093f\u0915\u094d\u0937\u0947\u092a\u0923",
+        "Volcanic eruption / \u091c\u094d\u0935\u093e\u0932\u093e\u092e\u0941\u0916\u0940 \u0935\u093f\u0938\u094d\u092b\u094b\u091f",
+        "Metamorphism / \u0915\u093e\u092f\u093e\u0902\u0924\u0930\u0923"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q26.</b> Which of the following is NOT a part of the Northern Plains? / \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u093e \u0939\u093f\u0938\u094d\u0938\u093e \u0928\u0939\u0940\u0902 \u0939\u0948?",
+      "options": [
+        "Punjab Plains / \u092a\u0902\u091c\u093e\u092c \u0915\u093e \u092e\u0948\u0926\u093e\u0928",
+        "Ganga Plains / \u0917\u0902\u0917\u093e \u0915\u093e \u092e\u0948\u0926\u093e\u0928",
+        "Brahmaputra Plains / \u092c\u094d\u0930\u0939\u094d\u092e\u092a\u0941\u0924\u094d\u0930 \u0915\u093e \u092e\u0948\u0926\u093e\u0928",
+        "Malwa Plateau / \u092e\u093e\u0932\u0935\u093e \u0915\u093e \u092a\u0920\u093e\u0930"
+      ],
+      "correctIndex": 3,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q27.</b> The Sundarban Delta is formed by which rivers? / \u0938\u0941\u0902\u0926\u0930\u0935\u0928 \u0921\u0947\u0932\u094d\u091f\u093e \u0915\u093f\u0928 \u0928\u0926\u093f\u092f\u094b\u0902 \u0926\u094d\u0935\u093e\u0930\u093e \u092c\u0928\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Ganga and Brahmaputra / \u0917\u0902\u0917\u093e \u0914\u0930 \u092c\u094d\u0930\u0939\u094d\u092e\u092a\u0941\u0924\u094d\u0930",
+        "Indus and Jhelum / \u0938\u093f\u0902\u0927\u0941 \u0914\u0930 \u091d\u0947\u0932\u092e",
+        "Godavari and Krishna / \u0917\u094b\u0926\u093e\u0935\u0930\u0940 \u0914\u0930 \u0915\u0943\u0937\u094d\u0923\u093e",
+        "Narmada and Tapti / \u0928\u0930\u094d\u092e\u0926\u093e \u0914\u0930 \u0924\u093e\u092a\u094d\u0924\u0940"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q28.</b> Which tree is predominantly found in the Sundarban Delta? / \u0938\u0941\u0902\u0926\u0930\u0935\u0928 \u0921\u0947\u0932\u094d\u091f\u093e \u092e\u0947\u0902 \u092e\u0941\u0916\u094d\u092f \u0930\u0942\u092a \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u0935\u0943\u0915\u094d\u0937 \u092a\u093e\u092f\u093e \u091c\u093e\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Teak / \u0938\u093e\u0917\u094c\u0928",
+        "Sundari / \u0938\u0941\u0902\u0926\u0930\u0940",
+        "Pine / \u092a\u093e\u0907\u0928",
+        "Sal / \u0938\u093e\u0932"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q29.</b> The width of the Northern Plains varies between: / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u0940 \u091a\u094c\u0921\u093c\u093e\u0908 \u0915\u093f\u0938\u0915\u0947 \u092c\u0940\u091a \u092d\u093f\u0928\u094d\u0928 \u0939\u094b\u0924\u0940 \u0939\u0948?",
+      "options": [
+        "50 - 100 km",
+        "150 - 300 km",
+        "500 - 800 km",
+        "10 - 50 km"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q30.</b> In which state is the &#x27;Bari Doab&#x27; located? / &#x27;\u092c\u093e\u0930\u0940 \u0926\u094b\u0906\u092c&#x27; \u0915\u093f\u0938 \u0930\u093e\u091c\u094d\u092f \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Uttar Pradesh / \u0909\u0924\u094d\u0924\u0930 \u092a\u094d\u0930\u0926\u0947\u0936",
+        "Punjab / \u092a\u0902\u091c\u093e\u092c",
+        "Haryana / \u0939\u0930\u093f\u092f\u093e\u0923\u093e",
+        "Rajasthan / \u0930\u093e\u091c\u0938\u094d\u0925\u093e\u0928",
+        "Great Nicobar"
+      ],
+      "correctIndex": 4,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q31.</b> Which island of India is closest to Indonesia? / \u092d\u093e\u0930\u0924 \u0915\u093e \u0915\u094c\u0928 \u0938\u093e \u0926\u094d\u0935\u0940\u092a \u0907\u0902\u0921\u094b\u0928\u0947\u0936\u093f\u092f\u093e \u0915\u0947 \u0938\u092c\u0938\u0947 \u0915\u0930\u0940\u092c \u0939\u0948?",
+      "options": [
+        "Car Nicobar / \u0915\u093e\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Great Nicobar / \u0917\u094d\u0930\u0947\u091f \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Little Andaman / \u0932\u093f\u091f\u093f\u0932 \u0905\u0902\u0921\u092e\u093e\u0928",
+        "South Andaman / \u0926\u0915\u094d\u0937\u093f\u0923 \u0905\u0902\u0921\u092e\u093e\u0928"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q32.</b> &#x27;Swaraj Dweep&#x27; is the new name of which island? / &#x27;\u0938\u094d\u0935\u0930\u093e\u091c \u0926\u094d\u0935\u0940\u092a&#x27; \u0915\u093f\u0938 \u0926\u094d\u0935\u0940\u092a \u0915\u093e \u0928\u092f\u093e \u0928\u093e\u092e \u0939\u0948?",
+      "options": [
+        "Havelock Island / \u0939\u0948\u0935\u0932\u0949\u0915 \u0926\u094d\u0935\u0940\u092a",
+        "Neil Island / \u0928\u0940\u0932 \u0926\u094d\u0935\u0940\u092a",
+        "Ross Island / \u0930\u0949\u0938 \u0926\u094d\u0935\u0940\u092a",
+        "Viper Island / \u0935\u093e\u0907\u092a\u0930 \u0926\u094d\u0935\u0940\u092a"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q33.</b> Which of the following is a &#x27;Riverine Island&#x27; located in the Northern Plains? / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u090f\u0915 &#x27;\u0928\u0926\u0940\u092f \u0926\u094d\u0935\u0940\u092a&#x27; \u0939\u0948?",
+      "options": [
+        "Lakshadweep / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a",
+        "Majuli / \u092e\u093e\u091c\u0941\u0932\u0940",
+        "Salsette / \u0938\u093e\u0932\u094d\u0938\u0947\u091f",
+        "Sriharikota / \u0936\u094d\u0930\u0940\u0939\u0930\u093f\u0915\u094b\u091f\u093e"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q34.</b> The Northern Plains are also known as: / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u094b \u0907\u0938 \u0928\u093e\u092e \u0938\u0947 \u092d\u0940 \u091c\u093e\u0928\u093e \u091c\u093e\u0924\u093e \u0939\u0948:",
+      "options": [
+        "Peninsular Plains / \u092a\u094d\u0930\u093e\u092f\u0926\u094d\u0935\u0940\u092a\u0940\u092f \u092e\u0948\u0926\u093e\u0928",
+        "Indo-Gangetic-Brahmaputra Plains / \u092d\u093e\u0930\u0924-\u0917\u0902\u0917\u093e-\u092c\u094d\u0930\u0939\u094d\u092e\u092a\u0941\u0924\u094d\u0930 \u092e\u0948\u0926\u093e\u0928",
+        "Coastal Plains / \u0924\u091f\u0940\u092f \u092e\u0948\u0926\u093e\u0928",
+        "Arid Plains / \u0936\u0941\u0937\u094d\u0915 \u092e\u0948\u0926\u093e\u0928"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q35.</b> &#x27;Shaheed Dweep&#x27; is the renamed version of which island? / &#x27;\u0936\u0939\u0940\u0926 \u0926\u094d\u0935\u0940\u092a&#x27; \u0915\u093f\u0938 \u0926\u094d\u0935\u0940\u092a \u0915\u093e \u092a\u0930\u093f\u0935\u0930\u094d\u0924\u093f\u0924 \u0928\u093e\u092e \u0939\u0948?",
+      "options": [
+        "Ross Island / \u0930\u0949\u0938 \u0926\u094d\u0935\u0940\u092a",
+        "Neil Island / \u0928\u0940\u0932 \u0926\u094d\u0935\u0940\u092a",
+        "Havelock Island / \u0939\u0948\u0935\u0932\u0949\u0915 \u0926\u094d\u0935\u0940\u092a",
+        "Barren Island / \u092c\u0948\u0930\u0928 \u0926\u094d\u0935\u0940\u092a"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q36.</b> Which range of the Himalayas lies immediately to the north of the Northern Plains? / \u0939\u093f\u092e\u093e\u0932\u092f \u0915\u0940 \u0915\u094c\u0928 \u0938\u0940 \u0936\u094d\u0930\u0947\u0923\u0940 \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u0947 \u0920\u0940\u0915 \u0909\u0924\u094d\u0924\u0930 \u092e\u0947\u0902 \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Himadri / \u0939\u093f\u092e\u093e\u0926\u094d\u0930\u093f",
+        "Himachal / \u0939\u093f\u092e\u093e\u091a\u0932",
+        "Shiwalik / \u0936\u093f\u0935\u093e\u0932\u093f\u0915",
+        "Karakoram / \u0915\u093e\u0930\u093e\u0915\u094b\u0930\u092e"
+      ],
+      "correctIndex": 2,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q37.</b> The &#x27;Chos&#x27; (seasonal streams) are found in which part of the Northern Plains? / &#x27;\u091a\u094b\u0938&#x27; (\u092e\u094c\u0938\u092e\u0940 \u0927\u093e\u0930\u093e\u090f\u0901) \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u0947 \u0915\u093f\u0938 \u092d\u093e\u0917 \u092e\u0947\u0902 \u092a\u093e\u0908 \u091c\u093e\u0924\u0940 \u0939\u0948\u0902?",
+      "options": [
+        "Punjab Haryana Plains / \u092a\u0902\u091c\u093e\u092c \u0939\u0930\u093f\u092f\u093e\u0923\u093e \u0915\u093e \u092e\u0948\u0926\u093e\u0928",
+        "Delta region / \u0921\u0947\u0932\u094d\u091f\u093e \u0915\u094d\u0937\u0947\u0924\u094d\u0930",
+        "Brahmaputra valley / \u092c\u094d\u0930\u0939\u094d\u092e\u092a\u0941\u0924\u094d\u0930 \u0918\u093e\u091f\u0940",
+        "Terai region / \u0924\u0930\u093e\u0908 \u0915\u094d\u0937\u0947\u0924\u094d\u0930"
+      ],
+      "correctIndex": 0,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q38.</b> Which city/island is famous for the &#x27;Cellular Jail&#x27;? / \u0915\u094c\u0928 \u0938\u093e \u0936\u0939\u0930/\u0926\u094d\u0935\u0940\u092a &#x27;\u0938\u0947\u0932\u0941\u0932\u0930 \u091c\u0947\u0932&#x27; \u0915\u0947 \u0932\u093f\u090f \u092a\u094d\u0930\u0938\u093f\u0926\u094d\u0927 \u0939\u0948?",
+      "options": [
+        "North Andaman / \u0909\u0924\u094d\u0924\u0930\u0940 \u0905\u0902\u0921\u092e\u093e\u0928",
+        "South Andaman (Port Blair) / \u0926\u0915\u094d\u0937\u093f\u0923 \u0905\u0902\u0921\u092e\u093e\u0928 (\u092a\u094b\u0930\u094d\u091f \u092c\u094d\u0932\u0947\u092f\u0930)",
+        "Great Nicobar / \u0917\u094d\u0930\u0947\u091f \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Minicoy / \u092e\u093f\u0928\u093f\u0915\u0949\u092f"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q39.</b> The &#x27;Amindivi&#x27; islands are a part of which island group? / &#x27;\u0905\u092e\u0940\u0928\u0926\u0940\u0935\u0940&#x27; \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939 \u0915\u093f\u0938 \u0926\u094d\u0935\u0940\u092a \u0938\u092e\u0942\u0939 \u0915\u093e \u0939\u093f\u0938\u094d\u0938\u093e \u0939\u0948\u0902?",
+      "options": [
+        "Andaman / \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Lakshadweep / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a",
+        "Nicobar / \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Gulf of Mannar / \u092e\u0928\u094d\u0928\u093e\u0930 \u0915\u0940 \u0916\u093e\u0921\u093c\u0940"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q40.</b> What is the approximate area of the Northern Plains? / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u093e \u0905\u0928\u0941\u092e\u093e\u0928\u093f\u0924 \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u092b\u0932 \u0915\u093f\u0924\u0928\u093e \u0939\u0948?",
+      "options": [
+        "5 lakh sq km",
+        "7 lakh sq km",
+        "10 lakh sq km",
+        "3 lakh sq km"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q41.</b> Which of the following is the largest island in the Andaman group? / \u0905\u0902\u0921\u092e\u093e\u0928 \u0938\u092e\u0942\u0939 \u0915\u093e \u0938\u092c\u0938\u0947 \u092c\u0921\u093c\u093e \u0926\u094d\u0935\u0940\u092a \u0928\u093f\u092e\u094d\u0928\u0932\u093f\u0916\u093f\u0924 \u092e\u0947\u0902 \u0938\u0947 \u0915\u094c\u0928 \u0938\u093e \u0939\u0948?",
+      "options": [
+        "North Andaman / \u0909\u0924\u094d\u0924\u0930\u0940 \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Middle Andaman / \u092e\u0927\u094d\u092f \u0905\u0902\u0921\u092e\u093e\u0928",
+        "South Andaman / \u0926\u0915\u094d\u0937\u093f\u0923 \u0905\u0902\u0921\u092e\u093e\u0928",
+        "Little Andaman / \u0932\u093f\u091f\u093f\u0932 \u0905\u0902\u0921\u092e\u093e\u0928"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q42.</b> In the Northern Plains, what is the term used for the calcareous deposits found in Bhangar soil? / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u092e\u0947\u0902, \u092d\u093e\u0902\u0917\u0930 \u092e\u093f\u091f\u094d\u091f\u0940 \u092e\u0947\u0902 \u092a\u093e\u090f \u091c\u093e\u0928\u0947 \u0935\u093e\u0932\u0947 \u091a\u0942\u0928\u0947\u0926\u093e\u0930 \u0928\u093f\u0915\u094d\u0937\u0947\u092a\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0915\u093f\u0938 \u0936\u092c\u094d\u0926 \u0915\u093e \u092a\u094d\u0930\u092f\u094b\u0917 \u0915\u093f\u092f\u093e \u091c\u093e\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Khadar / \u0916\u093e\u0926\u0930",
+        "Kankar / \u0915\u0902\u0915\u0921\u093c",
+        "Reh / \u0930\u0947\u0939",
+        "Terai / \u0924\u0930\u093e\u0908"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q43.</b> Which pass connects the Andaman Sea with the Bay of Bengal? / \u0915\u094c\u0928 \u0938\u093e \u091c\u0932\u0921\u092e\u0930\u0942\u092e\u0927\u094d\u092f \u0905\u0902\u0921\u092e\u093e\u0928 \u0938\u093e\u0917\u0930 \u0915\u094b \u092c\u0902\u0917\u093e\u0932 \u0915\u0940 \u0916\u093e\u0921\u093c\u0940 \u0938\u0947 \u091c\u094b\u0921\u093c\u0924\u093e \u0939\u0948?",
+      "options": [
+        "Palk Strait / \u092a\u093e\u0915 \u091c\u0932\u0921\u092e\u0930\u0942\u092e\u0927\u094d\u092f",
+        "Ten Degree Channel / \u0926\u0938 \u0921\u093f\u0917\u094d\u0930\u0940 \u091a\u0948\u0928\u0932",
+        "Duncan Passage / \u0921\u0902\u0915\u0928 \u092a\u0948\u0938\u0947\u091c",
+        "Malacca Strait / \u092e\u0932\u0915\u094d\u0915\u093e \u091c\u0932\u0921\u092e\u0930\u0942\u092e\u0927\u094d\u092f"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q44.</b> Which part of the Northern Plains is the most fertile and ideal for intensive agriculture? / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u093e \u0915\u094c\u0928 \u0938\u093e \u092d\u093e\u0917 \u0938\u092c\u0938\u0947 \u0905\u0927\u093f\u0915 \u0909\u092a\u091c\u093e\u090a \u0914\u0930 \u0917\u0939\u0928 \u0915\u0943\u0937\u093f \u0915\u0947 \u0932\u093f\u090f \u0906\u0926\u0930\u094d\u0936 \u0939\u0948?",
+      "options": [
+        "Bhabar / \u092d\u093e\u092c\u0930",
+        "Bhangar / \u092d\u093e\u0902\u0917\u0930",
+        "Khadar / \u0916\u093e\u0926\u0930",
+        "Terai / \u0924\u0930\u093e\u0908"
+      ],
+      "correctIndex": 2,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q45.</b> The &#x27;Jeche Doab&#x27; is located between which two rivers? / &#x27;\u091c\u0947\u091a \u0926\u094b\u0906\u092c&#x27; \u0915\u093f\u0928 \u0926\u094b \u0928\u0926\u093f\u092f\u094b\u0902 \u0915\u0947 \u092c\u0940\u091a \u0938\u094d\u0925\u093f\u0924 \u0939\u0948?",
+      "options": [
+        "Beas and Ravi / \u092c\u094d\u092f\u093e\u0938 \u0914\u0930 \u0930\u093e\u0935\u0940",
+        "Jhelum and Chenab / \u091d\u0947\u0932\u092e \u0914\u0930 \u091a\u093f\u0928\u093e\u092c",
+        "Chenab and Ravi / \u091a\u093f\u0928\u093e\u092c \u0914\u0930 \u0930\u093e\u0935\u0940",
+        "Sutlej and Beas / \u0938\u0924\u0932\u091c \u0914\u0930 \u092c\u094d\u092f\u093e\u0938"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q46.</b> Which is the smallest Union Territory of India in terms of area, consisting of islands? / \u0915\u094d\u0937\u0947\u0924\u094d\u0930\u092b\u0932 \u0915\u0940 \u0926\u0943\u0937\u094d\u091f\u093f \u0938\u0947 \u092d\u093e\u0930\u0924 \u0915\u093e \u0938\u092c\u0938\u0947 \u091b\u094b\u091f\u093e \u0915\u0947\u0902\u0926\u094d\u0930 \u0936\u093e\u0938\u093f\u0924 \u092a\u094d\u0930\u0926\u0947\u0936 \u0915\u094c\u0928 \u0938\u093e \u0939\u0948, \u091c\u094b \u0926\u094d\u0935\u0940\u092a\u094b\u0902 \u0938\u0947 \u092c\u0928\u093e \u0939\u0948?",
+      "options": [
+        "Daman and Diu / \u0926\u092e\u0928 \u0914\u0930 \u0926\u0940\u0935",
+        "Lakshadweep / \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a",
+        "Andaman and Nicobar / \u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Puducherry / \u092a\u0941\u0926\u0941\u091a\u0947\u0930\u0940"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q47.</b> The Northern Plains are densely populated primarily due to: / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u092e\u0947\u0902 \u0918\u0928\u0940 \u0906\u092c\u093e\u0926\u0940 \u0939\u094b\u0928\u0947 \u0915\u093e \u092e\u0941\u0916\u094d\u092f \u0915\u093e\u0930\u0923 \u0939\u0948:",
+      "options": [
+        "Industrial development / \u0914\u0926\u094d\u092f\u094b\u0917\u093f\u0915 \u0935\u093f\u0915\u093e\u0938",
+        "Favorable climate and fertile soil / \u0905\u0928\u0941\u0915\u0942\u0932 \u091c\u0932\u0935\u093e\u092f\u0941 \u0914\u0930 \u0909\u092a\u091c\u093e\u090a \u092e\u093f\u091f\u094d\u091f\u0940",
+        "Tourism / \u092a\u0930\u094d\u092f\u091f\u0928",
+        "Presence of mountains / \u092a\u0930\u094d\u0935\u0924\u094b\u0902 \u0915\u0940 \u0909\u092a\u0938\u094d\u0925\u093f\u0924\u093f"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q48.</b> Which island in the Nicobar group is the largest? / \u0928\u093f\u0915\u094b\u092c\u093e\u0930 \u0938\u092e\u0942\u0939 \u0915\u093e \u0938\u092c\u0938\u0947 \u092c\u0921\u093c\u093e \u0926\u094d\u0935\u0940\u092a \u0915\u094c\u0928 \u0938\u093e \u0939\u0948?",
+      "options": [
+        "Car Nicobar / \u0915\u093e\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Great Nicobar / \u0917\u094d\u0930\u0947\u091f \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Little Nicobar / \u0932\u093f\u091f\u093f\u0932 \u0928\u093f\u0915\u094b\u092c\u093e\u0930",
+        "Katchal / \u0915\u0924\u094d\u091a\u0932"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q49.</b> What is the total length of the coastline of the Indian islands (Andaman &amp; Nicobar and Lakshadweep) approximately? / \u092d\u093e\u0930\u0924\u0940\u092f \u0926\u094d\u0935\u0940\u092a\u094b\u0902 (\u0905\u0902\u0921\u092e\u093e\u0928 \u0914\u0930 \u0928\u093f\u0915\u094b\u092c\u093e\u0930 \u0914\u0930 \u0932\u0915\u094d\u0937\u0926\u094d\u0935\u0940\u092a) \u0915\u0940 \u0924\u091f\u0930\u0947\u0916\u093e \u0915\u0940 \u0915\u0941\u0932 \u0932\u0902\u092c\u093e\u0908 \u0932\u0917\u092d\u0917 \u0915\u093f\u0924\u0928\u0940 \u0939\u0948?",
+      "options": [
+        "1000 km",
+        "2094 km",
+        "1500 km",
+        "500 km"
+      ],
+      "correctIndex": 1,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    },
+    {
+      "text": "<b>Q50.</b> The region of Northern Plains that has disappeared rivers (streams flow underground) is: / \u0909\u0924\u094d\u0924\u0930\u0940 \u092e\u0948\u0926\u093e\u0928\u094b\u0902 \u0915\u093e \u0935\u0939 \u0915\u094d\u0937\u0947\u0924\u094d\u0930 \u091c\u0939\u093e\u0901 \u0928\u0926\u093f\u092f\u093e\u0901 \u0932\u0941\u092a\u094d\u0924 \u0939\u094b \u091c\u093e\u0924\u0940 \u0939\u0948\u0902 (\u0927\u093e\u0930\u093e\u090f\u0901 \u092d\u0942\u092e\u093f\u0917\u0924 \u092c\u0939\u0924\u0940 \u0939\u0948\u0902) \u0935\u0939 \u0939\u0948:",
+      "options": [
+        "Terai / \u0924\u0930\u093e\u0908",
+        "Khadar / \u0916\u093e\u0926\u0930",
+        "Bhabar / \u092d\u093e\u092c\u0930",
+        "Bhangar /"
+      ],
+      "correctIndex": 2,
+      "explanation": "Explanation not available.",
+      "reference": ""
+    }
+  ],
+  "leaderboard": {"rankings": [], "question_stats": {"0": {"correct": 0, "total": 0}, "1": {"correct": 0, "total": 0}, "2": {"correct": 0, "total": 0}, "3": {"correct": 0, "total": 0}, "4": {"correct": 0, "total": 0}, "5": {"correct": 0, "total": 0}, "6": {"correct": 0, "total": 0}, "7": {"correct": 0, "total": 0}, "8": {"correct": 0, "total": 0}, "9": {"correct": 0, "total": 0}, "10": {"correct": 0, "total": 0}, "11": {"correct": 0, "total": 0}, "12": {"correct": 0, "total": 0}, "13": {"correct": 0, "total": 0}, "14": {"correct": 0, "total": 0}, "15": {"correct": 0, "total": 0}, "16": {"correct": 0, "total": 0}, "17": {"correct": 0, "total": 0}, "18": {"correct": 0, "total": 0}, "19": {"correct": 0, "total": 0}, "20": {"correct": 0, "total": 0}, "21": {"correct": 0, "total": 0}, "22": {"correct": 0, "total": 0}, "23": {"correct": 0, "total": 0}, "24": {"correct": 0, "total": 0}, "25": {"correct": 0, "total": 0}, "26": {"correct": 0, "total": 0}, "27": {"correct": 0, "total": 0}, "28": {"correct": 0, "total": 0}, "29": {"correct": 0, "total": 0}, "30": {"correct": 0, "total": 0}, "31": {"correct": 0, "total": 0}, "32": {"correct": 0, "total": 0}, "33": {"correct": 0, "total": 0}, "34": {"correct": 0, "total": 0}, "35": {"correct": 0, "total": 0}, "36": {"correct": 0, "total": 0}, "37": {"correct": 0, "total": 0}, "38": {"correct": 0, "total": 0}, "39": {"correct": 0, "total": 0}, "40": {"correct": 0, "total": 0}, "41": {"correct": 0, "total": 0}, "42": {"correct": 0, "total": 0}, "43": {"correct": 0, "total": 0}, "44": {"correct": 0, "total": 0}, "45": {"correct": 0, "total": 0}, "46": {"correct": 0, "total": 0}, "47": {"correct": 0, "total": 0}, "48": {"correct": 0, "total": 0}, "49": {"correct": 0, "total": 0}}}
+};
+
+(function(){
+  // ----- Config from quizData.settings -----
+  const TOTAL_TIME = (quizData.settings && quizData.settings.totalTimeSec) || 20*60;
+  const NEGATIVE = (quizData.settings && quizData.settings.negativeMarkPerWrong) || (1/3);
+
+  // ----- State -----
+  const state = {
+    current: 0,
+    answers: Array(quizData.questions.length).fill(null),
+    markedForReview: Array(quizData.questions.length).fill(false),
+    startTime: new Date(),
+    timePerQ: Array(quizData.questions.length).fill(0),
+    submitted: false,
+    inReviewMode: false,
+    darkMode: false,
+    totalTime: TOTAL_TIME,
+    negativeMark: NEGATIVE,
+    avgTime: 0,
+    timerInterval: null,
+    qTimerInterval: null,
+    lastSoundIdx: -1,
+    currentLang: 'both', // 'both', 'hn', 'en'
+    currentFontSize: 16 // Default px size
+  };
+
+  // ----- Elements -----
+  const questionArea = document.getElementById('questionArea');
+  const resultsContainer = document.getElementById('resultsContainer');
+  const submitBtn = document.getElementById('submitBtn');
+  const qListGrid = document.getElementById('qList');
+  const themeToggle = document.getElementById('themeToggle');
+  const clickSound = document.getElementById('clickSound');
+  const correctSound = document.getElementById('correctSound');
+  const wrongSound = document.getElementById('wrongSound');
+  const quizNav = document.getElementById('quizNav');
+  const langToggleBtn = document.getElementById('langToggleBtn');
+
+  // ----- Init -----
+  document.addEventListener('DOMContentLoaded', () => {
+    setupHomePage();
+    document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+  });
+
+  function setupHomePage() {
+    const totalQuestions = quizData.questions.length;
+    const totalTimeMinutes = Math.floor(quizData.settings.totalTimeSec / 60);
+    const negativeMark = quizData.settings.negativeMarkPerWrong;
+
+    // Linkify Topic Name logic
+    let rawTopic = quizData.settings.topic || "General Knowledge";
+
+    // Sanitize HTML entities to prevent XSS
+    rawTopic = rawTopic.replace(/&/g, "&amp;")
+                       .replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;")
+                       .replace(/"/g, "&quot;")
+                       .replace(/'/g, "&#039;");
+
+    // Regex to detect URLs and convert to <a> tags
+    const topicWithLinks = rawTopic.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+        return `<a href="${url}" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: bold; position: relative; z-index: 10;">${url}</a>`;
+    });
+
+    document.getElementById('homeTopic').innerHTML = topicWithLinks;
+    document.getElementById('homeQuestions').textContent = totalQuestions;
+    document.getElementById('homeTime').textContent = `${totalTimeMinutes} Minutes`;
+    document.getElementById('homeNegative').textContent = negativeMark > 0 ? `-${negativeMark} per wrong answer` : "No negative marking";
+
+    initTheme(); // Init theme on home page as well
+  }
+
+  function startQuiz() {
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+    initQuiz();
+  }
+
+  function initQuiz() {
+    buildQuestionTiles();
+    renderQuestion(0);
+    initTimer();
+    initNav();
+    initFullscreen();
+    initFontSizeControls();
+    initLanguageSwitcher();
+    initSwipeNavigation();
+    updateStats();
+    quizNav.style.display = 'flex';
+  }
+
+  function initNav(){
+    submitBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to submit the quiz?')) {
+            submitQuiz();
+        }
+    });
+
+    // --- MODAL TOGGLE LOGIC ---
+    const paletteModal = document.getElementById('paletteModal');
+    const openBtn = document.getElementById('openPaletteBtn');
+    const closeBtn = document.getElementById('closePaletteBtn');
+
+    const openModal = () => paletteModal.classList.add('show');
+    const closeModal = () => paletteModal.classList.remove('show');
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close if clicking outside content box
+    paletteModal.addEventListener('click', (e) => {
+        if(e.target === paletteModal) closeModal();
+    });
+
+    // keyboard
+    document.addEventListener('keydown',(e)=>{
+      if(e.target.tagName === 'INPUT') return;
+      if(e.key==='ArrowLeft') go(-1);
+      if(e.key==='ArrowRight') go(1);
+    });
+  }
+
+  function initTheme(){
+    const saved = localStorage.getItem('qa_theme');
+    if(saved==='dark'){ 
+        document.body.classList.add('dark-mode'); 
+        state.darkMode=true; 
+    }
+    updateThemeIcon();
+    themeToggle.addEventListener('click', ()=>{
+      state.darkMode = !state.darkMode;
+      document.body.classList.toggle('dark-mode', state.darkMode);
+      localStorage.setItem('qa_theme', state.darkMode?'dark':'light');
+      updateThemeIcon();
+      if(state.submitted) buildCharts(state.lastResultData);
+    });
+  }
+  function updateThemeIcon(){
+    const i = themeToggle.querySelector('i');
+    i.classList.toggle('fa-moon', !state.darkMode);
+    i.classList.toggle('fa-sun',  state.darkMode);
+  }
+
+  function initFullscreen() {
+    // Integrated into Header Timer
+    const timerDisplay = document.getElementById('headerTimerDisp');
+    if (!timerDisplay) return;
+
+    timerDisplay.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    });
+  }
+
+  function initFontSizeControls() {
+      const fontBtn = document.getElementById('fontToggleBtn');
+      const fontSizes = [16, 18, 20, 22, 24]; // Larger sizes for clarity
+      let fontIndex = 0; // Starts at 16px
+
+      fontBtn.addEventListener('click', () => {
+          fontIndex = (fontIndex + 1) % fontSizes.length;
+          state.currentFontSize = fontSizes[fontIndex];
+          // Update the CSS Variable, not the root element
+          document.documentElement.style.setProperty('--dynamic-size', state.currentFontSize + 'px');
+      });
+  }
+
+  function initLanguageSwitcher() {
+      // Toggle order: Both -> Hindi -> English -> Both
+      const langOrder = ['both', 'hn', 'en'];
+
+      langToggleBtn.addEventListener('click', () => {
+          const currentIndex = langOrder.indexOf(state.currentLang);
+          const nextIndex = (currentIndex + 1) % langOrder.length;
+          state.currentLang = langOrder[nextIndex];
+
+          updateLangButton();
+          renderQuestion(state.current);
+      });
+  }
+
+  function updateLangButton() {
+      let label = 'BILI';
+      if (state.currentLang === 'hn') label = 'HIN';
+      if (state.currentLang === 'en') label = 'ENG';
+      langToggleBtn.textContent = label;
+  }
+
+  function translateText(text) {
+      if (!text) return text;
+      if (state.currentLang === 'both') return text;
+
+      // Check if string has HTML tags to decide between simple split and DOM traversal
+      const hasTags = /<[a-z][\s\S]*>/i.test(text);
+
+      if (hasTags) {
+          const div = document.createElement('div');
+          div.innerHTML = text;
+          walkAndTranslate(div);
+          return div.innerHTML;
+      } else {
+          // Plain text path
+          if (text.includes(' / ')) {
+              const parts = text.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  return state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+          return text;
+      }
+  }
+
+  function walkAndTranslate(node) {
+      if (node.nodeType === 3) { // Text node
+          const val = node.nodeValue;
+          if (val && val.includes(' / ')) {
+              const parts = val.split(' / ');
+              if (parts.length >= 2) {
+                  const en = parts[0];
+                  const hn = parts.slice(1).join(' / ');
+                  node.nodeValue = state.currentLang === 'hn' ? hn.trim() : en.trim();
+              }
+          }
+      } else if (node.nodeType === 1) { // Element node
+          for (let i = 0; i < node.childNodes.length; i++) {
+              walkAndTranslate(node.childNodes[i]);
+          }
+      }
+  }
+
+
+  function initSwipeNavigation() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const swipeThreshold = 50; // Minimum distance for a swipe
+    const swipeRatio = 0.5; // Vertical distance should be less than half of horizontal
+
+    const swipeArea = document.querySelector('.quiz-main');
+
+    swipeArea.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    swipeArea.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        if (state.submitted && !state.inReviewMode) return;
+
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+
+        if (Math.abs(dx) > swipeThreshold && Math.abs(dy) < Math.abs(dx) * swipeRatio) {
+            if (dx < 0) {
+                go(1); // Swiped left
+            } else {
+                go(-1); // Swiped right
+            }
+        }
+    }
+  }
+
+  // ----- Timer -----
+  function initTimer(){
+    const start = Date.now();
+    const duration = state.totalTime*1000;
+    const end = start + duration;
+    tick(); state.timerInterval = setInterval(tick, 1000);
+    function tick(){
+      const now = Date.now();
+      const left = Math.max(0, end-now);
+      const m = String(Math.floor(left/60000)).padStart(2,'0');
+      const s = String(Math.floor((left%60000)/1000)).padStart(2,'0');
+
+      // Sidebar timer
+      document.getElementById('minutes').textContent = m;
+      document.getElementById('seconds').textContent = s;
+
+      // Header timer (NEW)
+      const headerTimer = document.getElementById('headerTimerDisp');
+      if(headerTimer) headerTimer.textContent = `${m}:${s}`;
+
+      const pct = (left/duration)*100;
+      const bar = document.getElementById('timeProgress');
+      bar.style.width = pct + '%';
+      if(left<=0){ clearInterval(state.timerInterval); submitQuiz(); }
+      else if(pct<25) bar.className='progress-bar bg-danger';
+      else if(pct<50) bar.className='progress-bar bg-warning';
+      else bar.className='progress-bar bg-primary';
+    }
+  }
+
+  // ----- Sidebar tiles -----
+  function buildQuestionTiles(){
+    qListGrid.innerHTML = '';
+    quizData.questions.forEach((_,i)=>{
+      const d = document.createElement('div');
+      d.className='q-tile'; d.textContent=i+1;
+      d.addEventListener('click', ()=>{
+        // Close modal IMMEDIATELY upon clicking, before rendering or anything else
+        document.getElementById('paletteModal').classList.remove('show');
+
+        if(!state.submitted) updateTime();
+        renderQuestion(i);
+      });
+      qListGrid.appendChild(d);
+    });
+  }
+
+  function updateTiles(){
+    document.querySelectorAll('.q-tile').forEach((el,idx)=>{
+      el.className='q-tile'; // Reset
+      if(state.submitted){
+          if(state.answers[idx] === quizData.questions[idx].correctIndex) el.classList.add('review-correct');
+          else if(state.answers[idx] !== null) el.classList.add('review-incorrect');
+          else el.classList.add('review-unattempted');
+      } else {
+        if(state.answers[idx] !== null) el.classList.add('answered');
+        if(state.markedForReview[idx]) el.classList.add('marked');
+      }
+      if(idx === state.current) el.classList.add('current');
+    });
+  }
+
+  // ----- Render question -----
+  function renderQuestion(idx){
+    if (idx < 0 || idx >= quizData.questions.length) return;
+
+    // Stop previous Question Timer
+    if (state.qTimerInterval) clearInterval(state.qTimerInterval);
+
+    state.current=idx;
+    const q=quizData.questions[idx];
+
+    // Live Accuracy Calculation
+    let accuracyBadge = '';
+    if (quizData.leaderboard && quizData.leaderboard.question_stats && quizData.leaderboard.question_stats[idx]) {
+        const stats = quizData.leaderboard.question_stats[idx];
+        if(stats.total > 0) {
+            const acc = Math.round((stats.correct / stats.total) * 100);
+            accuracyBadge = `<span class="q-accuracy" title="Based on ${stats.total} Telegram users"><i class="fas fa-bullseye me-1"></i>${acc}%</span>`;
+        }
+    }
+
+    // --- Marking Scheme Badge Logic ---
+    let markHtml = '';
+    const posMark = 1; // Assuming +1 for correct
+    const negMark = state.negativeMark;
+
+    if (!state.submitted) {
+        // Live Mode: Show full scheme
+        markHtml = `<span class="q-marks" title="Marking Scheme"><i class="fas fa-star-half-alt me-1"></i>+${posMark} / -${negMark}</span>`;
+    } else {
+        // Review Mode: Show result
+        const userAns = state.answers[idx];
+        const isCorrect = userAns === q.correctIndex;
+        const isSkipped = userAns === null;
+
+        if (isSkipped) {
+             markHtml = `<span class="q-marks text-muted">0</span>`;
+        } else if (isCorrect) {
+             markHtml = `<span class="q-marks positive">+${posMark}</span>`;
+        } else {
+             markHtml = `<span class="q-marks negative">-${negMark}</span>`;
+        }
+    }
+
+    // Question Card HTML
+    // Updated: Completely removed bottom margin and padding from header row
+    // Updated: Trimmed q.text and removed internal indentation artifacts from JSON source
+    let textContent = q.text;
+    if(typeof textContent === 'string') {
+        textContent = textContent.trim();
+        // Regex to replace newline followed by whitespace with a single space
+        // This collapses the indentation from the JSON string which causes layout gaps
+        textContent = textContent.replace(/\n\s+/g, ' '); 
+    }
+
+    let questionHtml=`
+      <div class="card-ui">
+        <div class="d-flex justify-content-between align-items-center mb-0 pb-0 border-bottom-0" style="min-height: 24px;">
+            <div class="q-meta-container">
+                <h5 class="fw-bold m-0" style="line-height:1;">Question ${idx+1}</h5>
+                <span class="q-timer"><i class="fas fa-stopwatch me-1"></i><span id="qTimerDisp">0s</span></span>
+                ${markHtml}
+                ${accuracyBadge}
+            </div>
+            ${q.reference ? `<div class="small opacity-75">${q.reference}</div>` : ''}
+        </div>
+        <!-- Removed mt-2 for tighter spacing -->
+        <div class="q-text mt-2">${translateText(textContent)}</div>
+        <div class="options">`;
+    q.options.forEach((opt,i)=>{
+      let cls='option-btn';
+      // User selection logic for Live Mode
+      if(state.answers[idx]===i) cls+=' selected';
+
+      // Review Mode Logic
+      if(state.submitted){
+        if(i===q.correctIndex) cls+=' correct';
+        else if(state.answers[idx]===i) cls+=' incorrect';
+      }
+
+      // Add Checkmark span (only visible via CSS if selected)
+      questionHtml += `<button class="${cls}" data-i="${i}">
+          <span>${translateText(opt)}</span>
+          <span class="user-check"><i class="fas fa-check-circle"></i></span>
+      </button>`;
+    });
+    const translatedExplanation = translateText(q.explanation || 'Not available.');
+    questionHtml += `</div>
+        ${state.submitted ? `<div class="explanation mt-3"><strong>Explanation:</strong> ${translatedExplanation}</div>` : ''}
+      </div>
+    `;
+    questionArea.innerHTML = questionHtml;
+
+    // Start per-question timer logic (Visual only)
+    if (!state.submitted) {
+        // Start from time already spent
+        let secondsSpent = Math.floor(state.timePerQ[idx] || 0);
+        const timerEl = document.getElementById('qTimerDisp');
+        if(timerEl) {
+            timerEl.textContent = secondsSpent + 's';
+            state.qTimerInterval = setInterval(() => {
+                secondsSpent++;
+                timerEl.textContent = secondsSpent + 's';
+            }, 1000);
+        }
+    } else {
+        // Show static time if submitted
+         const timerEl = document.getElementById('qTimerDisp');
+         if(timerEl) timerEl.textContent = Math.floor(state.timePerQ[idx] || 0) + 's';
+    }
+
+
+    // Navigation Buttons HTML
+    let buttonsHtml = `
+      <button id="prevBtn" class="btn btn-outline-secondary btn-nav"><i class="fas fa-chevron-left me-2"></i>Previous</button>
+      <button id="markBtn" class="btn btn-outline-info btn-nav">
+          ${state.markedForReview[idx] ? '<i class="fas fa-bookmark me-2"></i>Unmark' : '<i class="far fa-bookmark me-2"></i>Mark for Review'}
+      </button>
+      <button id="nextBtn" class="btn btn-primary btn-nav">Next<i class="fas fa-chevron-right ms-2"></i></button>
+    `;
+    quizNav.innerHTML = buttonsHtml;
+
+
+    // Add event listeners to new elements
+    document.getElementById('prevBtn').addEventListener('click', () => go(-1));
+    document.getElementById('nextBtn').addEventListener('click', () => go(1));
+    document.getElementById('markBtn').addEventListener('click', toggleMark);
+
+    if(state.submitted) {
+        document.getElementById('markBtn').style.display = 'none';
+    }
+
+    document.querySelectorAll('.option-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(state.submitted) return;
+        clickSound.currentTime=0; clickSound.play();
+        const i = parseInt(btn.dataset.i);
+        state.answers[state.current] = (state.answers[state.current] === i) ? null : i; // Allow un-selecting
+        renderQuestion(state.current); // Re-render to show selection change
+        updateStats();
+        updateTiles();
+      });
+    });
+
+    updateTiles();
+    updateProgress();
+
+    // Sound for review mode
+    if(state.inReviewMode && state.lastSoundIdx!==idx){
+      state.lastSoundIdx=idx;
+      const isAttempted = state.answers[idx]!==null;
+      const isCorrect = isAttempted && state.answers[idx]===q.correctIndex;
+      if(isAttempted){
+        setTimeout(()=>{ (isCorrect?correctSound:wrongSound).play(); }, 250);
+      }
+    }
+  }
+
+  function go(dir){
+    const i = state.current + dir;
+    if(i>=0 && i<quizData.questions.length){
+      if(!state.submitted) updateTime();
+      renderQuestion(i);
+    }
+  }
+
+  function toggleMark() {
+    state.markedForReview[state.current] = !state.markedForReview[state.current];
+    renderQuestion(state.current); // Re-render to update button text
+    updateTiles();
+    updateStats();
+  }
+
+  function updateTime(){
+    const now = new Date();
+    state.timePerQ[state.current] += (now - state.startTime)/1000;
+    state.startTime = now;
+  }
+
+  function updateStats() {
+    const answeredCount = state.answers.filter(a => a !== null).length;
+    const markedCount = state.markedForReview.filter(m => m).length;
+    const totalCount = quizData.questions.length;
+    document.getElementById('statAnswered').textContent = answeredCount;
+    document.getElementById('statUnanswered').textContent = totalCount - answeredCount;
+    document.getElementById('statMarked').textContent = markedCount;
+    document.getElementById('statTotal').textContent = totalCount;
+  }
+
+  function updateProgress() {
+      const answeredCount = state.answers.filter(a => a !== null).length;
+      const totalCount = quizData.questions.length;
+      const percent = totalCount > 0 ? (answeredCount / totalCount) * 100 : 0;
+      const progressBar = document.getElementById('thinProgressBarInner');
+      if (progressBar) {
+          progressBar.style.width = `${percent}%`;
+      }
+  }
+
+  // ----- Submit & Results -----
+  function submitQuiz(){
+    if(state.submitted) return;
+
+    // Explicitly CLOSE the palette if it is open
+    document.getElementById('paletteModal').classList.remove('show');
+
+    clearInterval(state.timerInterval);
+    if(state.qTimerInterval) clearInterval(state.qTimerInterval); // Stop question timer
+
+    updateTime();
+    state.submitted=true;
+
+    let correct=0, incorrect=0, unattempted=0, score=0, neg=0;
+    state.answers.forEach((a,i)=>{
+      if(a===null){ unattempted++; }
+      else if(a===quizData.questions[i].correctIndex){ correct++; score+=1; }
+      else { incorrect++; score-=state.negativeMark; neg+=state.negativeMark; }
+    });
+
+    state.avgTime = state.timePerQ.reduce((s,t)=>s+t,0)/quizData.questions.length;
+    const pct = (score/quizData.questions.length)*100;
+
+    questionArea.style.display = 'none';
+    quizNav.style.display = 'none';
+    submitBtn.style.display = 'none';
+    document.querySelector('.quiz-main-header').style.display = 'none';
+
+    renderResults({correct, incorrect, unattempted, score, neg, pct});
+    resultsContainer.style.display = 'block';
+
+    updateTiles();
+
+    if(pct>=70){ confetti(); correctSound.play(); }
+    else if(pct<50){ wrongSound.play(); }
+  }
+
+  function renderResults(resData) {
+      const { correct, incorrect, unattempted, score, neg, pct } = resData;
+      const total = quizData.questions.length;
+      state.lastResultData = resData; // Save for redrawing charts on theme change
+
+      let html = `
+        <div class="text-center">
+            <h2 class="fw-bold">Quiz Completed!</h2>
+            <p>Here is your performance summary.</p>
+            <div class="final-score">${pct.toFixed(1)}%</div>
+            <div class="fs-4 fw-bold mb-4">${score.toFixed(2)} / ${total}</div>
+        </div>
+
+        <ul class="nav nav-pills justify-content-center mb-3 results-tabs" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation"><button class="nav-link active" id="pills-summary-tab" data-bs-toggle="pill" data-bs-target="#pills-summary" type="button" role="tab">Summary</button></li>
+          <li class="nav-item" role="presentation"><button class="nav-link" id="pills-analysis-tab" data-bs-toggle="pill" data-bs-target="#pills-analysis" type="button" role="tab">Analysis</button></li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+          <div class="tab-pane fade show active" id="pills-summary" role="tabpanel">
+            <div class="row g-3">
+                <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Total Questions</span><span class="fw-bold">${total}</span></div></div>
+                <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Correct</span><span class="fw-bold text-success">${correct}</span></div></div>
+                <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Incorrect</span><span class="fw-bold text-danger">${incorrect}</span></div></div>
+                <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Unattempted</span><span class="fw-bold text-warning">${unattempted}</span></div></div>
+                <div class="col-md-6"><div class="p-3 bg-light rounded d-flex justify-content-between"><span>Negative Marks</span><span class="fw-bold text-danger">-${neg.toFixed(2)}</span></div></div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="pills-analysis" role="tabpanel">
+            <div class="chart-container mb-3"><canvas id="performanceChart"></canvas></div>
+            <div class="chart-container" style="height: 300px;"><canvas id="timeAnalysisChart"></canvas></div>
+
+            <h5 class="fw-bold mt-5 mb-3 text-center">Telegram Leaderboard</h5>
+            <div id="leaderboardSection"></div>
+          </div>
+        </div>
+        <div class="text-center mt-4">
+            <button id="reviewBtn" class="btn btn-primary btn-lg"><i class="fas fa-search me-2"></i>Review Answers</button>
+        </div>
+      `;
+      resultsContainer.innerHTML = html;
+
+      document.getElementById('reviewBtn').addEventListener('click', reviewMode);
+
+      // Render Leaderboard
+      const lbSection = document.getElementById('leaderboardSection');
+      if (quizData.leaderboard && quizData.leaderboard.rankings && quizData.leaderboard.rankings.length > 0) {
+          let lbHtml = `<table class="leaderboard-table">
+              <thead><tr><th>Rank</th><th>User</th><th>Score</th><th>Acc</th></tr></thead>
+              <tbody>`;
+
+          quizData.leaderboard.rankings.forEach((rank, i) => {
+              const rankClass = i < 3 ? `rank-${i+1}` : '';
+              lbHtml += `<tr>
+                  <td class="${rankClass}">#${i+1}</td>
+                  <td>${rank.name}</td>
+                  <td>${rank.score.toFixed(1)}</td>
+                  <td>${rank.accuracy.toFixed(0)}%</td>
+              </tr>`;
+          });
+
+          lbHtml += `</tbody></table>`;
+          lbSection.innerHTML = lbHtml;
+      } else {
+          lbSection.innerHTML = `<div class="text-muted small text-center p-3">No Telegram comparison data available yet.</div>`;
+      }
+
+      // Trigger chart build after tab is shown
+      const analysisTab = document.getElementById('pills-analysis-tab');
+      analysisTab.addEventListener('shown.bs.tab', () => buildCharts(resData), { once: true });
+  }
+
+  let performanceChartInstance, timeAnalysisChartInstance;
+  function buildCharts(res){
+    const {correct, incorrect, unattempted} = res;
+    Chart.defaults.color = state.darkMode ? '#e8eaed' : '#6c757d';
+
+    if (performanceChartInstance) performanceChartInstance.destroy();
+    performanceChartInstance = new Chart(document.getElementById('performanceChart').getContext('2d'),{
+      type:'doughnut',
+      data:{ labels:['Correct','Incorrect','Unattempted'],
+        datasets:[{ data:[correct,incorrect,unattempted],
+          backgroundColor:['#20c997','#e63946','#ffb703'], borderWidth: 0 }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+    });
+
+    const labels = Array.from({length:quizData.questions.length},(_,i)=>`Q${i+1}`);
+    const correctTimes = state.timePerQ.map((t,i) => state.answers[i] === quizData.questions[i].correctIndex ? t : 0);
+    const incorrectTimes = state.timePerQ.map((t,i) => (state.answers[i] !== null && state.answers[i] !== quizData.questions[i].correctIndex) ? t : 0);
+
+    if(timeAnalysisChartInstance) timeAnalysisChartInstance.destroy();
+    timeAnalysisChartInstance = new Chart(document.getElementById('timeAnalysisChart').getContext('2d'),{
+      type:'bar',
+      data:{ labels,
+        datasets:[
+          {label:'Correct', data:correctTimes, backgroundColor:'rgba(32, 201, 151, 0.7)'},
+          {label:'Incorrect', data:incorrectTimes, backgroundColor:'rgba(230, 57, 70, 0.7)'}
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false, indexAxis: 'x',
+        scales:{ x:{stacked:true, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}},
+                 y:{stacked:true, title:{display:true,text:'Time (s)'}, grid: {color: state.darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}} },
+      }
+    });
+  }
+
+  function reviewMode(){
+    state.inReviewMode=true; state.lastSoundIdx=-1;
+    questionArea.style.display='block';
+    quizNav.style.display = 'flex';
+    resultsContainer.style.display='none';
+    document.querySelector('.quiz-main-header').style.display = 'flex';
+    renderQuestion(0);
+  }
+
+  function confetti(){
+    const colors=['#6a5af9','#f72585','#20c997','#ffb703'];
+    for(let i=0;i<100;i++){
+      const d=document.createElement('div');
+      d.style.cssText=`position:fixed;width:10px;height:10px;top:-10px;left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};z-index:1300;`;
+      document.body.appendChild(d);
+      const dy = Math.random()*500+500, rot = Math.random()*360;
+      const anim = d.animate([{transform:'translateY(0) rotate(0)',opacity:1},{transform:`translateY(${dy}px) rotate(${rot}deg)`,opacity:0}],
+        {duration:Math.random()*2000+2000, easing:'ease-out'});
+      anim.onfinish=()=>d.remove();
+    }
+  }
+})();
+</script>

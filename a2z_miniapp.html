@@ -102,7 +102,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:
     <div class="logo-icon">A</div>
     <span>A2Z Updates4U</span>
   </div>
-  <div class="xp-badge" id="header-xp">0 XP</div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button class="btn btn-primary" onclick="syncAll()" style="font-size:.65rem;padding:4px 8px;" title="Sync data from bot">🔄</button>
+    <div class="xp-badge" id="header-xp">0 XP</div>
+  </div>
 </div>
 
 <!-- HOME TAB -->
@@ -169,6 +172,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:
     <div style="font-weight:700;margin-bottom:6px;">🎫 Access Status</div>
     <div id="access-info" style="font-size:.82rem;color:var(--sub);"></div>
   </div>
+  <button class="btn btn-primary" onclick="requestMyStats()" style="margin-top:12px;width:100%;">📊 My Stats (Hunter License)</button>
   <div class="danger-zone">
     <h4>⚠️ Rank Decay Warning</h4>
     <p>If you don't take a test for 5 days, you lose 50 XP. If your XP drops below rank threshold, access is revoked.</p>
@@ -205,16 +209,99 @@ if (tg) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// API CONFIG (for bot↔mini-app two-way communication)
+// Set API_BASE_URL to your Cloudflare Tunnel or public server URL.
+// Leave empty to fall back to sendData() only.
+// ═══════════════════════════════════════════════════════════════════════════
+const API_BASE_URL = '';  // e.g. 'https://a2z-api.your-domain.com'
+let apiToken = null;
+
+function getApiToken() {
+  if (apiToken) return apiToken;
+  // Try from URL query param
+  let params = new URLSearchParams(window.location.search);
+  let t = params.get('token');
+  if (t) { apiToken = t; return t; }
+  // Try from CloudStorage
+  if (tg?.CloudStorage) {
+    tg.CloudStorage.getItem('a2z_token', (err, val) => {
+      if (val) apiToken = val;
+    });
+  }
+  return apiToken;
+}
+
+function setApiToken(token) {
+  apiToken = token;
+  if (tg?.CloudStorage) tg.CloudStorage.setItem('a2z_token', token);
+}
+
+async function fetchFromAPI(endpoint) {
+  if (!API_BASE_URL) return null;
+  let token = getApiToken();
+  if (!token) { console.log('No API token'); return null; }
+  try {
+    let url = API_BASE_URL + '/api/' + endpoint;
+    url += (url.includes('?') ? '&' : '?') + 'token=' + encodeURIComponent(token);
+    let resp = await fetch(url);
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch (e) {
+    console.log('API fetch failed:', e);
+    return null;
+  }
+}
+
+async function syncFromAPI() {
+  if (!API_BASE_URL) return false;
+  let data = await fetchFromAPI('state');
+  if (!data || !data.state) return false;
+  // Merge state from API
+  let st = data.state;
+  state.xp = st.xp || 0;
+  state.rank = st.rank || 'E';
+  state.streak = st.streak || 0;
+  state.mocksDone = st.mocksDone || 0;
+  state.accuracy = st.accuracy || 0;
+  state.bestScore = st.bestScore || 0;
+  state.hasAccess = st.hasAccess || false;
+  state.accessDays = st.accessDays || 0;
+  state.freeMocksLeft = st.freeMocksLeft || 5;
+  state.invites = st.invites || 0;
+  if (data.guild) state.guild = data.guild;
+  if (data.mocks) { updateMockCache(data.mocks); }
+  if (data.leaderboard && state.lbMockId === data.leaderboard.mock_id) {
+    state.lbData = data.leaderboard;
+  }
+  updateUI();
+  return true;
+}
+
+async function syncLeaderboardFromAPI(mockId) {
+  if (!API_BASE_URL) return false;
+  let data = await fetchFromAPI('leaderboard&mock_id=' + encodeURIComponent(mockId));
+  if (!data) return false;
+  state.lbData = data;
+  state.lbMockId = mockId;
+  if (document.getElementById('tab-leaderboard').classList.contains('active')) {
+    renderLeaderboardEntries(data);
+  }
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // STATE (loaded from bot or CloudStorage)
 // ═══════════════════════════════════════════════════════════════════════════
 let state = {
   xp: 0, rank: 'E', streak: 0, mocksDone: 0, accuracy: 0, bestScore: 0,
   accessDays: 0, hasAccess: false, freeMocksLeft: 5,
   questDone: false, guild: null,
+  lbData: null, lbMockId: null,
 };
 
 // Mock data (loaded from bot — placeholder for now)
-const MOCK_CATEGORIES = {
+// Default mock groups (fallback when bot data not loaded)
+const DEFAULT_MOCK_CATEGORIES = {
   'SSC CGL': {
     icon: 'fas fa-graduation-cap',
     subjects: {
@@ -257,9 +344,34 @@ const MOCK_CATEGORIES = {
   },
 };
 
+// Dynamic mock cache — populated from bot's get_mocks response
+window.dynamicMockCategories = null;
+
+function getMockCategories() {
+  return window.dynamicMockCategories || DEFAULT_MOCK_CATEGORIES;
+}
+
+// Update mock cache from bot response (called when bot sends structured mock data)
+function updateMockCache(data) {
+  if (!data || !Array.isArray(data)) return;
+  let cats = {};
+  for (let m of data) {
+    let exam = m.exam || m.section || 'General';
+    let subject = m.topic || m.subject || 'Uncategorized';
+    if (!cats[exam]) cats[exam] = {icon:'fas fa-file-alt', subjects:{}};
+    if (!cats[exam].subjects[subject]) cats[exam].subjects[subject] = [];
+    cats[exam].subjects[subject].push({
+      id: m.mock_id, title: m.title, qs: m.question_count,
+      time: m.timer_minutes, type: m.total_attempts > 0 ? 'premium' : 'free',
+      date: (m.created_at || '').slice(0,10),
+    });
+  }
+  window.dynamicMockCategories = Object.keys(cats).length ? cats : null;
+}
+
 function getAllMocks() {
   let all = [];
-  for (let [exam, edata] of Object.entries(MOCK_CATEGORIES)) {
+  for (let [exam, edata] of Object.entries(getMockCategories())) {
     for (let [subj, mocks] of Object.entries(edata.subjects)) {
       for (let m of mocks) {
         all.push({...m, exam, subject: subj});
@@ -281,9 +393,9 @@ function switchTab(tab) {
   let navIcons = {'home':0,'mocks':1,'leaderboard':2,'guild':3,'profile':4};
   if (navBtns[navIcons[tab]]) navBtns[navIcons[tab]].classList.add('active');
 
-  if (tab === 'mocks') renderMockBrowser();
-  if (tab === 'leaderboard') renderLeaderboard();
-  if (tab === 'guild') renderGuild();
+  if (tab === 'mocks') { renderMockBrowser(); if (tg) fetchMocks(); }
+  if (tab === 'leaderboard') { renderLeaderboard(); if (tg && state.lbMockId) sendToBot('get_leaderboard', {mock_id: state.lbMockId}); }
+  if (tab === 'guild') { renderGuild(); if (tg) fetchGuild(); }
   window.scrollTo(0,0);
 }
 
@@ -296,7 +408,8 @@ function renderMockBrowser() {
   let el = document.getElementById('mock-browser');
   if (mockNav.view === 'exams') {
     let html = '<div class="section-title">📝 Choose Exam</div><div class="cat-grid">';
-    for (let [exam, data] of Object.entries(MOCK_CATEGORIES)) {
+    let categories = getMockCategories();
+    for (let [exam, data] of Object.entries(categories)) {
       let totalMocks = Object.values(data.subjects).flat().length;
       html += `<div class="cat-card" onclick="mockNav.exam='${exam}';mockNav.view='subjects';renderMockBrowser()">
         <div class="icon"><i class="${data.icon}"></i></div>
@@ -308,7 +421,7 @@ function renderMockBrowser() {
     el.innerHTML = html;
   } else if (mockNav.view === 'subjects') {
     let exam = mockNav.exam;
-    let data = MOCK_CATEGORIES[exam];
+    let data = getMockCategories()[exam];
     let html = `<button class="back-btn" onclick="mockNav.view='exams';renderMockBrowser()">← Back to Exams</button>
       <div class="section-title">${exam}</div><div class="subj-list">`;
     for (let [subj, mocks] of Object.entries(data.subjects)) {
@@ -320,7 +433,7 @@ function renderMockBrowser() {
     el.innerHTML = html;
   } else if (mockNav.view === 'mocks') {
     let exam = mockNav.exam, subj = mockNav.subject;
-    let mocks = MOCK_CATEGORIES[exam].subjects[subj] || [];
+    let mocks = (getMockCategories()[exam]?.subjects || {})[subj] || [];
     let html = `<button class="back-btn" onclick="mockNav.view='subjects';renderMockBrowser()">← Back to ${exam}</button>
       <div class="section-title">${exam} · ${subj}</div>`;
     if (mocks.length === 0) {
@@ -345,8 +458,13 @@ function renderMockBrowser() {
 
 function startMock(mockId) {
   if (tg) {
-    tg.showAlert('Mock will open in the test engine. Send mock ID to bot to get the test file.');
-    tg.sendData(JSON.stringify({action:'start_mock', mock_id: mockId}));
+    tg.showPopup({
+      title: 'Start Mock',
+      message: 'The bot will send you the mock test file. Open it to take the test.',
+      buttons: [{type: 'ok', text: 'Send Mock'}]
+    }, () => {
+      sendToBot('get_mock', {mock_id: mockId});
+    });
   } else {
     alert('Open via Telegram Mini App. Mock ID: ' + mockId);
   }
@@ -366,38 +484,96 @@ function renderLeaderboard() {
     return;
   }
 
+  let selectedId = state.lbMockId || '';
   let html = '<div class="section-title">Select Mock</div>';
   html += '<select style="width:100%;padding:10px;background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:.85rem;" onchange="showLeaderboard(this.value)">';
   html += '<option value="">— Choose a mock —</option>';
   for (let m of allMocks) {
-    html += `<option value="${m.id}">${m.title} (${m.exam})</option>`;
+    let sel = m.id === selectedId ? ' selected' : '';
+    html += `<option value="${m.id}"${sel}>${m.title} (${m.exam})</option>`;
   }
   html += '</select>';
   listEl.innerHTML = html;
 
-  // Placeholder leaderboard
-  entriesEl.innerHTML = '<div class="empty-state" style="margin-top:20px;"><i class="fas fa-trophy"></i><p>Select a mock above</p></div>';
+  if (selectedId && state.lbData) {
+    renderLeaderboardEntries(state.lbData);
+  } else if (selectedId) {
+    entriesEl.innerHTML = '<div class="empty-state" style="margin-top:20px;"><i class="fas fa-spinner"></i><p>Click 🔄 Sync to load leaderboard</p></div>';
+  } else {
+    entriesEl.innerHTML = '<div class="empty-state" style="margin-top:20px;"><i class="fas fa-trophy"></i><p>Select a mock above</p></div>';
+  }
 }
 
 function showLeaderboard(mockId) {
   let el = document.getElementById('lb-entries');
   if (!mockId) {
+    state.lbMockId = null;
+    state.lbData = null;
     el.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><p>Select a mock</p></div>';
     return;
   }
-  // Placeholder — will fetch from bot via WebApp API
-  el.innerHTML = `<div style="margin-top:12px;">
-    <div class="lb-row"><span class="lb-rank medal-1">🥇</span><span class="lb-name">Rahul Best</span><span class="lb-score">30/30 (100%)</span></div>
-    <div class="lb-row"><span class="lb-rank medal-2">🥈</span><span class="lb-name">Ajay Kumar</span><span class="lb-score">28/30 (93%)</span></div>
-    <div class="lb-row"><span class="lb-rank medal-3">🥉</span><span class="lb-name">Priya Singh</span><span class="lb-score">27/30 (90%)</span></div>
-    <div class="lb-row"><span class="lb-rank">#4</span><span class="lb-name">You</span><span class="lb-score">25/30 (83%)</span></div>
-  </div>
-  <div style="text-align:center;margin-top:16px;color:var(--sub);font-size:.7rem;">Live data loads when connected to bot</div>`;
+  state.lbMockId = mockId;
+  el.innerHTML = '<div class="empty-state"><i class="fas fa-spinner"></i><p>Loading leaderboard...</p></div>';
+  // Try API first for instant data
+  if (API_BASE_URL) {
+    syncLeaderboardFromAPI(mockId).then(function(ok) {
+      if (!ok && tg) sendToBot('get_leaderboard', {mock_id: mockId});
+    });
+  } else if (tg) {
+    sendToBot('get_leaderboard', {mock_id: mockId});
+  }
+}
+
+function renderLeaderboardEntries(lb) {
+  if (!lb || !lb.entries || lb.entries.length === 0) {
+    document.getElementById('lb-entries').innerHTML = '<div class="empty-state" style="margin-top:20px;"><i class="fas fa-trophy"></i><p>No attempts yet on this mock</p></div>';
+    return;
+  }
+
+  let title = lb.title || 'Leaderboard';
+  let uId = userData?.id;
+  let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <div class="section-title" style="margin-bottom:0;">🏆 ${title}</div>
+    <button class="btn btn-primary" onclick="showLeaderboard(state.lbMockId)" style="font-size:.7rem;padding:4px 10px;">🔄 Refresh</button>
+  </div>`;
+
+  html += '<div style="background:var(--panel);border-radius:12px;overflow:hidden;">';
+  for (let i = 0; i < lb.entries.length; i++) {
+    let r = lb.entries[i];
+    let medal = r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : '#' + r.rank;
+    let isMe = uId && r.user_id === uId;
+    let bg = isMe ? 'background:rgba(0,191,255,0.1);' : '';
+    let dots = r.accuracy >= 80 ? '🟢' : r.accuracy >= 50 ? '🟡' : '🔴';
+    html += `<div style="display:flex;align-items:center;padding:10px 14px;${bg}border-bottom:1px solid var(--border);">
+      <span style="font-size:1.2rem;width:36px;">${medal}</span>
+      <span style="flex:1;font-size:.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.name}</span>
+      <span style="margin:0 10px;font-size:.8rem;color:var(--sub);">${dots}</span>
+      <span style="font-weight:700;font-size:.85rem;">${r.score}/${r.total}</span>
+      <span style="margin-left:8px;font-size:.75rem;color:var(--sub);">${r.accuracy}%</span>
+      ${isMe ? '<span style="margin-left:6px;font-size:.65rem;color:var(--green);font-weight:700;">YOU</span>' : ''}
+    </div>`;
+  }
+  html += '</div>';
+  document.getElementById('lb-entries').innerHTML = html;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // GUILD
 // ═══════════════════════════════════════════════════════════════════════════
+function fetchGuild() {
+  sendToBot('get_guild');
+}
+
+function leaveGuildAction() {
+  if (!tg) return;
+  tg.showPopup({title:'Leave Guild',message:'Are you sure you want to leave your guild?',buttons:[
+    {id:'leave',type:'destructive',text:'Leave'},
+    {id:'cancel',type:'cancel',text:'Cancel'}
+  ]}, (btnId) => {
+    if (btnId === 'leave') sendToBot('guild_leave');
+  });
+}
+
 function renderGuild() {
   let el = document.getElementById('guild-content');
   if (!state.guild) {
@@ -405,61 +581,136 @@ function renderGuild() {
       <i class="fas fa-users"></i>
       <p>Join or create a guild to earn 1.5x XP multiplier when all members complete daily quests!</p>
       <div style="display:flex;gap:8px;margin-top:12px;justify-content:center;">
-        <button class="btn btn-primary" onclick="guildCreate()">Create Guild</button>
-        <button class="btn btn-outline" onclick="guildJoin()">Join Guild</button>
+        <button class="btn btn-primary" onclick="guildCreateAction()">Create Guild</button>
+        <button class="btn btn-outline" onclick="guildJoinAction()">Join Guild</button>
       </div>
     </div>`;
   } else {
+    let g = state.guild;
+    let memberCount = g.members ? g.members.length : 0;
+    let membersHtml = (g.members || []).map(m => {
+      let name = m.first_name || m.username || m.name || '?';
+      let questDone = m.quest_done_today || m.questDone;
+      return `<div class="guild-member${questDone ? ' done' : ''}">
+        <span class="status">${questDone ? '✅' : '⬜'}</span>
+        <span style="flex:1;font-size:.85rem;">${name}</span>
+        <span style="font-size:.75rem;color:var(--sub)">${m.xp || 0} XP</span>
+        ${m.rank ? `<span style="font-size:.7rem;color:var(--accent);margin-left:6px;">${m.rank}</span>` : ''}
+      </div>`;
+    }).join('');
     el.innerHTML = `<div class="card">
-      <div style="font-weight:800;font-size:1rem;margin-bottom:4px;">⚔️ ${state.guild.name}</div>
-      <div style="font-size:.8rem;color:var(--sub);margin-bottom:12px;">
-        Multiplier: ${state.guild.multiplier || 1.0}x · Members: ${state.guild.memberCount || 0}/4
-      </div>
-      ${(state.guild.members || []).map(m => `
-        <div class="guild-member ${m.questDone ? 'done' : 'pending'}">
-          <span class="status">${m.questDone ? '✅' : '❌'}</span>
-          <span style="flex:1">${m.name}</span>
-          <span style="font-size:.75rem;color:var(--sub)">${m.xp} XP</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div>
+          <div style="font-weight:800;font-size:1rem;">⚔️ ${g.name || 'Guild'}</div>
+          <div style="font-size:.75rem;color:var(--sub);">ID: ${g.guild_id || 'N/A'}</div>
         </div>
-      `).join('')}
+        <button class="btn btn-primary" onclick="fetchGuild()" style="font-size:.65rem;padding:4px 8px;" title="Refresh">🔄</button>
+      </div>
+      <div style="font-size:.8rem;color:var(--sub);margin-bottom:12px;">
+        Multiplier: <span style="color:var(--accent);font-weight:700;">${g.multiplier || 1.0}x</span> · Members: ${memberCount}/4
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:8px;">
+        ${membersHtml || '<div style="font-size:.8rem;color:var(--sub);text-align:center;">No members</div>'}
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <button class="btn btn-outline" onclick="guildJoinAction()" style="flex:1;font-size:.75rem;">Invite</button>
+        <button class="btn btn-red" onclick="leaveGuildAction()" style="flex:1;font-size:.75rem;">Leave Guild</button>
+      </div>
     </div>`;
   }
 }
 
-function guildCreate() {
-  let name = prompt('Enter guild name:');
-  if (name && tg) tg.sendData(JSON.stringify({action:'guild_create', name}));
+function guildCreate() { guildCreateAction(); }
+function guildJoin() { guildJoinAction(); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BOT COMMUNICATION (via Telegram WebApp.sendData)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function sendToBot(action, extra = {}) {
+  if (!tg) { alert('Open via Telegram Mini App'); return; }
+  tg.sendData(JSON.stringify({action, ...extra}));
 }
 
-function guildJoin() {
-  let id = prompt('Enter guild ID to join:');
-  if (id && tg) tg.sendData(JSON.stringify({action:'guild_join', guild_id: id}));
+// Fetch user state from bot
+function fetchState() {
+  sendToBot('get_state');
+}
+
+// Fetch mock list
+function fetchMocks() {
+  sendToBot('get_mocks');
+}
+
+// Fetch stored updates from bot (state + mocks + guild)
+function fetchUpdates() {
+  sendToBot('get_updates');
+}
+
+// Sync all data from bot
+function syncAll() {
+  fetchState();
+  setTimeout(function() { fetchUpdates(); }, 800);
+  if (tg) tg.showPopup({title:'Syncing',message:'Fetching latest data from bot...',buttons:[{type:'ok'}]});
+}
+
+function requestMock(mockId) {
+  sendToBot('get_mock', {mock_id: mockId});
+}
+
+function requestLeaderboard(mockId) {
+  sendToBot('get_leaderboard', {mock_id: mockId});
+}
+
+function requestMyStats() {
+  sendToBot('my_stats');
+}
+
+function guildCreateAction() {
+  if (!tg) return;
+  tg.showPopup({title:'Create Guild',message:'Enter guild name:',buttons:[
+    {id:'create',type:'default',text:'Create'}
+  ]}, (btnId) => {
+    if (btnId === 'create') {
+      let name = prompt('Guild name:') || 'Untitled';
+      sendToBot('guild_create', {name});
+    }
+  });
+}
+
+function guildJoinAction() {
+  let id = prompt('Enter guild ID:');
+  if (id) sendToBot('guild_join', {guild_id: id});
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SHARE
 // ═══════════════════════════════════════════════════════════════════════════
 function shareApp() {
-  let text = 'Join A2Z Updates4U for FREE mock tests! Level up, earn XP, and climb the ranks. \n\nhttps://t.me/A2Zupdates4U';
-  if (tg) {
-    tg.openTelegramLink('https://t.me/share/url?url=https://t.me/A2Zupdates4U&text=' + encodeURIComponent(text));
-  }
+  let text = 'Join A2Z Updates4U for FREE mock tests! Level up, earn XP, climb ranks.\n\nhttps://t.me/A2Zupdates4U';
+  if (tg) tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent('https://t.me/A2Zupdates4U') + '&text=' + encodeURIComponent(text));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════════
 (function init() {
-  // Load state from CloudStorage or use defaults
   if (tg?.CloudStorage) {
     tg.CloudStorage.getItem('a2z_state', (err, val) => {
-      if (val) {
-        try { state = {...state, ...JSON.parse(val)}; } catch(e) {}
-      }
+      if (val) { try { state = {...state, ...JSON.parse(val)}; } catch(e) {} }
       updateUI();
     });
   } else {
     updateUI();
+  }
+
+  // Try API sync first (two-way), fall back to sendData (one-way)
+  if (API_BASE_URL && tg) {
+    syncFromAPI().then(function(ok) {
+      if (!ok) { fetchState(); fetchMocks(); }
+    });
+  } else if (tg) {
+    fetchState();
   }
 
   if (tg?.onEvent) {
@@ -516,7 +767,10 @@ function completeQuest() {
   else if (state.xp >= 1000) state.rank = 'A';
   else if (state.xp >= 300) state.rank = 'C';
   updateUI();
-  if (tg) tg.showPopup({title:'Quest Complete!',message:'+20 XP earned! Keep the streak going.',buttons:[{type:'ok'}]});
+  if (tg) {
+    sendToBot('complete_quest', {xp: state.xp, streak: state.streak, rank: state.rank});
+    tg.showPopup({title:'Quest Complete!',message:'+20 XP earned! Keep the streak going.',buttons:[{type:'ok'}]});
+  }
 }
 </script>
 </body>

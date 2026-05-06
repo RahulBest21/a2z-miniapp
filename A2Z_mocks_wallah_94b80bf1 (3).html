@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<title>Telegram Channel - A2Z Updates</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f2f5;--panel:#fff;--text:#1e293b;--border:#e2e8f0;--sub:#64748b;--primary:#6a5af9;--gold:#d4af37;--gold-dark:#c5a030}
+[data-theme=dark]{--bg:#0f172a;--panel:#1e293b;--text:#e2e8f0;--border:#334155;--sub:#94a3b8;--primary:#818cf8;--gold:#fbbf24;--gold-dark:#f59e0b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.gold-text{background:linear-gradient(to right,#e6c27a,#fff3c7,#d4af37,#ffeba8,#c5a030);-webkit-background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.btn-answered{background:#22c55e!important;color:#fff!important;box-shadow:0 2px 6px rgba(34,197,94,.3)}
+.btn-not-answered{background:#ef4444!important;color:#fff!important;box-shadow:0 2px 6px rgba(239,68,68,.3)}
+.btn-marked{background:#8b5cf6!important;color:#fff!important;border-radius:50%!important;box-shadow:0 2px 6px rgba(139,92,246,.3)}
+.btn-not-visited{background:var(--panel)!important;color:var(--sub)!important;border:2px solid var(--border)!important}
+.fade-in{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pulse-red{animation:pulseRed 1s infinite}
+@keyframes pulseRed{0%,100%{background:#fee2e2}50%{background:#fca5a5}}
+@keyframes twinkle{0%{opacity:.3;transform:scale(.8)}100%{opacity:1;transform:scale(1.2)}}
+.home-header-bg{background:radial-gradient(circle at top right,#1a1500 0%,#050505 40%,#000 100%)}
+.a2z-bar{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:200}
+.a2z-bar .logo{display:flex;align-items:center;gap:10px}
+.a2z-bar .logo-icon{background:linear-gradient(135deg,#e94560,#0f3460);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff}
+.a2z-bar .join-btn{background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;text-decoration:none;padding:7px 16px;border-radius:20px;font-weight:700;font-size:.8rem;display:flex;align-items:center;gap:6px;transition:transform .2s}
+.a2z-bar .join-btn:hover{transform:scale(1.05)}
+#countdown-overlay{position:fixed;inset:0;background:rgba(15,23,42,.97);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center}
+#countdown-number{font-size:8rem;font-weight:900;animation:pulse .8s infinite}
+#mock-screen{display:none;position:fixed;inset:0;flex-direction:column;background:var(--bg);z-index:300}
+.mock-topbar{height:60px;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:3px solid #e94560;flex-shrink:0}
+.mock-topbar .title{font-weight:800;font-size:.95rem;color:#d4af37;text-transform:uppercase;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#timer-display{font-family:monospace;font-weight:700;font-size:1.1rem;background:rgba(0,0,0,.5);padding:6px 14px;border-radius:8px;color:#e6c27a;border:1px solid rgba(212,175,55,.3);min-width:70px;text-align:center}
+.mock-content{display:flex;flex:1;overflow:hidden}
+.question-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+#question-container{flex:1;overflow-y:auto;padding:20px;background:var(--panel);margin:12px;border-radius:16px;border:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.question-text{font-size:1.1rem;font-weight:700;line-height:1.6;margin-bottom:20px;color:#0f172a}
+.option-btn{display:block;width:100%;text-align:left;padding:14px 18px;margin:8px 0;border:2px solid var(--border);border-radius:12px;background:var(--panel);cursor:pointer;font-size:.95rem;font-weight:500;transition:all .15s}
+.option-btn:hover{border-color:var(--primary);background:#f8f7ff}
+.option-btn.selected{border-color:var(--primary);background:#ede9fe;color:var(--primary);font-weight:600}
+.option-btn.correct-show{border-color:#22c55e;background:#f0fdf4;color:#166534}
+.option-btn.wrong-show{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.explanation-box{margin-top:16px;padding:14px 18px;background:#f8fafc;border-left:4px solid var(--primary);border-radius:8px;font-size:.88rem;line-height:1.6;color:#334155}
+.bottom-bar{height:65px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:12px;padding:0 12px;flex-shrink:0;flex-wrap:wrap}
+.bottom-bar button{padding:10px 18px;border:none;border-radius:10px;font-weight:600;font-size:.82rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-review{background:#ede9fe;color:#6d28d9}
+.btn-clear{background:#f1f5f9;color:#64748b}
+.btn-save{background:var(--primary);color:#fff;font-weight:700}
+.btn-submit{background:#22c55e;color:#fff;font-weight:700}
+#palette-panel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.palette-stats{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.7rem;font-weight:600;background:#f8fafc;border-bottom:1px solid var(--border)}
+.palette-stats div{display:flex;align-items:center;gap:4px}
+.palette-stats .dot{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800}
+.palette-section{background:linear-gradient(90deg,#1a1a2e,#16213e);color:#fff;padding:10px 14px;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:1px}
+#palette-grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-content:start}
+.palette-btn{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;cursor:pointer;border:none;transition:all .15s;min-width:0}
+.palette-btn:hover{transform:scale(1.08)}
+.palette-btn.current{border:3px solid var(--primary)!important}
+#result-screen{display:none;min-height:100vh;padding:16px;max-width:800px;margin:0 auto}
+.result-card{background:var(--panel);border-radius:16px;padding:24px;margin-bottom:16px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.result-card h2{font-size:1.3rem;font-weight:800;margin-bottom:16px;color:var(--primary)}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.metric{text-align:center;padding:16px;border-radius:12px;background:#f8fafc;position:relative;overflow:hidden}
+.metric .bar-accent{position:absolute;top:0;left:0;width:100%;height:4px}
+.metric .label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--sub);margin-bottom:4px}
+.metric .value{font-size:2rem;font-weight:900}
+.review-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.review-dot{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.7rem;cursor:pointer;border:none;transition:all .2s}
+.review-dot:hover{transform:scale(1.1)}
+.about-section{max-width:800px;margin:0 auto;padding:0 16px 30px}
+.about-card{background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(217,70,239,.1));border:1px solid rgba(201,146,42,.4);border-radius:16px;padding:26px;margin-bottom:20px;position:relative;overflow:hidden}
+.about-card .bg-icon{position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.06;line-height:1}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badge{padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600}
+.share-footer{max-width:800px;margin:0 auto 30px;padding:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:16px;text-align:center;border:1px solid rgba(233,69,96,.3)}
+.share-footer .title{color:#fff;font-weight:700;font-size:1rem;margin-bottom:6px}
+.share-footer .sub{color:rgba(255,255,255,.6);font-size:.78rem;margin-bottom:14px}
+.share-footer .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.share-btn{background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;text-decoration:none;padding:10px 22px;border-radius:25px;font-weight:700;font-size:.85rem;display:inline-flex;align-items:center;gap:7px;transition:transform .2s}
+.share-btn:hover{transform:scale(1.05)}
+#palette-overlay{display:none}
+/* Mobile responsive */
+.hide-mobile{display:inline-flex}
+.show-mobile{display:none}
+@media(max-width:768px){
+  body{font-size:15px;-webkit-text-size-adjust:100%}
+  .a2z-bar{padding:8px 12px;gap:4px}
+  .a2z-bar .logo-icon{width:28px;height:28px;font-size:14px;border-radius:8px}
+  .a2z-bar .join-btn{padding:5px 12px;font-size:.7rem}
+  .hide-mobile{display:none!important}
+  .show-mobile{display:inline-flex!important}
+  /* Mock topbar - compact */
+  #mock-screen{padding-top:0}
+  .mock-topbar{height:50px;padding:0 8px;gap:4px;border-bottom-width:2px}
+  .mock-topbar .title{font-size:.7rem;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #lang-switch{padding:3px 6px;font-size:.65rem}
+  #timer-display{padding:4px 8px;font-size:.85rem;min-width:55px}
+  .btn-submit{padding:4px 10px!important;font-size:.7rem!important}
+  /* Pallete - slide from right with overlay */
+  #palette-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:350}
+  #palette-overlay.show{display:block}
+  #palette-panel{position:fixed;right:0;top:50px;bottom:0;width:85vw;max-width:300px;z-index:400;transform:translateX(100%);transition:transform .25s ease}
+  #palette-panel.open{transform:translateX(0)}
+  .palette-stats{padding:8px;gap:4px;font-size:.65rem}
+  .palette-section{padding:8px 12px;font-size:.7rem}
+  #palette-grid{grid-template-columns:repeat(5,1fr);gap:6px;padding:10px}
+  .palette-btn{font-size:.7rem;border-radius:6px}
+  /* Question area */
+  .mock-content{flex-direction:column}
+  .question-area{flex:1;overflow:hidden;min-height:0}
+  #question-container{flex:1;overflow-y:auto;margin:8px;padding:14px;border-radius:12px;-webkit-overflow-scrolling:touch}
+  .question-text{font-size:1rem;line-height:1.5}
+  .option-btn{padding:12px 14px;margin:6px 0;font-size:.9rem;border-radius:10px}
+  .option-btn.selected{border-width:2px}
+  /* Bottom bar - larger touch targets */
+  .bottom-bar{height:auto;padding:8px 4px;gap:6px;flex-wrap:wrap;justify-content:center;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  .bottom-bar button{padding:12px 10px;font-size:.75rem;border-radius:10px;flex:1;min-width:0}
+  /* Home screen */
+  #home-screen .home-header-bg{padding:25px 16px 20px}
+  #home-screen .home-header-bg h1{font-size:1.3rem}
+  #home-screen .home-header-bg p{font-size:.75rem}
+  /* Result screen */
+  .metrics-grid{grid-template-columns:repeat(2,1fr)}
+  .result-card{padding:16px}
+  .result-card h2{font-size:1.1rem}
+  .metric{padding:12px}
+  .metric .value{font-size:1.5rem}
+  .review-grid{grid-template-columns:repeat(5,1fr);gap:4px}
+  .review-dot{font-size:.65rem;border-radius:4px}
+  .about-card{padding:16px}
+  .about-card p{font-size:.82rem}
+  .share-footer{padding:14px}
+  .share-footer .title{font-size:.85rem}
+  .share-btn{padding:8px 16px;font-size:.75rem}
+  #confirm-modal > div{width:90%;padding:24px}
+  #confirm-modal h3{font-size:1.1rem}
+}
+@media(max-width:380px){
+  .mock-topbar{gap:2px}
+  #lang-switch{font-size:.6rem;padding:2px 4px}
+  #timer-display{font-size:.75rem;min-width:45px;padding:4px 6px}
+  .palette-btn{font-size:.6rem}
+}
+</style>
+</head>
+<body>
+
+<!-- A2Z BRANDING BAR -->
+<header class="a2z-bar">
+  <div class="logo">
+    <div class="logo-icon">A</div>
+    <div>
+      <div style="color:#fff;font-weight:800;font-size:.95rem;letter-spacing:.5px;">A2Z Updates4U</div>
+      <div style="color:rgba(255,255,255,.6);font-size:.7rem;">Premium Mock Test Series</div>
+    </div>
+  </div>
+  <a href="https://t.me/A2Zupdates4U" target="_blank" class="join-btn">📢 Join Channel</a>
+</header>
+
+<!-- HOME SCREEN -->
+<div id="home-screen" style="min-height:calc(100vh - 56px);display:flex;flex-direction:column;">
+  <div class="home-header-bg" style="text-align:center;padding:40px 20px 30px;border-bottom:3px solid var(--gold);position:relative;overflow:hidden;">
+    <div style="position:absolute;top:10%;left:8%;width:6px;height:6px;background:#fff;border-radius:50%;box-shadow:0 0 10px #fff,0 0 20px #fcf6ba;animation:twinkle 2s infinite"></div>
+    <div style="position:absolute;top:60%;right:12%;width:4px;height:4px;background:#fff;border-radius:50%;box-shadow:0 0 8px #fff,0 0 15px #fcf6ba;animation:twinkle 1.5s infinite .5s"></div>
+    <div style="position:absolute;top:80%;left:25%;width:5px;height:5px;background:#fff;border-radius:50%;box-shadow:0 0 10px #fff,0 0 18px #fcf6ba;animation:twinkle 2.2s infinite 1s"></div>
+    <h1 class="gold-text" style="font-size:2.2rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;">Telegram Channel - A2Z Updates</h1>
+    <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-top:8px;">17 &bull; 60 Questions &bull; 30 Minutes</p>
+  </div>
+
+  <div style="flex:1;max-width:700px;margin:0 auto;width:100%;padding:20px;">
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;">
+      <div style="background:#1a1a2e;color:#fff;padding:12px 20px;font-weight:700;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-clipboard-list"></i> Instructions
+      </div>
+      <div style="padding:20px;line-height:1.8;font-size:.9rem;color:var(--sub);">
+        <p style="font-weight:700;color:var(--text);margin-bottom:12px;">Please read the instructions carefully:</p>
+        <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+          <li>Total duration: <b>30 minutes</b>. Timer starts when you begin.</li>
+          <li><b>Red alert</b> flashes in the last 60 seconds. Test auto-submits when time expires.</li>
+          <li>Question palette on the right shows status: <span style="display:inline-flex;gap:6px;margin-left:4px;"><span style="width:22px;height:22px;border-radius:4px;background:#22c55e;color:#fff;text-align:center;line-height:22px;font-size:.65rem;font-weight:700;">✓</span> Answered <span style="width:22px;height:22px;border-radius:4px;background:#ef4444;color:#fff;text-align:center;line-height:22px;font-size:.65rem;font-weight:700;">✗</span> Not Answered <span style="width:22px;height:22px;border-radius:50%;background:#8b5cf6;color:#fff;text-align:center;line-height:22px;font-size:.65rem;font-weight:700;">M</span> Marked</span></li>
+          <li>You can mark questions for review and revisit them anytime.</li>
+        </ol>
+      </div>
+    </div>
+
+    <button onclick="startMock()" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:800;font-size:1.1rem;cursor:pointer;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 20px rgba(34,197,94,.4);transition:transform .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      I am ready to begin <i class="fas fa-arrow-right ml-2"></i>
+    </button>
+  </div>
+</div>
+
+<!-- COUNTDOWN OVERLAY -->
+<div id="countdown-overlay">
+  <div id="countdown-number" class="gold-text">5</div>
+  <div style="color:#d4af37;font-size:1.2rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;">Get Ready</div>
+</div>
+
+<!-- MOCK TEST SCREEN -->
+<div id="mock-screen">
+  <div class="mock-topbar">
+    <span class="title">Telegram Channel - A2Z Updates</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="hide-mobile" id="lang-btns" style="display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.1);border-radius:6px;padding:2px;">
+        <button onclick="switchLanguage('en')" id="lang-en" style="background:rgba(255,255,255,.2);color:#fff;border:none;padding:3px 8px;border-radius:4px;font-size:.7rem;font-weight:700;cursor:pointer;">EN</button>
+        <button onclick="switchLanguage('hi')" id="lang-hi" style="color:rgba(255,255,255,.6);border:none;padding:3px 8px;border-radius:4px;font-size:.7rem;font-weight:600;cursor:pointer;background:transparent;">HI</button>
+        <button onclick="switchLanguage('both')" id="lang-both" style="color:rgba(255,255,255,.6);border:none;padding:3px 8px;border-radius:4px;font-size:.7rem;font-weight:600;cursor:pointer;background:transparent;">Both</button>
+      </div>
+      <button onclick="toggleTheme()" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;" title="Dark/Light">🌓</button>
+      <button onclick="togglePalette()" class="show-mobile" style="background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;"><i class="fas fa-th"></i></button>
+      <div id="timer-display">30:00</div>
+      <button onclick="confirmSubmit()" class="btn-submit" style="padding:6px 16px;font-size:.8rem;">Submit</button>
+    </div>
+  </div>
+  <div class="mock-content">
+    <div class="question-area">
+      <div id="question-container"><div style="text-align:center;padding:40px;color:var(--sub);">Loading questions...</div></div>
+      <div class="bottom-bar">
+        <button class="btn-review" onclick="markForReview()"><i class="fas fa-bookmark mr-1"></i><span class="hide-mobile">Mark for Review</span><span class="show-mobile">Review</span></button>
+        <button class="btn-clear" onclick="clearResponse()"><i class="fas fa-eraser mr-1"></i><span class="hide-mobile">Clear Response</span><span class="show-mobile">Clear</span></button>
+        <button class="btn-save" onclick="saveAndNext()">Save & Next <i class="fas fa-chevron-right ml-1"></i></button>
+        <button class="btn-submit show-mobile" onclick="confirmSubmit()">📤 Submit</button>
+      </div>
+    </div>
+    <div id="palette-overlay" onclick="togglePalette()"></div>
+    <div id="palette-panel">
+      <div class="palette-stats">
+        <div><span class="dot btn-answered" id="cnt-answered">0</span> Answered</div>
+        <div><span class="dot btn-not-answered" id="cnt-not-answered">60</span> Not Answered</div>
+        <div><span class="dot btn-marked" id="cnt-marked">0</span> Marked</div>
+        <div><span class="dot btn-not-visited" id="cnt-not-visited">60</span> Not Visited</div>
+      </div>
+      <div class="palette-section">17 <span style="opacity:.7;font-size:.7rem;margin-left:auto;">60 Qs</span></div>
+      <div id="palette-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT CONFIRMATION MODAL -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.85);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--panel);border-radius:20px;padding:32px;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+    <div style="font-size:3rem;margin-bottom:12px;">📋</div>
+    <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Submit Test?</h3>
+    <p style="color:var(--sub);font-size:.9rem;margin-bottom:20px;">You have <b><span id="confirm-unanswered">0</span> unanswered</b> questions. Submit anyway?</p>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeConfirm()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--panel);font-weight:600;cursor:pointer;">Review</button>
+      <button onclick="submitMock()" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen">
+  <div class="result-card" style="text-align:center;">
+    <div style="font-size:3rem;margin-bottom:8px;">🎯</div>
+    <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:4px;">Test Complete</h1>
+    <p style="color:var(--sub);">Telegram Channel - A2Z Updates</p>
+  </div>
+
+  <div class="result-card">
+    <h2><i class="fas fa-chart-bar mr-2"></i>Performance Summary</h2>
+    <div class="metrics-grid">
+      <div class="metric"><div class="bar-accent" style="background:var(--gold);"></div><div class="label">Score</div><div class="value" style="color:var(--gold-dark);" id="res-score">0</div></div>
+      <div class="metric"><div class="bar-accent" style="background:var(--primary);"></div><div class="label">Correct</div><div class="value" style="color:var(--primary);" id="res-correct">0</div></div>
+      <div class="metric"><div class="bar-accent" style="background:#ef4444;"></div><div class="label">Wrong</div><div class="value" style="color:#ef4444;" id="res-wrong">0</div></div>
+      <div class="metric"><div class="bar-accent" style="background:#22c55e;"></div><div class="label">Accuracy</div><div class="value" style="color:#22c55e;" id="res-accuracy">0%</div></div>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:#f1f5f9;border-radius:10px;display:flex;justify-content:space-around;text-align:center;">
+      <div><div style="font-size:.7rem;color:var(--sub);font-weight:600;">TIME TAKEN</div><div style="font-weight:800;font-size:1.1rem;" id="res-time">0:00</div></div>
+      <div><div style="font-size:.7rem;color:var(--sub);font-weight:600;">ATTEMPTED</div><div style="font-weight:800;font-size:1.1rem;" id="res-attempted">0</div></div>
+      <div><div style="font-size:.7rem;color:var(--sub);font-weight:600;">SKIPPED</div><div style="font-weight:800;font-size:1.1rem;" id="res-skipped">0</div></div>
+    </div>
+  </div>
+
+  <div class="result-card">
+    <h2><i class="fas fa-list-check mr-2"></i>Question Review</h2>
+    <div class="review-grid" id="review-grid"></div>
+    <div id="review-detail" style="margin-top:16px;"></div>
+  </div>
+
+  <button onclick="location.reload()" style="width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--primary),#5041d5);color:#fff;font-weight:800;font-size:1.05rem;cursor:pointer;margin-bottom:20px;">🏠 Back to Home</button>
+</div>
+
+<!-- ABOUT SECTION -->
+<div class="about-section" id="about-section" style="display:none;">
+  <div class="about-card">
+    <div class="bg-icon">🏆</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;position:relative;z-index:1;">
+      <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#d4af37,#8b1a1a);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;">R</div>
+      <div>
+        <div style="font-weight:800;font-size:1.05rem;">Rahul Best</div>
+        <div style="color:#d4af37;font-size:.8rem;">Founder &amp; Creator &nbsp;·&nbsp; <span style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">SSC CGL AIR 209 🏆</span></div>
+      </div>
+    </div>
+    <p style="line-height:1.9;font-size:.9rem;margin-bottom:14px;position:relative;z-index:1;">
+      <b style="color:#d4af37;">A2Z Updates4U</b> was built by <b>Rahul Best</b>, who cleared <b>SSC CGL with All India Rank 209</b>. His English score was near-perfect — powered by the exact vocabulary and editorial reading techniques shared on this channel. After selection, he decided no aspirant should study without these battle-tested tools.
+    </p>
+    <div class="badges">
+      <span class="badge" style="background:rgba(245,158,11,.15);border:1px solid #f59e0b;color:#fbbf24;">🏆 SSC CGL</span>
+      <span class="badge" style="background:rgba(201,146,42,.12);border:1px solid #8b5cf6;color:#d4a843;">📊 AIR 209</span>
+      <span class="badge" style="background:rgba(34,197,94,.15);border:1px solid #22c55e;color:#4ade80;">📰 Daily Editorials</span>
+      <span class="badge" style="background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#fca5a5;">📚 5000+ Vocab</span>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE FOOTER -->
+<div class="share-footer" id="share-footer" style="display:none;">
+  <div class="title">Powered by A2Z Updates4U</div>
+  <div class="sub">Daily Mock Tests &bull; Editorials &bull; Vocab &bull; Current Affairs</div>
+  <div class="btns">
+    <a href="https://t.me/A2Zupdates4U" target="_blank" class="share-btn">📢 A2Z Updates Channel</a>
+    <a href="https://t.me/share/url?url=https://t.me/A2ZUpdates4U&text=🚀%20FREE%20Mock%20Tests%20by%20A2Z%20Updates4U%0A%0A📝%20Daily%20Quiz%20Mocks%0A📰%20Editorial%20Study%20Series%0A📚%20Vocabulary%20Builder%0A%0A🏆%20Founded%20by%20Rahul%20Best%20—%20SSC%20CGL%20AIR%20209%0A👉%20Join%20FREE:%20https://t.me/A2ZUpdates4U" target="_blank" class="share-btn" style="background:linear-gradient(135deg,#0f3460,#16213e);border:1px solid rgba(233,69,96,.4);">✈️ Share on Telegram</a>
+  </div>
+</div>
+
+<script>
+// ========== QUESTIONS DATA ==========
+const QUESTIONS = [{"text": "<p>1. <span style=\"font-family: Cambria Math;\">A Reliance company employs 1800 people in total. Yesterday, all employees were present except for 4% of the men. Today, all employees are present except for 5% of the women. If the total number of employees in the office was identical on both days, determine the number of women in the company.</span></p>", "options": ["<p>940</p>", "<p>1020</p>", "<p>840</p>", "<p>800</p>"], "correctIndex": 3, "explanation": "<p>1.(d) Letting M and W represent the number of men and women, 4% of M equals 5% of W, establishing a ratio of 5:4. Dividing the 1800 total employees into 9 parts results in 800 women (4 units).<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>2.<span style=\"font-family: Cambria Math;\"> The expression <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>1</mn><msqrt><mn>7</mn><mo>&#160;</mo><mo>-</mo><mo>&#160;</mo><mn>4</mn><msqrt><mn>3</mn></msqrt></msqrt></mfrac></mstyle></math></span><span style=\"font-family: Cambria Math;\"> is approximately equal to: </span></p>", "options": ["<p>4.1<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>4.2<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>1.2</p>", "<p>3.7</p>"], "correctIndex": 3, "explanation": "<p>2.(d) The denominator simplifies to (2 - √3), which equals 2 + √3 when rationalized. Given √3 ≈ 1.73, the result is 2 + 1.73 = 3.73.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>3.<span style=\"font-family: Cambria Math;\"> The following table displays the production (in thousands) of various car types by a firm from 1992 to 1996:</span><br><strong id=\"docs-internal-guid-2181d5c5-7fff-a254-5682-7e4ffa6258ff\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdD2MvGN-CSkqrHmKy8ukKCqpVN2cGCBB5Nt-SgMHQqk2ZFrNWHQUY2iYJ0EMoa0X-_bH2SM_-KiZwiihEXusOTsTxvKrlIARfbnJmvhnbH2WMlnt65YBQumSHRUZRTZHZV15AaQA?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"323\" height=\"175\"></strong><br><span style=\"font-family: Cambria Math;\">What percentage of the total production of type-A cars across all these years was produced in 1995?</span></p>", "options": ["<p>18%</p>", "<p>20%</p>", "<p>24%</p>", "<p>15%</p>"], "correctIndex": 1, "explanation": "<p>3.(b) Total production of type-A cars equals 160 + 210 + 130 + 190 + 260 = 950. The percentage for 1995 is (190/950) × 100 = 20%.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>4. <span style=\"font-family: Cambria Math;\">A wire, previously shaped into a square covering 169 cm<sup>2</sup>, is reshaped into a circle. Calculate the area of this circle in cm<sup>2</sup> (rounded to the nearest whole number).</span></p>", "options": ["<p>215</p>", "<p>227</p>", "<p>532</p>", "<p>531</p>"], "correctIndex": 0, "explanation": "<p>4.(a) A square with area 169 cm² has a perimeter of 52 cm. Using the circumference formula (2πr = 52), the circle's area (πr²) calculates to approximately 215 cm².<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>5. <span style=\"font-family: Cambria Math;\">Pipes A and B fill a tank in 16 and 24 hours, respectively, while pipe C empties it in 40 hours. If all pipes are opened but pipe A is shut after 8 hours, how much additional time is required to fill the remaining tank?</span></p>", "options": ["<p>24</p>", "<p>22</p>", "<p>30</p>", "<p>36</p>"], "correctIndex": 1, "explanation": "<p>5.(b) The net filling rate for the first 8 hours is 19 units/hour, filling 152 units total. The remaining 88 units are filled by B and C at a rate of 4 units/hour, taking 22 hours.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>6.<span style=\"font-family: Cambria Math;\"> The area of a triangular field with sides 65m, 72m, and 97m matches the area of a rectangular park with sides in a 5:13 ratio. Determine the perimeter of this rectangular park in meters.</span></p>", "options": ["<p>108</p>", "<p>180</p>", "<p>216</p>", "<p>144</p>"], "correctIndex": 2, "explanation": "<p>6.(c) The triangle is right-angled, with area 0.5 × 65 × 72 = 2340 m². Setting 65x² = 2340 yields x=6. The perimeter 2(5x+13x) = 36x, which is 36 × 6 = 216 m.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>7. <span style=\"font-family: Cambria Math;\">In the provided diagram, P and Q are the centers of two circles intersecting at A and B. When PA is extended, it intersects the circles at C and D. If &ang;CPB = 100&deg;</span><span style=\"font-family: Cambria Math;\">, what is the value of x?</span><br><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image5.jpg\" width=\"205\" height=\"136\"></p>", "options": ["<p>115<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>120</p>", "<p>110<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>100</p>"], "correctIndex": 3, "explanation": "<p>7.(d) Using circle properties, &ang;CAB = 50&deg;. Through a cyclic quadrilateral construction, the external angle equals the internal opposite angle, leading to &ang;BQD = 2 × 50&deg; = 100&deg;.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>8. <span style=\"font-family: Cambria Math;\">The table below indicates the number of seats won by political parties in local elections during 2014 and 2019.</span><br><strong id=\"docs-internal-guid-6b08d962-7fff-36c3-eed8-d3cdd1d20696\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXesVhPg1ImUFGm5gxzOljMWZPpVZlv8R-KUNGWJlgd5HqEht8iSZdnRKsLWqfD9hbZQcRtK5Mlj1Kf25FWoH-MskcMW_IvwtXScMvg6rHroKyhFaFr8JCZfXZOziIc9VPgffKrO?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"396\" height=\"150\"></strong><br><span style=\"font-family: Cambria Math;\">Calculate the ratio of the combined seats won by Con (2014), Kanta Dal (2019), and Shiv Party (2019) to the total seats won by AGP in 2014.</span></p>", "options": ["<p>77 : 282</p>", "<p>77 : 141</p>", "<p>283 : 77</p>", "<p>145 : 77</p>"], "correctIndex": 0, "explanation": "<p>8.(a) The sum of Con (2014: 43), Kanta Dal (2019: 16), and Shiv Party (2019: 18) is 77. The seats for AGP (2014) are 282, resulting in a 77:282 ratio.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>9. In the provided figure, if &ang;ACB + &ang;BAC = 80&deg;, &ang;BDE = 35&deg;, and &ang;BCE = 45&deg;, determine the reflex angle &ang;CED:<br><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image9.jpg\" width=\"165\" height=\"137\"></p>", "options": ["<p>150&deg;</p>", "<p>120&deg;</p>", "<p>160&deg;</p>", "<p>135&deg;</p>"], "correctIndex": 2, "explanation": "<p>(c) Based on the exterior angle property, &ang;CBD = 80&deg;. In quadrilateral BCED, the interior angle &ang;CED = 360&deg; - (80&deg; + 45&deg; + 35&deg;) = 200&deg;; thus, the reflex &ang;CED = 360&deg; - 200&deg; = 160&deg;.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>10. When an integer M is divided by 7, the remainder is 6. Calculate the remainder when the square of M is divided by 7.</p>", "options": ["<p>4</p>", "<p>1</p>", "<p>3</p>", "<p>2</p>"], "correctIndex": 1, "explanation": "<p>(b) If M &equiv; 6 (mod 7), then M&sup2; &equiv; 6&sup2; = 36 (mod 7). Since 36 divided by 7 leaves a remainder of 1, the result is 1.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>11. Calculate the variance of the following set of data points:<br>6, 7, 5, 9, 12, 15</p>", "options": ["<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>37</mn><mn>6</mn></mfrac></mstyle></math></p>", "<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>67</mn><mn>6</mn></mfrac></mstyle></math></p>", "<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>81</mn><mn>3</mn></mfrac></mstyle></math></p>", "<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>37</mn><mn>3</mn></mfrac></mstyle></math></p>"], "correctIndex": 3, "explanation": "<p>(d) The mean is 54/6 = 9. The variance is the average of the squared deviations: [(6-9)&sup2; + (7-9)&sup2; + (5-9)&sup2; + (9-9)&sup2; + (12-9)&sup2; + (15-9)&sup2;] / 6 = (9 + 4 + 16 + 0 + 9 + 36) / 6 = 74/6 = 37/3.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>12. Determine the total count of prime factors in the expression (30)^5 &times; (24)^5.</p>", "options": ["<p>45</p>", "<p>35</p>", "<p>10</p>", "<p>30</p>"], "correctIndex": 1, "explanation": "<p>(b) Simplifying the expression: (2&times;3&times;5)^5 &times; (2^3&times;3)^5 = 2^5 &times; 3^5 &times; 5^5 &times; 2^15 &times; 3^5 = 2^20 &times; 3^10 &times; 5^5. The sum of the exponents gives 20 + 10 + 5 = 35 prime factors.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>13. Given that 2x^2 + 5x + 1 = 0, find the value of 1/2(x &ndash; 1/(2x)).</p>", "options": ["<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><msqrt><mn mathsize=\"18px\">17</mn></msqrt><mn mathsize=\"18px\">2</mn></mfrac></math></p>", "<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><msqrt><mn mathsize=\"18px\">17</mn></msqrt><mn mathsize=\"18px\">4</mn></mfrac></math></p>", "<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><msqrt><mn>17</mn></msqrt><mn>3</mn></mfrac></mstyle></math></p>", "<p><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><msqrt><mn mathsize=\"18px\">17</mn></msqrt><mn mathsize=\"18px\">6</mn></mfrac></math></rangle></p>"], "correctIndex": 1, "explanation": "<p>(b) Dividing 2x^2 + 5x + 1 = 0 by 2x yields x + 1/(2x) = -5/2. Using the identity (x - 1/2x)^2 = (x + 1/2x)^2 - 4(x)(1/2x), we find (x - 1/2x) = &radic;(25/4 - 2) = &radic;17/2. Multiplying by 1/2 gives &radic;17/4.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>14. Calculate the value of Sin 73&deg; + Cos 137&deg;.</p>", "options": ["<p>sin 13&deg;</p>", "<p>cos 13&deg;</p>", "<p>cos 18&deg;</p>", "<p>sin 18&deg;</p>"], "correctIndex": 0, "explanation": "<p>(a) Since Cos 137&deg; = Cos(90&deg; + 47&deg;) = -Sin 47&deg;, the expression becomes Sin 73&deg; - Sin 47&deg;. Applying the formula Sin A - Sin B = 2 Cos((A+B)/2)Sin((A-B)/2) results in 2 Cos 60&deg; Sin 13&deg;, which equals Sin 13&deg;.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>15. What is the smallest positive integer that must be added to 756896 to make it divisible by 11?</p>", "options": ["<p>1</p>", "<p>2</p>", "<p>3</p>", "<p>5</p>"], "correctIndex": 2, "explanation": "<p>(c) Dividing 756896 by 11 leaves a remainder of 8. To reach the next multiple of 11, we must add the difference between the divisor and the remainder, which is 11 - 8 = 3.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>16. The HCF and LCM of two integers are 16 and 192, respectively. If one of the integers is 48, identify the other.</p>", "options": ["<p>64</p>", "<p>46</p>", "<p>63</p>", "<p>72</p>"], "correctIndex": 0, "explanation": "<p>(a) Using the property that the product of two numbers equals the product of their HCF and LCM, we have 48 &times; x = 16 &times; 192, which simplifies to x = (16 &times; 192) / 48 = 64.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>17. <span style=\"font-family: Cambria Math;\">A line originally 1.5 metres long was incorrectly measured as 1.55 metres. What is the percentage of error?</span></p>", "options": ["<p>0.05%</p>", "<p><span style=\"font-family: Cambria Math;\">3<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>7</mn><mn>31</mn></mfrac></mstyle></math>%</span></p>", "<p><span style=\"font-family: Cambria Math;\">3<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>1</mn><mn>3</mn></mfrac></mstyle></math>%</span></p>", "<p>0.5%</p>"], "correctIndex": 2, "explanation": "<p>17.(c) Error percentage = ((Measured Value - Actual Value) / Actual Value) &times; 100 = ((1.55 - 1.5) / 1.5) &times; 100 = (0.05 / 1.5) &times; 100 = 3 1/3%.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>18. <span style=\"font-family: Cambria Math;\">From the top of a lighthouse, the angles of depression toward two ships located to the east are 60&deg; and 45&deg;. Given that the ships are 300 meters apart, what is the height of the lighthouse?</span></p>", "options": ["<p><span style=\"font-family: Cambria Math;\">200(3 + <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msqrt><mn>3</mn></msqrt></math>) m&nbsp;</span></p>", "<p><span style=\"font-family: Cambria Math;\">250(3 + <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msqrt><mn>3</mn></msqrt></math>) m&nbsp;</span></p>", "<p><span style=\"font-family: Cambria Math;\">150(3 + <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msqrt><mn>3</mn></msqrt></math>) m&nbsp;</span></p>", "<p><span style=\"font-family: Cambria Math;\">1600(3 + <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msqrt><mn>3</mn></msqrt></math>) m</span></p>"], "correctIndex": 2, "explanation": "<p>18.(c) Using trigonometry, the difference in distance is h(cot 45&deg; - cot 60&deg;) = 300m. Solving for height h gives 300 / (1 - 1/√3) = 150(3 + √3) meters.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>19. <span style=\"font-family: Cambria Math;\">A college union has 48 students with a boy-to-girl ratio of 5:3. How many girls must be added to change the boy-to-girl ratio to 6:5?</span></p>", "options": ["<p>6</p>", "<p>7</p>", "<p>12</p>", "<p>17</p>"], "correctIndex": 1, "explanation": "<p>19.(b) Initially, there are 30 boys and 18 girls. Let y be the number of girls to add: 30 / (18 + y) = 6 / 5, which simplifies to 18 + y = 25, so y = 7.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>20. <span style=\"font-family: Cambria Math;\">John's average score in English, Maths, Hindi, and Drawing is 50. His average in Maths, Science, Social Studies, and Craft is 70. With an overall average of 58 across all seven subjects, what was his score in Maths?</span></p>", "options": ["<p>50</p>", "<p>52</p>", "<p>60</p>", "<p>74</p>"], "correctIndex": 3, "explanation": "<p>20.(d) Sum of first four subjects is 200, sum of next four is 280, and total for seven subjects is 406. Maths = (200 + 280) - 406 = 74.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>21. <span style=\"font-family: Cambria Math;\">Rubi travels to a multiplex at 3 km/hr and arrives 5 minutes late. If she travels at 4 km/hr, she arrives 5 minutes early. What is the distance from her starting point to the multiplex?</span></p>", "options": ["<p>2 km</p>", "<p>5 km</p>", "<p>2 m</p>", "<p>5 m<span style=\"font-family: Cambria Math;\"> </span></p>"], "correctIndex": 0, "explanation": "<p>21.(a) Using the formula d = [v1 * v2 / (v2 - v1)] * total time difference. Here, d = [(3 * 4) / (4 - 3)] * (10/60) hours = 12 * (1/6) = 2 km.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>22. <span style=\"font-family: Cambria Math;\">P can complete 1/4 of a task in 10 days, Q can complete 40% of the task in 40 days, and R can finish 1/3 of the task in 13 days. Who completes their task first?</span></p>", "options": ["<p>P</p>", "<p>Q</p>", "<p>R</p>", "<p>Both P and R</p>"], "correctIndex": 2, "explanation": "<p>22.(c) P completes the task in 40 days, Q in 100 days, and R in 39 days. Since 39 is the smallest value, R finishes first.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>23. <span style=\"font-family: Cambria Math;\">A shopkeeper purchases a product at Rs 150 per kg. If 15% of the stock is damaged, at what price per kg should he sell the remainder to achieve a 20% profit?</span></p>", "options": ["<p><span style=\"font-family: 'book antiqua', palatino, serif;\">Rs. 211<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn mathsize=\"18px\">3</mn><mn mathsize=\"18px\">17</mn></mfrac></math></span></p>", "<p><span style=\"font-family: 'book antiqua', palatino, serif;\">Rs. 207<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn mathsize=\"18px\">13</mn><mn mathsize=\"18px\">17</mn></mfrac></math></span></p>", "<p><span style=\"font-family: 'book antiqua', palatino, serif;\">Rs. 207<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn mathsize=\"18px\">3</mn><mn mathsize=\"18px\">17</mn></mfrac></math></span></p>", "<p><span style=\"font-family: 'book antiqua', palatino, serif;\">Rs. 211<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>13</mn><mn>17</mn></mfrac></mstyle></math></span></p>"], "correctIndex": 3, "explanation": "<p>23.(d) Total required revenue for 1kg is 150 * 1.2 = 180. Dividing this by the remaining 0.85kg gives 180 / 0.85 = 3600/17 = 211 13/17.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>24. <span style=\"font-family: Cambria Math;\">In &Delta;ABC, AD is a median. If points E, F, and G are the midpoints of AD, AE, and DE respectively, what is the area of &Delta;BFG?</span></p>", "options": ["<p><span style=\"font-family: Cambria Math;\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle></math>(Area of &Delta;ABC)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Cambria Math;\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>1</mn><mn>8</mn></mfrac></mstyle></math>(Area of &Delta;ABC)</span></p>", "<p><span style=\"font-family: Cambria Math;\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>1</mn><mn>4</mn></mfrac></mstyle></math>(Area of &Delta;ABC)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p><span style=\"font-family: Cambria Math;\"><math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mstyle mathsize=\"18px\"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle></math>(Area of &Delta;BGC)</span></p>"], "correctIndex": 2, "explanation": "<p>24.(c) Using the property of medians and midpoint segments, the triangle BFG encompasses 1/4 of the total area of the original triangle ABC.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>25. The sum of money, when invested for 2 years at a 15% rate of compound interest, yields Rs 3225. What is the principal amount?</p>", "options": ["<p>10000</p>", "<p>20000</p>", "<p>15000</p>", "<p>32250</p>"], "correctIndex": 0, "explanation": "<p>The effective interest rate for 2 years at 15% is 15 + 15 + (15 × 15 / 100) = 32.25%. Given 32.25% of the principal equals 3225, the principal is 3225 / 0.3225 = 10000.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>26. Over a period of 3 years, a principal of Rs 3000 grows to Rs 3993 at x% per annum, compounded annually. Determine the value of x.</p>", "options": ["<p>10</p>", "<p>8</p>", "<p>5</p>", "<p>7.67</p>"], "correctIndex": 0, "explanation": "<p>Using the formula A = P(1 + r/100)^n, we have 3993 = 3000(1 + x/100)^3. Dividing both sides gives 1.331 = (1 + x/100)^3, and calculating the cube root yields 1.1 = 1 + x/100, which means x = 10.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>27. A librarian bought 60 storybooks. By spending an additional Rs 336, he could acquire 4 more books, which would lower the overall average price per book by Re 1. Find the initial average price of each book.</p>", "options": ["<p>Rs 84</p>", "<p>Rs 83 </p>", "<p>Rs 68</p>", "<p>Rs 100</p>"], "correctIndex": 3, "explanation": "<p>If the original average is x, the total cost is 60x. With 4 extra books for Rs 336, the new average is (60x + 336)/64 = x - 1. Solving this equation results in x = 100.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>28. A and B partner in a business. A invests Rs 4000 initially and adds Rs 2000 after 8 months. B invests Rs 5000 and withdraws Rs 2000 after 9 months. As an active partner, A receives a monthly allowance of Rs 100 from the annual profit of Rs 6700. What is B's share of the remaining profit?</p>", "options": ["<p>Rs 3350</p>", "<p>Rs 3250</p>", "<p>Rs 2700</p>", "<p>Rs 2800</p>"], "correctIndex": 2, "explanation": "<p>A's investment ratio is (4000×8 + 6000×4) = 56000, and B's is (5000×9 + 3000×3) = 54000, simplifying to 28:27. After deducting A's Rs 1200 allowance, the remaining Rs 5500 is split, giving B 27/55 × 5500 = 2700.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>29. The variance of 20 observations is 5. If every observation is doubled, what will the variance of the new set of observations be?</p>", "options": ["<p>5</p>", "<p>2 × 5</p>", "<p>2<sup>2</sup> × 5</p>", "<p>2 × 5<sup>2</sup></p>"], "correctIndex": 2, "explanation": "<p>When every observation in a dataset is multiplied by a constant factor k, the new variance is the original variance multiplied by k squared. Here, 5 × 2^2 = 20.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>30. A die is rolled three times. Define events: A as rolling a 4 on the third throw, and B as rolling a 6 on the first throw and a 5 on the second. Calculate the conditional probability of A given that B has occurred.</p>", "options": ["<p>1/6</p>", "<p>1/8</p>", "<p>1/5</p>", "<p>1/9</p>"], "correctIndex": 0, "explanation": "<p>The probability P(A|B) = P(A ∩ B) / P(B). Since event B forces the first two rolls, the probability depends only on the third roll being a 4, which is 1/6.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>31. Question: Standing in a row, who is positioned in the middle among A, B, C, D, and E?<br>Statements:<br>1. C, who is third to the left of D, is also immediate right of A and second to the left of E.<br>2. C is second to the left of E, who is not at the ends and sits third to the right of A. D is at one of the ends.</p>", "options": ["<p>I alone is sufficient while II alone is not sufficient</p>", "<p>II alone is sufficient while I alone is not sufficient</p>", "<p>Either I or II is sufficient</p>", "<p>Neither I nor II is sufficient</p>"], "correctIndex": 2, "explanation": "<p>Both statements independently provide enough directional information to arrange all five individuals in the sequence A, C, B, E, D, identifying B as the person in the middle.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>32. Statement: Providing LPG connections to households below the poverty line will ensure universal access to cooking gas in country X.<br>Conclusions:<br>I. In rural regions of country X, people frequently use traditional cooking fuels such as firewood or coal.<br>II. No other method of cooking is as efficient as using LPG.</p>", "options": ["<p>Neither conclusion I nor II follows</p>", "<p>Both conclusions I and II follow</p>", "<p>Only conclusion I follows</p>", "<p>Only conclusion II follows</p>"], "correctIndex": 0, "explanation": "<p>Neither conclusion can be logically derived from the statement; the statement discusses a goal of universal coverage, not the specific current practices or a comparison of fuel efficiency.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>33. Carefully analyze the provided query and arguments, then determine which argument(s) are strong.<br><strong>Query:</strong><br>Should there be a total ban on the sale of tobacco in India?<br><strong>Argument 1:</strong><br>No, this would leave thousands of employees without jobs.<br><strong>Argument 2:</strong><br>Yes, tobacco is consumed even by minors, who suffer from serious health consequences.</p>", "options": ["<p>Both arguments are strong</p>", "<p>Only argument 1 is strong</p>", "<p>Neither argument 1 nor 2 is strong</p>", "<p>Only argument 2 is strong</p>"], "correctIndex": 0, "explanation": "Both arguments are strong because the first highlights the economic impact on workers, while the second emphasizes the severe health risks to minors. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>34. Examine the following statements and conclusions carefully. Assuming the statements are true, even if they contradict common knowledge, decide which conclusion logically follows.<br><strong>Statements:</strong><br>1. No pilots are amateurs.<br>2. Only a few amateurs are players.</p>", "options": ["<p>Some amateurs are not players.</p>", "<p>Some pilots are players.</p>", "<p>Some players are pilots.</p>", "<p>Some pilots are not amateurs.</p>"], "correctIndex": 0, "explanation": "Since the statement 'Only a few amateurs are players' implies that some amateurs are players and some are not, the conclusion 'Some amateurs are not players' logically follows. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>35. Letters are represented by numbers or symbols based on the provided table and conditions. Use them to identify the correct code for SQUARE.<br><strong>Table:</strong><br><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfkcz7Mj_Bgj4EOVLUVYNFYkKbvYf08rZQyRA1-4awmkdN4ZoJPXXSGF7-RWyY5acBsOl0mJYnY7NJtzxCriphr11P6j_DPbvo5ILIZog_Dav1TSHOxF76bF5Ged894cVlsviw1?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"420\" height=\"59\"><br><strong>Conditions:</strong><br>(i) If a word contains more than one vowel, all vowels are coded as 4.<br>(ii) If a word begins and ends with a consonant, both are coded as 2.</p>", "options": ["<p>7%4493</p>", "<p>7%@A2Zupdates4U</p>", "<p>7%9493</p>", "<p>7%4494</p>"], "correctIndex": 3, "explanation": "The word 'SQUARE' contains three vowels (U, A, E), so they are coded as 4, resulting in the code 7%4494. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>36. A sequence of numbers and symbols is coded using letters according to the following table and conditions. Identify the correct code for the sequence provided.<br><strong>Table:</strong><br><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdwoUEiM_dh4G4n360oAVCZj7XtyQhdXxmcD6yrRGoIbHtizqWyDY7t1KMSxIw0RF9SJGemF0kGW6Q2saOuHrY7mSrNsAV3SWtrWPKsqT9fr0bVGift1v1LFFB-mV_BKsuQ2s5seg?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"468\" height=\"62\"><br><strong>Conditions:</strong><br>(i) If the first and fourth elements are even, code the third element as the code for the third element.<br>(ii) If the second and third elements are perfect squares, code the third element as the code for the second element.<br><strong>Which of these is the code for % 9 4 # 2 ?</strong></p>", "options": ["<p>MZZKP</p>", "<p>MZBKP</p>", "<p>MBZPK</p>", "<p>MBZKP</p>"], "correctIndex": 0, "explanation": "Applying the specific coding rules for the provided character sequence results in the code MZZKP. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>37. A decision is presented along with two statements. Read the information and choose the correct option.<br><strong>Decision:</strong><br>To boost tourism, Country W is designating 20 cities as Heritage Sites.<br><strong>Statements:</strong><br>I. Four of these 20 cities are in mountainous regions and have limited transport accessibility.<br>II. Historically, promoting cities for tourism in Country W has resulted in higher employment rates in those areas.</p>", "options": ["<p>Statement I weakens the decision and statement II strengthens the decision</p>", "<p>Statement I is a neutral statement and statement II strengthens the decision</p>", "<p>Both statements I and II strengthen the decision</p>", "<p>Both statements I and II weaken the decision</p>"], "correctIndex": 0, "explanation": "Statement I identifies a challenge (limited accessibility), which weakens the decision, while Statement II provides evidence of positive economic benefits, which strengthens it. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>38. In a specific coding scheme, BAD is represented as 16-1-4. How should CAGE be coded?</p>", "options": ["<p>9-1-49-25</p>", "<p>25-49-1-9</p>", "<p>16-1-4-9</p>", "<p>25-1-9-49</p>"], "correctIndex": 1, "explanation": "The code uses the square of the position of each letter in the alphabet (e.g., C=3 -> 9, A=1 -> 1, G=7 -> 49, E=5 -> 25). Rearranging or following the logic gives 25-49-1-9. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>39. If TRUTH is represented as SUQSTVSUGI, how should LIES be coded?</p>", "options": ["<p>KMHJDFTR</p>", "<p>KMHJDFRT</p>", "<p>HJDFRTKM</p>", "<p>KMJHFDTR</p>"], "correctIndex": 1, "explanation": "Each letter in the original word is replaced by the two letters preceding and following it in the alphabet (e.g., T becomes S and U). Following this pattern, LIES becomes KMHJDFRT. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>40. Identify the odd number pair from the options.</p>", "options": ["<p>7 : 392</p>", "<p>9 : 810</p>", "<p>15 : 3150</p>", "<p>12 : 1872</p>"], "correctIndex": 2, "explanation": "The pattern follows n : (n³ + n²). For 15, 15³ + 15² = 3375 + 225 = 3600, not 3150, making it the odd pair. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p><span style=\"font-family: Cambria Math;\">41. </span><span style=\"font-family: Cambria Math;\">Based on the provided statement, four conclusions are identified. Determine which conclusion is FALSE.</span><br><strong><span style=\"font-family: Cambria Math;\">Statement:</span></strong><br><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\">A &lt; B &lt; C &le; D = E &gt; F &gt; G</span></p>", "options": ["<p>D &gt; G</p>", "<p>A &gt; E</p>", "<p>E &gt; B</p>", "<p>C &le; E</p>"], "correctIndex": 1, "explanation": "<p><span style=\"font-family: Cambria Math;\">41.(b) Given the sequence: A &lt; B &lt; C &le; D = E &gt; F &gt; G.</span><br><span style=\"font-family: Cambria Math;\">A &gt; E is false because the statement clearly indicates that E is greater than A.</span><br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>42.<span style=\"font-family: Cambria Math;\"> Choose the word that does not belong. </span></p>", "options": ["<p>Growl</p>", "<p>Waddle</p>", "<p>Grunt</p>", "<p>Bleat</p>"], "correctIndex": 1, "explanation": "<p>42.(b) Unlike the other options, which represent specific animal vocalizations, 'Waddle' refers to a mode of movement. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p><span style=\"font-family: Cambria Math;\">43. </span><span style=\"font-family: Cambria Math;\">Which triplet follows the same pattern as (3, 16, 125)?</span></p>", "options": ["<p><span style=\"font-family: Cambria Math;\"><span style=\"font-weight: 400;\">(2, 8, 81)&nbsp;</span></span></p>", "<p><span style=\"font-family: Cambria Math;\"><span style=\"font-weight: 400;\">(5, 36, 343)&nbsp;</span></span></p>", "<p><span style=\"font-family: Cambria Math;\"><span style=\"font-weight: 400;\">(6,36, 144)</span></span></p>", "<p><span style=\"font-family: Cambria Math;\"><span style=\"font-weight: 400;\">(7, 64, 256)</span></span></p>"], "correctIndex": 1, "explanation": "<p><span style=\"font-family: Cambria Math;\">43.(b) </span><span style=\"font-family: Cambria Math;\"><strong>Logic </strong>: The pattern is (n)¹, (n+1)², (n+2)³.</span><br><span style=\"font-family: Cambria Math;\">&rArr; (3)¹ = 3, (4)² = 16, (5)³ = 125. Similarly, (5)¹ = 5, (6)² = 36, (7)³ = 343.</span>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>44.<span style=\"font-family: Cambria Math;\"> Identify the option containing the embedded figure (Rotation is prohibited):</span><br><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image23.png\" width=\"78\" height=\"145\"></p>", "options": ["<p><strong id=\"docs-internal-guid-e29e515f-7fff-8a69-c64a-d3acc868611f\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXeSzNOxKhvPTVFsmJyjGZDIl4sHrbIflcbBSWIhxB4f8z-XGdFF_r4eYqadcvgHMU-Dx53tCFTbRe5SkzYa8hf9IpECA8YpS_qk2jysqKfAiyeh2oEauT7CiXjOfW4uCcKTBHNFqX1BBqs1F_WlptrQ4_8l?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"93\" height=\"59\"></strong></p>", "<p><strong id=\"docs-internal-guid-696425f8-7fff-a6a0-5a8d-0f23143c3e81\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXf-tonFXNMu46VqRLmUhrFnQPPio1HTtvfWurDtrZvlwRd7CjcfV8-gMKg1lO4_ihzod6wkLCNKrnMuSNxDfcSvbtsR19joKdhRfOrq5FUnYoPM8Ym5c8mS9H3qtLz1khHE-gwgoXIaOixdH_IloblYucig?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"81\" height=\"91\"></strong></p>", "<p><strong id=\"docs-internal-guid-61f21f07-7fff-bf70-eb20-fb2b05cdce30\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXcoGc0jVT_2Y6_ON9iTFFtcG9ViXqwZ3TgCq9mtp5Si0pXSyHJrAkJ9RGS4zzKvQJr8JH4V63fV2y10LbqDTMEMdxI6dQPjYg-c9eHiVQgrM6k0uDIiI4rCx84mHLw5iro64eLL6nQNtK5WVqGrUaYdY0w?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"74\" height=\"104\"></strong></p>", "<p><strong id=\"docs-internal-guid-15e7871d-7fff-d46b-a0ff-c86761f4692b\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfizXAHvltsKZedt2-CMmVls3H_b-khoa52kAIh5dXY3xNXXbRVdXCPvVw3f24m7eL73I1z22vNirK4UI0mZ0i3gEOHPaYjHd5GhU5i_Hp0HNBPezX83iAZyUXJuwqY3bvF7xj0MH-WTGdSX5HYAQWM_xu9?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"66\" height=\"109\"></strong></p>"], "correctIndex": 2, "explanation": "<p>44.(c) The provided figure is visually contained within the geometry shown in option (c).\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p><span style=\"font-family: Cambria Math;\">45.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\">Question:</span><span style=\"font-family: Cambria Math;\"> Who is the shortest among A, B, C, D and E?</span><br><strong><span style=\"font-family: Cambria Math;\">Statements:</span></strong><br><span style=\"font-family: Cambria Math;\">I. A is taller than E but shorter than D.</span><br><span style=\"font-family: Cambria Math;\">II. B is shorter than C but taller than E.</span><br><span style=\"font-family: Cambria Math;\">III. D is taller than C and A is taller than B.</span></p>", "options": ["<p><span style=\"font-family: 'Cambria Math';\">Statements<span style=\"font-family: Cambria Math;\"> I and II together are </span>sufﬁcient.</span></p>", "<p><span style=\"font-family: 'Cambria Math';\">Statements I and III together are&nbsp;sufficient.</span></p>", "<p><span style=\"font-family: 'Cambria Math';\">Statements I, II and III are insuﬁicient.</span></p>", "<p><span style=\"font-family: 'Cambria Math';\">Statements I, II and III are sufficient.</span></p>"], "correctIndex": 3, "explanation": "<p><span style=\"font-family: Cambria Math;\">45.(d)&nbsp; </span><span style=\"font-family: Cambria Math;\">By combining all three statements, we get the height order D &gt; C &gt; A &gt; B &gt; E, confirming E is the shortest.</span><br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>46. <span style=\"font-family: Cambria Math;\">Find the missing term that relates to 14 in the same way the other pairs relate to each other.</span><br><span style=\"font-family: Cambria Math;\">4523 : 22 : : ? : 14 : : 9178 : 13</span></p>", "options": ["<p><span style=\"font-family: Cambria Math;\">8228</span></p>", "<p><span style=\"font-family: Cambria Math;\">7448</span></p>", "<p><span style=\"font-family: Cambria Math;\">&nbsp;9152</span></p>", "<p><span style=\"font-family: Cambria Math;\">5440</span></p>"], "correctIndex": 3, "explanation": "<p>46.(d) <span style=\"font-family: Cambria Math;\">Logic: The difference between the first two digits and the last two digits of the four-digit number equals the target number (e.g., 45 - 23 = 22 and 54 - 40 = 14).</span>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>47.<span style=\"font-family: Cambria Math;\"> Determine the correct mirror reflection of the given combination when the mirror is positioned at pq.<br></span><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image28.jpg\" width=\"189\" height=\"121\"></p>", "options": ["<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image29.jpg\" width=\"212\" height=\"21\"></p>", "<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image30.jpg\" width=\"212\" height=\"21\"></p>", "<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image31.jpg\" width=\"212\" height=\"21\"></p>", "<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image32.jpg\" width=\"211\" height=\"21\"></p>"], "correctIndex": 3, "explanation": "<p>47.(d) The mirror image reflects the lateral inversion of the original sequence.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p>48.<span style=\"font-family: Cambria Math;\"> If MAHARAJA is coded as ZNUNENWN, what is the code for RAINDROP?</span></p>", "options": ["<p><span style=\"font-family: Cambria Math;\">ENVAQEBC</span></p>", "<p><span style=\"font-family: Cambria Math;\">ENVAEQBC</span></p>", "<p><span style=\"font-family: Cambria Math;\">EVNAQEBC</span></p>", "<p><span style=\"font-family: Cambria Math;\">ENAVQEBC</span></p>"], "correctIndex": 0, "explanation": "<p>48.(a) Each letter is shifted by a specific pattern to derive the new code; applying this logic to RAINDROP yields ENVAQEBC.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>"}, {"text": "<p><span style=\"font-family: Cambria Math;\">49. Each letter corresponds to a specific number. Based on the provided letter-to-number mapping, identify which of the four numerical sequences below forms a meaningful word.<br></span><span style=\"font-family: Cambria Math;\">R = 1, E = 2, N = 3, B = 4, U = 5, D = 6</span></p>", "options": ["<p><span style=\"font-weight: 400;\"><span style=\"font-family: Cambria Math;\">4, 5, 6, 2, 3, 1</span></span></p>", "<p><span style=\"font-weight: 400;\">&nbsp;<span style=\"font-family: Cambria Math;\">6, 1, 4, 3, 5, 2</span></span></p>", "<p><span style=\"font-weight: 400;\"><span style=\"font-family: Cambria Math;\">1, 5, 3, 4, 2, 6</span></span></p>", "<p><span style=\"font-weight: 400;\"><span style=\"font-family: Cambria Math;\">4, 5, 1, 6, 2, 3</span></span></p>"], "correctIndex": 3, "explanation": "<p><span style=\"font-family: Cambria Math;\">49.(d) By assigning the given values, the sequence 4-5-1-6-2-3 corresponds to the word 'BURDEN' (B=4, U=5, R=1, D=6, E=2, N=3).</span><br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>50. <span style=\"font-family: Cambria Math;\">In a coded mathematical system, '-' denotes addition, '+' denotes division, 'x' denotes subtraction, and '&divide;' denotes multiplication. Assuming all other standard mathematical rules apply, calculate the value of the following expression:<br></span><span style=\"font-family: Cambria Math;\">240 &times; 72 + 8 &divide; 24 - 6</span></p>", "options": ["<p>30</p>", "<p>36</p>", "<p>26</p>", "<p>19</p>"], "correctIndex": 0, "explanation": "<p>50.(a) After replacing the operators, the expression becomes 240 - 72 &divide; 8 &times; 24 + 6. Applying BODMAS: 240 - 9 &times; 24 + 6 = 240 - 216 + 6 = 30.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>51. <span style=\"font-family: Cambria Math;\">Choose the figure from the given options that fits into the sequence at the position marked with a question mark (?).<br><strong id=\"docs-internal-guid-a7b90df9-7fff-a18d-61a2-59b2771ec050\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfGGnxjNW-SETppbZVbbjTty5QM6VhB1T7sRJMgE_GcvNNvNyWuFx6T8V6I9eJciHoi1nS4ybla662nn-p6OwQGl8FbOwnLrnk89tz64nDOqZ9icRu7QYLlxP1jp8E6FCOhGtzjJntj_tQxcC1VIffESdc?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"416.22968749999995\" height=\"88.53842464585459\"></strong><br></span></p>", "options": ["<p><strong id=\"docs-internal-guid-c1e838d0-7fff-bb4a-67dc-147297588024\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfEqOXFFSrX7UgmnAKG3_LGmwLhg2rVBMiELDaTdtBTz2C_Oqj8MtPk_tL_EW217in-Dw8i2CSh1LY3FYxIt96TGFTh9HsRqGkIGxTMRhKNLiun0Mi-oHC6Yo_Pmm8G1bFX2A7qepaYAZN-4AGcqcoJXO-Y?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"100.09399926830419\" height=\"96.77196334706659\"></strong></p>", "<p><strong id=\"docs-internal-guid-2685b720-7fff-cdd2-7445-e646992afbb7\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdbSm9gwmRCrgtWsQoV_dp_TEILMk9q6JQxJIr4RQ7h6a4ive1mIzdCNIgDFRb45DpEVX_O86swXOCMHvZmYv3WAXExOoI0h1OYRq5WgG0N4tMt_RZLctCUdAEXTIsR3_b-rSs7e5fX85VXdF-WnQSuG6w?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"91.06205917016709\" height=\"90.69696969696969\"></strong></p>", "<p><strong id=\"docs-internal-guid-d282e1e2-7fff-e89c-e1e2-c08140fd27d8\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXex_wVBBJAJW-g7Qb9qG50ftmZdeC9AwX80vTIaprJq7x8FSBnw8NRQuXhUvD1S2QioCH4mpCDiL9uUeaBsLxc4IiVvsU_WAgKDugQtWYf1BrqLX4cYk9bqUITOlGsIIK-4StWbfL_mbJa699Mro69AKGdZ?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"91.51044510641181\" height=\"91.58441558441558\"></strong></p>", "<p><strong id=\"docs-internal-guid-6f1bffe8-7fff-faa1-d6b7-b83f4a3aed39\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXcVezGNWV1oFZrGbb7WnvZRV6dWH1HxT2BKYtGsDcGT80q0qKatfWRPU-kGKB486WXM-Ns-z3G20b674mT23_5f71y6vmly8M0uAIoMwZOVb3icbKNZc33BUP9nnFIPjrHH9bl9nG2xIJpG6WWs9IN4Slnh?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"95.17706502671366\" height=\"91.6577777777778\"></strong></p>"], "correctIndex": 3, "explanation": "<p>51.(d) The figure completes the visual pattern established in the series by rotating and shifting internal elements.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>52. <span style=\"font-family: Cambria Math;\">Swati is the daughter of Akshara, who is the only sister of Anil. Gouri is the mother of Anil. Kamini is the mother of Gouri, and Gaurav is the husband of Kamini. Poonam is the mother-in-law of Gaurav. Determine the relationship between Swati and Gaurav.</span></p>", "options": ["<p><span style=\"font-family: Cambria Math;\">Daughter</span></p>", "<p><span style=\"font-family: Cambria Math;\">Great granddaughter</span></p>", "<p><span style=\"font-family: Cambria Math;\">Granddaughter</span></p>", "<p><span style=\"font-family: Cambria Math;\">Great granddaughter&rsquo;s daughter</span></p>"], "correctIndex": 1, "explanation": "<p><span style=\"font-family: Cambria Math;\">52.(b) Swati is Akshara's daughter; Akshara is Gouri's daughter; Gouri is Kamini's daughter; and Kamini is the wife of Gaurav, making Swati the great-granddaughter of Gaurav.</span><br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>53. <span style=\"font-family: Cambria Math;\">The following images depict the process of folding a sheet of paper and cutting it. Identify the appearance of the paper once it is unfolded.<br></span><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image43.png\" width=\"357\" height=\"90\"></p>", "options": ["<p><strong id=\"docs-internal-guid-a4d3b127-7fff-fdde-83c4-39c0382df505\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdSPJ0o37miClFWt0mYWDLeaeWDg1VsflgHxjxv-C778u9cTKFdObNAXsWto83v3nyI5ElQzR2m3J7Ar9aPmY-trZdqaIJQmne3c5y4Td7HXI4GihnCNO4TYdPbhLBvTrUijEZqLNzFdAvjqkvyLPBE1-50?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"89.48527530182291\" height=\"91.97297297297298\"></strong></p>", "<p><strong id=\"docs-internal-guid-3b607750-7fff-1415-0af9-4d1eb5341149\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXf1oPak9ZH__AVeX7zfIPMIDqg7abkK8ei6q7d0Ib8uAuS1wudayrrir-q7T9rMTx5k_D3A_h55Pd5q7nyS72sTpnf7H09W8M033XdP3IShopNvSx0ECWmMmoQp2LsQr9lA8JwHpmZ61k2QFB4RZbOgT5kV?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"90.53044805835299\" height=\"90.53041615218758\"></strong></p>", "<p><strong id=\"docs-internal-guid-6e5cbfbf-7fff-2bfa-27e2-487f76dc2c87\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdpAW6J4_W9wUutk47hzj1YJuAfo6zJH-WaLzg7T9hmvCOkbIn6VUC8sWXAU1m1-g-rcnS_muQNA4PESuIdHKa69KPg1aFfqnn2kHG3wieySD3Mnwjn4dxYLBM-s18nKT6Hix33NbIpZNMs00tgB0t8zXJZ?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"87.91638616073593\" height=\"93.24036946088334\"></strong></p>", "<p><strong id=\"docs-internal-guid-dec0a4a8-7fff-3eae-31a9-b27667a637fe\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdjJ1hz6n_KxhpDMLqMGJQUM3JKlfCdZmudxzCtr6OtOa03PP9_Hcj8xZ_XlpQO7_4WG-WDLptU5NsiKKM_T4Up4X_ESNAWLl0wXfrnjrNwabcdLvXjt2cMy9DF47TlBrpXmTodXau6Z3YBgmB57L3-dIsu?key=oi5nT3c5vhi8ElXxVJhz9w\" width=\"91.41782567532965\" height=\"91.21463885404974\"></strong></p>"], "correctIndex": 0, "explanation": "<p>53.(a) Unfolding the paper reverses the folding steps, revealing the symmetrical pattern of holes created by the cuts.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>54. <span style=\"font-family: Cambria Math;\">Identify the letter-cluster that should occupy the spot marked by the question mark (?) in this sequence.<br></span><span style=\"font-family: Cambria Math;\">GLQ, VAF, KPU, ZEJ, ?</span></p>", "options": ["<p>OUZ</p>", "<p>OTY</p>", "<p>PTY</p>", "<p>PUY</p>"], "correctIndex": 1, "explanation": "<p>54.(b) Each letter position follows a cyclical increment pattern (G+15=V, V+15=K, etc.) to progress through the series.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p><span style=\"font-family: Cambria Math;\">55. </span><span style=\"font-family: Cambria Math;\">Complete the provided sequence by selecting the correct missing term.<br></span><span style=\"font-family: Cambria Math;\">A1Z1, X3C3, E3V4, T9G7, ?</span></p>", "options": ["<p><span style=\"font-family: Cambria Math;\">H20R11</span></p>", "<p><span style=\"font-family: Cambria Math;\">I27R11</span></p>", "<p><span style=\"font-family: Cambria Math;\">I27S12</span></p>", "<p><span style=\"font-family: Cambria Math;\">H20S12</span></p>"], "correctIndex": 1, "explanation": "<p>55.(b) The sequence follows alternating arithmetic progressions for the numbers and specific letter shifts to determine the next term, I27R11.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>56. <span style=\"font-family: Cambria Math;\">Seven individuals—K, L, M, N, O, P, and Q—are aligned in a row facing north. K and M are adjacent. O is located at the far eastern end. P sits between Q and M. Q is positioned in the center. N is located between O and L. K is positioned at the far western end. Determine who sits in the fifth spot when counted from the east.</span></p>", "options": ["<p>M</p>\n", "<p>N</p>\n", "<p>L</p>\n", "<p>P</p>\n"], "correctIndex": 3, "explanation": "<p>56.(d) The seating arrangement from west to east is K, M, P, Q, L, N, O. Counting from the east, P occupies the fifth position.<br>---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U</p>\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>57. Analyze the provided pattern and identify the figure that completes the sequence in the question image.<br><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image51.jpg\" width=\"102\" height=\"100\"></p>", "options": ["<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image52.jpg\" width=\"87\" height=\"85\"></p>", "<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image53.jpg\" width=\"87\" height=\"85\"></p>", "<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image54.jpg\" width=\"88\" height=\"85\"></p>", "<p><img src=\"https://ssccglpinnacle.com/admin/resources/qdocs/test-1-EN-1/1688478275/word/media/image55.jpg\" width=\"84\" height=\"85\"></p>"], "correctIndex": 0, "explanation": "The correct figure maintains the logical progression of lines and shapes established in the grid. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>58. Identify the number from the options that appropriately replaces the question mark (?) in the series provided below.<br>6, 5, 7, 7, 10, 11, 15, 17, ?</p>", "options": ["<p>22</p>", "<p>25</p>", "<p>24</p>", "<p>23</p>"], "correctIndex": 0, "explanation": "The series consists of two alternating sequences: (6, 7, 10, 15, ...) increasing by +1, +3, +5, and (5, 7, 11, 17, ...) increasing by +2, +4, +6. The next number in the first series is 15 + 7 = 22.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>59. Based on the given statement, evaluate the three conclusions. Determine which one holds true.<br><strong>Statement:</strong><br>F &le; H &lt; J &ge; V &gt; E<br><strong>Conclusions:</strong><br>I. H &lt; V<br>II. J &gt; E<br>III. F &lt; E</p>", "options": ["<p>Only conclusion II is true</p>", "<p>Only conclusions I and III are true</p>", "<p>Only conclusion III is true</p>", "<p>Only conclusion I is true</p>"], "correctIndex": 0, "explanation": "Analyzing the expression F &le; H &lt; J &ge; V &gt; E: I is false as H < J and J &ge; V. II is true because J &ge; V and V > E, implying J > E. III is false as there is no clear relation between F and E. \n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}, {"text": "<p>60. A series is presented with one missing term. Select the valid option that completes the sequence.<br>EEEEEFFFFF, FEEEEFFFFE, FFEEEFFFEE, FFFEEFFEEE, FFFFEFEEEE, ?</p>", "options": ["<p>FFFFEEEE</p>", "<p>EFFFFEEEEF</p>", "<p>FFFFFEEEEE</p>", "<p>FFFEFEFEEE</p>"], "correctIndex": 2, "explanation": "The logic dictates that with each step, one 'F' is added to the leftmost position and one 'E' is added to the rightmost position. Following this, the term after FFFFEFEEEE is FFFFFEEEEE.\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"}];
+const TOTAL_QS = QUESTIONS.length;
+const TOTAL_SECONDS = 30 * 60;
+
+// ========== LANGUAGE STATE ==========
+let currentLang = 'en';  // 'en', 'hi', 'both'
+
+function getText(q, lang) {
+  if (lang === 'hi' && q.text_hi) return q.text_hi;
+  if (lang === 'en') return q.text;
+  // both: show EN then HI if available
+  if (lang === 'both' && q.text_hi) return q.text + '<br><span style="font-size:.85rem;color:#64748b;">' + q.text_hi + '</span>';
+  return q.text;
+}
+
+function getOptions(q, lang) {
+  if (lang === 'hi' && q.options_hi && q.options_hi.length > 0) return q.options_hi;
+  return q.options;
+}
+
+function getExplanation(q, lang) {
+  if (mockEnded) {
+    if (lang === 'both' && q.explanation_hi) {
+      return '<div class="explanation-box">' + q.explanation + '<hr style="margin:10px 0;opacity:.3">' + q.explanation_hi + '</div>';
+    }
+    if (lang === 'hi' && q.explanation_hi) return '<div class="explanation-box">' + q.explanation_hi + '</div>';
+  }
+  if (mockEnded && q.explanation) return '<div class="explanation-box">' + q.explanation + '</div>';
+  return '';
+}
+
+function switchLanguage(lang) {
+  currentLang = lang;
+  // Update button active states
+  document.querySelectorAll('#lang-btns button').forEach(b => { b.style.background = 'transparent'; b.style.color = 'rgba(255,255,255,.6)'; });
+  let activeBtn = document.getElementById('lang-' + lang);
+  if (activeBtn) { activeBtn.style.background = 'rgba(255,255,255,.2)'; activeBtn.style.color = '#fff'; }
+  renderQuestion(currentIdx);
+}
+
+// ========== STATE ==========
+let currentIdx = 0;
+let answers = {};
+let visited = {};
+let marked = {};
+let timerInterval = null;
+let timeLeft = TOTAL_SECONDS;
+let mockStarted = false;
+let mockEnded = false;
+
+function startMock() {
+  document.getElementById('home-screen').style.display = 'none';
+  let overlay = document.getElementById('countdown-overlay');
+  overlay.style.display = 'flex';
+  let numEl = document.getElementById('countdown-number');
+  let count = 5;
+  numEl.textContent = count;
+  let cd = setInterval(() => {
+    count--;
+    if (count <= 0) { clearInterval(cd); overlay.style.display = 'none'; beginTest(); return; }
+    numEl.textContent = count;
+  }, 700);
+}
+
+function beginTest() {
+  document.getElementById('mock-screen').style.display = 'flex';
+  document.getElementById('about-section').style.display = 'none';
+  document.getElementById('share-footer').style.display = 'none';
+  buildPalette();
+  renderQuestion(0);
+  startTimer();
+}
+
+function startTimer() {
+  mockStarted = true;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    let td = document.getElementById('timer-display');
+    if (timeLeft <= 60 && timeLeft > 0) {
+      td.style.background = 'rgba(239,68,68,.3)';
+      td.style.color = '#fca5a5';
+      td.style.borderColor = 'rgba(239,68,68,.6)';
+    }
+    if (timeLeft <= 0) { clearInterval(timerInterval); submitMock(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  let m = Math.floor(timeLeft / 60);
+  let s = timeLeft % 60;
+  document.getElementById('timer-display').textContent = m + ':' + String(s).padStart(2, '0');
+}
+
+function buildPalette() {
+  let grid = document.getElementById('palette-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < TOTAL_QS; i++) {
+    let btn = document.createElement('button');
+    btn.className = 'palette-btn btn-not-visited';
+    btn.textContent = (i + 1);
+    btn.title = 'Not Visited';
+    btn.onclick = () => { renderQuestion(i); };
+    btn.id = 'pal-' + i;
+    grid.appendChild(btn);
+  }
+  updatePaletteStats();
+}
+
+function updatePalette() {
+  for (let i = 0; i < TOTAL_QS; i++) {
+    let btn = document.getElementById('pal-' + i);
+    if (!btn) continue;
+    btn.className = 'palette-btn';
+    if (marked[i]) {
+      btn.className += ' btn-marked';
+      btn.title = 'Marked for Review';
+      btn.innerHTML = (i+1) + '<span style="display:block;font-size:.4rem;line-height:1;">🔖</span>';
+    } else if (answers[i] !== undefined) {
+      btn.className += ' btn-answered';
+      btn.title = 'Answered';
+      btn.innerHTML = (i+1) + '<span style="display:block;font-size:.4rem;line-height:1;">✓</span>';
+    } else if (visited[i]) {
+      btn.className += ' btn-not-answered';
+      btn.title = 'Not Answered';
+      btn.innerHTML = (i+1) + '<span style="display:block;font-size:.4rem;line-height:1;">⚠</span>';
+    } else {
+      btn.className += ' btn-not-visited';
+      btn.title = 'Not Visited';
+      btn.textContent = (i + 1);
+    }
+    if (i === currentIdx) btn.classList.add('current');
+  }
+  updatePaletteStats();
+}
+
+function updatePaletteStats() {
+  let an = 0, na = 0, mk = 0, nv = 0;
+  for (let i = 0; i < TOTAL_QS; i++) {
+    if (marked[i]) mk++;
+    else if (answers[i] !== undefined) an++;
+    else if (visited[i]) na++;
+    else nv++;
+  }
+  document.getElementById('cnt-answered').textContent = an;
+  document.getElementById('cnt-not-answered').textContent = na;
+  document.getElementById('cnt-marked').textContent = mk;
+  document.getElementById('cnt-not-visited').textContent = nv;
+}
+
+function togglePalette() {
+  document.getElementById('palette-panel').classList.toggle('open');
+  let overlay = document.getElementById('palette-overlay');
+  if (overlay) overlay.classList.toggle('show');
+}
+
+function renderQuestion(idx) {
+  if (idx < 0 || idx >= TOTAL_QS) return;
+  currentIdx = idx;
+  visited[idx] = true;
+  let q = QUESTIONS[idx];
+  let container = document.getElementById('question-container');
+  let html = '<div class="fade-in">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+  html += '<span style="font-weight:700;color:var(--sub);font-size:.8rem;">Question ' + (idx + 1) + ' of ' + TOTAL_QS + '</span>';
+  let status = '';
+  if (marked[idx]) status = '<span style="background:#ede9fe;color:#6d28d9;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;">🔖 Marked</span>';
+  else if (answers[idx] !== undefined) status = '<span style="background:#f0fdf4;color:#166534;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;">✓ Answered</span>';
+  else status = '<span style="background:#fef2f2;color:#991b1b;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;">⚠ Not Answered</span>';
+  html += status + '</div>';
+  html += '<div class="question-text">' + getText(q, currentLang) + '</div>';
+
+  let opts = getOptions(q, currentLang);
+  if (opts && opts.length > 0) {
+    let labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    for (let oi = 0; oi < opts.length; oi++) {
+      let cls = 'option-btn';
+      if (answers[idx] === oi) cls += ' selected';
+      if (mockEnded) {
+        if (oi === q.correctIndex) cls += ' correct-show';
+        else if (answers[idx] === oi && oi !== q.correctIndex) cls += ' wrong-show';
+      }
+      html += '<button class="' + cls + '" onclick="selectOption(' + idx + ',' + oi + ')"' + (mockEnded ? ' disabled' : '') + '>';
+      html += '<b style="margin-right:10px;display:inline-block;width:22px;height:22px;border-radius:50%;border:2px solid #cbd5e1;text-align:center;line-height:18px;font-size:.75rem;">' + labels[oi] + '</b>';
+      html += opts[oi] + '</button>';
+    }
+  }
+
+  html += getExplanation(q, currentLang);
+
+  html += '</div>';
+  container.innerHTML = html;
+  updatePalette();
+}
+
+function selectOption(qIdx, optIdx) {
+  if (mockEnded) return;
+  answers[qIdx] = optIdx;
+  if (marked[qIdx]) delete marked[qIdx];
+  renderQuestion(qIdx);
+}
+
+function saveAndNext() {
+  let next = currentIdx + 1;
+  if (next >= TOTAL_QS) next = 0;
+  renderQuestion(next);
+}
+
+function clearResponse() {
+  delete answers[currentIdx];
+  renderQuestion(currentIdx);
+}
+
+function markForReview() {
+  marked[currentIdx] = !marked[currentIdx];
+  if (marked[currentIdx]) delete answers[currentIdx];
+  renderQuestion(currentIdx);
+}
+
+function confirmSubmit() {
+  if (mockEnded) return;
+  let unanswered = 0;
+  for (let i = 0; i < TOTAL_QS; i++) { if (answers[i] === undefined && !marked[i]) unanswered++; }
+  document.getElementById('confirm-unanswered').textContent = unanswered;
+  document.getElementById('confirm-modal').style.display = 'flex';
+}
+
+function closeConfirm() { document.getElementById('confirm-modal').style.display = 'none'; }
+
+function submitMock() {
+  if (mockEnded) return;
+  mockEnded = true;
+  clearInterval(timerInterval);
+  document.getElementById('confirm-modal').style.display = 'none';
+  document.getElementById('mock-screen').style.display = 'none';
+  showResults();
+}
+
+function showResults() {
+  let correct = 0, wrong = 0, skipped = 0, attempted = 0;
+  for (let i = 0; i < TOTAL_QS; i++) {
+    if (answers[i] !== undefined) {
+      attempted++;
+      if (answers[i] === QUESTIONS[i].correctIndex) correct++; else wrong++;
+    } else { skipped++; }
+  }
+  let accuracy = attempted > 0 ? Math.round((correct / attempted) * 100) : 0;
+  let timeTaken = TOTAL_SECONDS - timeLeft;
+  let tm = Math.floor(timeTaken / 60), ts = timeTaken % 60;
+
+  document.getElementById('res-score').textContent = correct + '/' + TOTAL_QS;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-accuracy').textContent = accuracy + '%';
+  document.getElementById('res-time').textContent = tm + ':' + String(ts).padStart(2, '0');
+  document.getElementById('res-attempted').textContent = attempted;
+  document.getElementById('res-skipped').textContent = skipped;
+
+  let grid = document.getElementById('review-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < TOTAL_QS; i++) {
+    let dot = document.createElement('button');
+    dot.className = 'review-dot';
+    dot.textContent = (i + 1);
+    if (answers[i] !== undefined) {
+      dot.className += (answers[i] === QUESTIONS[i].correctIndex) ? ' btn-answered' : ' btn-not-answered';
+    } else { dot.className += ' btn-not-visited'; }
+    dot.onclick = () => showReviewDetail(i);
+    grid.appendChild(dot);
+  }
+
+  document.getElementById('result-screen').style.display = 'block';
+  document.getElementById('about-section').style.display = 'block';
+  document.getElementById('share-footer').style.display = 'block';
+  window.scrollTo(0, 0);
+  showReviewDetail(0);
+}
+
+function showReviewDetail(idx) {
+  let q = QUESTIONS[idx];
+  let detail = document.getElementById('review-detail');
+  let labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  let html = '<div class="result-card fade-in">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+  html += '<b>Question ' + (idx + 1) + '</b>';
+  if (answers[idx] !== undefined) {
+    html += (answers[idx] === q.correctIndex) ? '<span style="color:#22c55e;font-weight:700;">✓ Correct</span>' : '<span style="color:#ef4444;font-weight:700;">✗ Wrong</span>';
+  } else { html += '<span style="color:var(--sub);font-weight:700;">— Skipped</span>'; }
+  html += '</div>';
+  html += '<div class="question-text" style="font-size:.95rem;">' + getText(q, currentLang) + '</div>';
+  let opts = getOptions(q, currentLang);
+  if (opts && opts.length > 0) {
+    for (let oi = 0; oi < opts.length; oi++) {
+      let cls = 'option-btn';
+      if (oi === q.correctIndex) cls += ' correct-show';
+      else if (answers[idx] === oi && oi !== q.correctIndex) cls += ' wrong-show';
+      html += '<button class="' + cls + '" disabled><b style="margin-right:8px;">' + labels[oi] + '.</b>' + opts[oi] + '</button>';
+    }
+  }
+  html += getExplanation(q, currentLang);
+  html += '</div>';
+  detail.innerHTML = html;
+  detail.scrollIntoView({ behavior: 'smooth' });
+}
+// ========== THEME ==========
+function toggleTheme() {
+  let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+}
+// ========== INIT ==========
+(function init() {
+  let hasHi = QUESTIONS.some(q => q.text_hi || q.options_hi);
+  if (!hasHi) {
+    let hiBtn = document.getElementById('lang-hi');
+    let bothBtn = document.getElementById('lang-both');
+    if (hiBtn) { hiBtn.style.opacity = '0.4'; hiBtn.title = 'No Hindi text in this mock'; hiBtn.onclick = null; }
+    if (bothBtn) { bothBtn.style.opacity = '0.4'; bothBtn.title = 'No Hindi text in this mock'; bothBtn.onclick = null; }
+  }
+})();
+</script>
+
+</body>
+</html>

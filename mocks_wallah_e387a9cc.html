@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocks Wallah</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --primary-dark: #5649c0;
+            --secondary: #00cec9;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --light: #f8f9fa;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --light-gray: #dfe6e9;
+            --card-bg: #ffffff;
+            --body-bg: #f5f6fa;
+            --header-bg: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            --footer-bg: #ffffff;
+            --box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --box-shadow-sm: 0 2px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: var(--body-bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            padding-bottom: 80px; /* Space for fixed navigation */
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--header-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .header-brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .header-brand i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .control-btn.active {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .timer-display {
+            background: rgba(0,0,0,0.2);
+            border-radius: 18px;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .timer-display i {
+            margin-right: 6px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-top: 60px;
+            padding: 16px;
+            min-height: calc(100vh - 140px);
+        }
+        
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--box-shadow-sm);
+            border: none;
+            transition: var(--transition);
+        }
+        
+        .question-counter {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-align: center;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .option-item {
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .option-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+            .question-text {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
+    }
+
+    .question-text img,
+    .option-label img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 8px 0;
+        border-radius: 8px;
+    }
+
+    .option-label {
+        overflow: hidden;
+    }
+
+    .question-card {
+        overflow: hidden;
+    }
+        
+        .option-label {
+            display: block;
+            padding: 14px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-label:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .option-input:checked + .option-label {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+        
+        .option-input:checked + .option-label::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        /* When reviewing answers */
+        .review-mode .option-input:checked + .option-label.correct {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.05);
+            box-shadow: 0 0 0 1px var(--success);
+        }
+        
+        .review-mode .option-input:checked + .option-label.correct::after {
+            background: var(--success);
+        }
+        
+        .review-mode .option-input:checked + .option-label.incorrect {
+            border-color: var(--danger);
+            background: rgba(214, 48, 49, 0.05);
+            box-shadow: 0 0 0 1px var(--danger);
+        }
+        
+        .MathJax, .mjx-chtml {
+            overflow-x: auto;
+            max-width: 100%;
+            display: inline-block;
+        }
+
+        
+        .review-mode .option-input:checked + .option-label.incorrect::after {
+            background: var(--danger);
+        }
+        
+        .review-mode .option-label.correct-answer {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.05);
+            box-shadow: 0 0 0 1px var(--success);
+        }
+        
+        .review-mode .option-label.correct-answer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--success);
+        }
+        
+        .solution-container {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(108, 92, 231, 0.05);
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .solution-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        /* Question Navigation */
+        .question-nav {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            bottom: 80px;
+            width: 100%;
+            max-width: 320px;
+            background: var(--card-bg);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            transition: var(--transition);
+            z-index: 900;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .question-nav.show {
+            transform: translateX(0);
+        }
+        
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .question-stats {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .stat-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .section-selector {
+            width: 100%;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            padding: 10px 16px;
+            border: 1px solid var(--light-gray);
+            background: var(--card-bg);
+            font-size: 0.9rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+        }
+        
+        .q-box {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            border: 1px solid var(--light-gray);
+            background: var(--card-bg);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .q-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .q-box.attempted {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .q-box.correct {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        
+        .q-box.incorrect {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+        
+        .q-box.current {
+            border: 2px solid var(--accent) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .q-box.unattempted {
+            background-color: var(--gray);
+            color: white;
+            border-color: var(--gray);
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--footer-bg);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 800;
+        }
+        
+        .nav-btn {
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            transition: var(--transition);
+            gap: 8px;
+        }
+        
+        .nav-btn i {
+            font-size: 1rem;
+        }
+        
+        .nav-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .nav-btn-outline:hover {
+            background: rgba(108, 92, 231, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Overlay when nav is open */
+        .nav-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 80px;
+            background: rgba(0,0,0,0.5);
+            z-index: 800;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        
+        .nav-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        /* Results Modal */
+        .results-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            padding: 16px;
+        }
+        
+        .results-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .results-card {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+        
+        .results-modal.show .results-card {
+            transform: translateY(0);
+        }
+        
+        .results-header {
+            background: var(--header-bg);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .results-title {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .results-body {
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .results-footer {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        /* Responsive Adjustments */
+        @media (min-width: 992px) {
+            .question-nav {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-right: 320px;
+            }
+            
+            .nav-overlay {
+                display: none;
+            }
+            
+            .bottom-nav {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .question-grid {
+                grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+                gap: 6px;
+            }
+            
+            .q-box {
+                width: 36px;
+                height: 36px;
+                font-size: 0.9rem;
+            }
+            
+            .option-label {
+                padding: 12px 14px;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+            }
+            
+            .header-brand {
+                font-size: 1rem;
+            }
+            
+            .control-btn {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .timer-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+            
+            .nav-btn {
+                height: 44px;
+                padding: 0 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="header-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Mocks Wallah</span>
+            </a>
+            
+            <div class="header-controls">
+                <!-- Timer -->
+                <div class="timer-display">
+                    <i class="far fa-clock"></i>
+                    <span id="timer-display">12:00</span>
+                </div>
+                
+                <!-- Language toggle -->
+                <button class="control-btn" id="lang-btn" onclick="toggleLanguage()">
+                    <span id="lang-text">En</span>
+                </button>
+                
+                <!-- Submit button -->
+                <button class="control-btn" id="submit-btn" onclick="confirmSubmit()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                
+                <!-- Questions toggle for mobile -->
+                <button class="control-btn nav-toggle-btn" id="nav-toggle" onclick="toggleNav()">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main content -->
+    <main class="main-content" id="main-content">
+        <div class="question-counter" id="question-counter">Question 1 of 18</div>
+        
+        <!-- Questions will be displayed here -->
+        <div id="questions-container"></div>
+    </main>
+    
+    <!-- Overlay for mobile nav -->
+    <div class="nav-overlay" id="nav-overlay" onclick="toggleNav(false)"></div>
+    
+    <!-- Question navigation sidebar -->
+    <aside class="question-nav" id="question-nav">
+        <div class="nav-header">
+            <h3 class="nav-title">Questions</h3>
+            <div class="question-stats">
+                <span class="stat-badge bg-primary" id="attempted-count">0</span>
+                <span class="stat-badge bg-gray" id="total-count">18</span>
+                <button class="control-btn d-lg-none" onclick="toggleNav(false)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Section selector -->
+        <select class="section-selector" id="section-selector" onchange="switchSection(this.value)">
+            <option value="all">All Sections</option>
+        </select>
+        
+        <!-- Question grid -->
+        <div class="question-grid" id="question-boxes"></div>
+    </aside>
+    
+    <!-- Bottom navigation for mobile -->
+    <nav class="bottom-nav d-lg-none">
+        <button class="nav-btn nav-btn-outline" onclick="prevQuestion()">
+            <i class="fas fa-chevron-left"></i>
+            <span>Previous</span>
+        </button>
+        <button class="nav-btn nav-btn-outline" onclick="nextQuestion()">
+            <span>Next</span>
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </nav>
+    
+    <!-- Results modal -->
+    <div class="results-modal" id="results-modal">
+        <div class="results-card">
+            <div class="results-header">
+                <h3 class="results-title">Test Results</h3>
+            </div>
+            <div class="results-body">
+                <div class="stats-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark))">
+                        <div class="stat-value" id="score-value">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--success), #1b9aaa)">
+                        <div class="stat-value" id="correct-value">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--danger), var(--accent))">
+                        <div class="stat-value" id="incorrect-value">0</div>
+                        <div class="stat-label">Incorrect</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--gray), var(--dark))">
+                        <div class="stat-value" id="unattempted-value">0</div>
+                        <div class="stat-label">Unattempted</div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-footer">
+                <button class="nav-btn nav-btn-primary" onclick="reviewTest()">
+                    <i class="fas fa-search me-1"></i>
+                    <span>Review Test</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Questions data
+        const questions = [];
+        const sections = {};
+        let currentLang = "en";
+        let currentQuestion = 0;
+        let answers = {};
+        let submitted = false;
+        let totalTime = 12 * 60;
+        
+        // Initialize the test
+        window.onload = function() {
+            initializeTest();
+            startTimer();
+            
+            // If on desktop, show the question navigation by default
+            if (window.innerWidth >= 992) {
+                document.getElementById('question-nav').classList.add('show');
+                document.getElementById('main-content').classList.add('with-nav');
+            }
+        };
+        
+        // Initialize test data
+        function initializeTest() {
+            // Add sections and questions
+            
+            sections["6"] = {
+                name: "Reasoning",
+                start: 0,
+                end: 16
+            };
+            
+            document.getElementById('section-selector').innerHTML += 
+                `<option value="6">Reasoning</option>`;
+            
+            sections["misc"] = {
+                name: "Miscellaneous",
+                start: 17,
+                end: 17
+            };
+            
+            document.getElementById('section-selector').innerHTML += 
+                `<option value="misc">Miscellaneous</option>`;
+            
+            
+                questions.push({
+                    id: "1",
+                    section: "6",
+                    question_en: "<p>1.<span style=\"font-family: Cambria Math;\"> In the certain code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> &lsquo;HARVEST&rsquo; is coded as &lsquo;22-21-7-24-20-3-10&rsquo; . How will &lsquo;FARMER&rsquo; be coded as in that </span><span style=\"font-family: Cambria Math;\">language ?</span></p>",
+                    question_hi: "<p>1.<span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, HARVEST </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 22-21-7-24-20-3-10 </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूटबद्ध</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> FARMER </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">होग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span></p>",
+                    options_en: ["<p>20-7-14-21-3-8</p>", "<p>19-7-15-20-3-7</p>", 
+                                "<p>19-7-15-19-3-8</p>", "<p>20-7-15-20-3-8</p>"],
+                    options_hi: ["<p>20-7-14-21-3-8</p>", "<p>19-7-15-20-3-7</p>",
+                                "<p>19-7-15-19-3-8</p>", "<p>20-7-15-20-3-8</p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">1.(</span><span style=\"font-family: Cambria Math;\">d)</span><span style=\"font-family: Cambria Math;\"> HARVEST is coded as 22-21-7-24-20-3-10. The pattern which follows is: the number corresponding to the alphabet in English is written in reverse order after adding 2 in it means code for </span><span style=\"font-family: Cambria Math;\">R(</span><span style=\"font-family: Cambria Math;\">18+2=20) is written first then E(5+2=7) and so on.</span><span style=\"font-family: Cambria Math;\"> </span><br><span style=\"font-family: Cambria Math;\">Similarly,&nbsp;</span><span style=\"font-family: Cambria Math;\">F A</span><span style=\"font-family: Cambria Math;\"> R M E R will be coded as 20-7-15-20-3-8.</span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">1.(</span><span style=\"font-family: Cambria Math;\">d)</span><span style=\"font-family: Cambria Math;\"> HARVEST </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 22-21-7-24-20-3-10 </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जो</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">: </span><span style=\"font-family: Nirmala UI;\">अंग्रेजी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">वर्णमाला</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अनुरूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">संख्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 2 </span><span style=\"font-family: Nirmala UI;\">जोड़ने</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">बाद</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उल्टे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्रम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अर्थात</span><span style=\"font-family: Cambria Math;\"> R(1</span><span style=\"font-family: Cambria Math;\">8+2=20) </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोड</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पहले</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">फिर</span><span style=\"font-family: Cambria Math;\"> E(5+2=7) </span><span style=\"font-family: Nirmala UI;\">और</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">आगे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भी।</span><br><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\">, F A R M E R </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 20-7-15-20-3-8 </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "2",
+                    section: "6",
+                    question_en: "<p>2.<span style=\"font-family: Cambria Math;\"> In a certain code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> WARDROBE is written as YXVYXHJV. How will be ACCURATE written as in that </span><span style=\"font-family: Cambria Math;\">language </span><span style=\"font-family: Cambria Math;\">?</span></p>",
+                    question_hi: "<p>2.<span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, WARDROBE </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> YXVYXHJV </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> ACCURATE </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span></p>",
+                    options_en: ["<p>DZGPXTBV<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>CZHPYTBV</p>", 
+                                "<p>BZHPXTBV<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>CZGPXTBV</p>"],
+                    options_hi: ["<p>DZGPXTBV<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>CZHPYTBV</p>",
+                                "<p>BZHPXTBV<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>CZGPXTBV</p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">2.(</span><span style=\"font-family: Cambria Math;\">d)</span><br><strong id=\"docs-internal-guid-67cf31f4-7fff-ff38-003b-68aea21d1ce9\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXeqJbLyj6SSA8XvPJ2x8ymRMLlWznhsu7V-6l5yqi8tPrQDC1Q-mqxMZMJeZdFf-vnejUjlySdoVv9jf8-3U-6rMop2K59FAmCTJzEuQnT7AVk9uu3dwSu8NQ_veEK2VDMKNbYq2Q?key=TEZl7dUbZT0SELazDwt-8DJg\" width=\"285\" height=\"94\"></strong><br><span style=\"font-family: Cambria Math;\">Similarly, ACCURATE will be written as CZGPXTBV.</span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">2.(</span><span style=\"font-family: Cambria Math;\">d)</span><br><strong id=\"docs-internal-guid-67cf31f4-7fff-ff38-003b-68aea21d1ce9\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXeqJbLyj6SSA8XvPJ2x8ymRMLlWznhsu7V-6l5yqi8tPrQDC1Q-mqxMZMJeZdFf-vnejUjlySdoVv9jf8-3U-6rMop2K59FAmCTJzEuQnT7AVk9uu3dwSu8NQ_veEK2VDMKNbYq2Q?key=TEZl7dUbZT0SELazDwt-8DJg\" width=\"267\" height=\"88\"></strong><br><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\">, ACCURATE </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> CZGPXTBV </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "3",
+                    section: "6",
+                    question_en: "<p>3.<span style=\"font-family: Cambria Math;\"> In a certain code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> HAMMER is written as ICPQJX. How will WRENCH be written in that </span><span style=\"font-family: Cambria Math;\">language ?</span></p>",
+                    question_hi: "<p>3. <span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, HAMMER </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> ICPQJX </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> WRENCH </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कैसे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span></p>",
+                    options_en: ["<p>XTIRIN<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>XTIRHN</p>", 
+                                "<p>XTHRIN<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>XTHRHN</p>"],
+                    options_hi: ["<p>XTIRIN<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>XTIRHN</p>",
+                                "<p>XTHRIN<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>XTHRHN</p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">3.(</span><span style=\"font-family: Cambria Math;\">d) </span><span style=\"font-family: Cambria Math;\">The required pattern is:<strong><br></strong></span></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXd-qRAHHB2UOjFfaVRvGJvj4JQMYYAE-Vcubap3gk55tEobcXoKFjB37_-NDjmkj2I3gGQmANZXHoBXgH-rm__sepH2kiggsURYt7-Cbs2cayKOmZOV9KnzHHDETEN_ZPQPrTiZ?key=pmZoe2gn4LlwktKoHJSFFcWc\" width=\"194\" height=\"70\"></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXe2QY-9CYUhJNOX9utPVThSlP-37yS-oBkx7BXcuqDI_ZGd9eDfGsdO7syduGX_5wHOsaaPrC89PfPKw1t3FA8So_QrQm1xCKyVLPzW3QJKHw18wHjk7X369Szq8Mxmt1HzIcEJIQ?key=pmZoe2gn4LlwktKoHJSFFcWc\" width=\"197\" height=\"67\"></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">3.(</span><span style=\"font-family: Cambria Math;\">d) </span><span style=\"font-family: Nirmala UI;\">आवश्यक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">:<strong><br></strong></span></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXd-qRAHHB2UOjFfaVRvGJvj4JQMYYAE-Vcubap3gk55tEobcXoKFjB37_-NDjmkj2I3gGQmANZXHoBXgH-rm__sepH2kiggsURYt7-Cbs2cayKOmZOV9KnzHHDETEN_ZPQPrTiZ?key=pmZoe2gn4LlwktKoHJSFFcWc\" width=\"194\" height=\"70\"></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXe2QY-9CYUhJNOX9utPVThSlP-37yS-oBkx7BXcuqDI_ZGd9eDfGsdO7syduGX_5wHOsaaPrC89PfPKw1t3FA8So_QrQm1xCKyVLPzW3QJKHw18wHjk7X369Szq8Mxmt1HzIcEJIQ?key=pmZoe2gn4LlwktKoHJSFFcWc\" width=\"197\" height=\"67\"></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "4",
+                    section: "6",
+                    question_en: "<p>4.<span style=\"font-family: Cambria Math;\"> In a certain code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> PEN is written as 321028. How will be TUB written in that </span><span style=\"font-family: Cambria Math;\">language ?</span></p>",
+                    question_hi: "<p>4.<span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, PEN </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 321028 </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">,</span><span style=\"font-family: Cambria Math;\"> TUB </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span><span style=\"font-family: Cambria Math;\">&nbsp;</span></p>",
+                    options_en: ["<p>40422<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>40424</p>", 
+                                "<p>42404 <span style=\"font-family: Cambria Math;\"> </span></p>", "<p>44024</p>"],
+                    options_hi: ["<p>40422<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>40424</p>",
+                                "<p>42404 <span style=\"font-family: Cambria Math;\"> </span></p>", "<p>44024</p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">4.(</span><span style=\"font-family: Cambria Math;\">b)</span><span style=\"font-family: Cambria Math;\"> The required pattern is : Positional value &times;&nbsp;</span><span style=\"font-family: Cambria Math;\">2</span></p>\n<p><strong id=\"docs-internal-guid-88e39d9a-7fff-0ff9-5b9f-29a5ea14bd1b\">&nbsp;<img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdo7WRmy2j9DtxFeN4Yvhirowu9cHtNtc1CHhC6ZYl7BAq9446PPiHnD_NjJmFUmDl5bLb9VM97CRQZu7emQaUru7yJJfyhTyQkyZr5KKxXqEV_ltAzQEKCScaJYekgv8Hbo_UnfA?key=pmZoe2gn4LlwktKoHJSFFcWc\" width=\"317\" height=\"101\"></strong></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">4.(</span><span style=\"font-family: Cambria Math;\">b)</span><span style=\"font-family: Nirmala UI;\">आवश्यक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">:&nbsp; </span><span style=\"font-family: Nirmala UI;\">स्थितीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> &nbsp;&times; </span><span style=\"font-family: Cambria Math;\">2</span></p>\n<p><strong id=\"docs-internal-guid-d275311b-7fff-4797-efb7-dd2c986ad625\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXcuO3WN0nZzhgtxGgLBgTYbj5IvmcoKtgv3s6PqizDGCMhz_eQxxBu9PKU05gF7MHNLxCDK6jr78Tf5J4Ljh6kD5d41n-AX0Fawa3wnieHkcOfimf86B0-uLyOzYWOQ1cbMnPvf4Q?key=pmZoe2gn4LlwktKoHJSFFcWc\" width=\"357\" height=\"120\"></strong></p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "5",
+                    section: "6",
+                    question_en: "<p>5<span style=\"font-family: Cambria Math;\"> In a certain code language , SERVANT is written as 192182211420. How will &lsquo;MAGNIFY&rsquo; be written in that </span><span style=\"font-family: Cambria Math;\">language ?</span></p>",
+                    question_hi: "<p>5<span style=\"font-family: Cambria Math;\"> In a certain code language</span><span style=\"font-family: Cambria Math;\"> , SERVANT is written as 192182211420. How will &lsquo;MAGNIFY&rsquo; be written in that </span><span style=\"font-family: Cambria Math;\">language ?</span></p>",
+                    options_en: [" <p> 1317143625</span><span style=\"font-family:Cambria Math\">       </span></p>", " <p> 1417139625</span></p>", 
+                                " <p> 1316143522</span><span style=\"font-family:Cambria Math\">       </span></p>", " <p> 1426693625</span></p>"],
+                    options_hi: [" <p> 1317143625</span><span style=\"font-family:Cambria Math\">       </span></p>", " <p> 1417139625</span></p>",
+                                " <p> 1316143522</span><span style=\"font-family:Cambria Math\">       </span></p>", " <p> 1426693625</span></p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">5.(</span><span style=\"font-family: Cambria Math;\">a)</span><span style=\"font-family: Cambria Math;\"> In the given question, positions to the</span><span style=\"font-family: Cambria Math;\"> alphabets are given in the way as they fall in the series excluding vowels.&nbsp;</span><span style=\"font-family: Cambria Math;\">Vowels </span><span style=\"font-family: Cambria Math;\">i.e</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Cambria Math;\">a,e,i,o,u</span><span style=\"font-family: Cambria Math;\"> are coded as 1,2,3,4,5. </span><span style=\"font-family: Cambria Math;\">So, coding for MAGNIFY will be 1317143625</span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">5.(</span><span style=\"font-family: Cambria Math;\">a)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">दिए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रश्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">वर्णों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">की</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थिति</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">दी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गई</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जैसे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">वे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्वरों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">छोड़कर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">श्रृंखला</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">आते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">हैं। </span><span style=\"font-family: Nirmala UI;\">स्वर </span><span style=\"font-family: Nirmala UI;\">अर्थात</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Cambria Math;\">a,e,i,o,u</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 1,2,3,4,5 </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है। </span><span style=\"font-family: Nirmala UI;\">तो</span><span style=\"font-family: Cambria Math;\">,MAGNIFY </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडिंग</span><span style=\"font-family: Cambria Math;\"> 1317143625 </span><span style=\"font-family: Nirmala UI;\">होगी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">।</span></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "6",
+                    section: "6",
+                    question_en: "<p>6. <span style=\"font-family: Cambria Math;\">In a certain code language, DEPEND </span><span style=\"font-family: Cambria Math;\">is written as EPHTJJ. How will TRAVEL be written in that </span><span style=\"font-family: Cambria Math;\">language ?</span><span style=\"font-family: Cambria Math;\">&nbsp;</span></p>",
+                    question_hi: "<p>6. <span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> DEPEND </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> EPHTJJ </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> TRAVEL </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span><span style=\"font-family: Cambria Math;\">&nbsp;</span></p>",
+                    options_en: ["<p>MGWEWY<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>MGZEXZ</p>", 
+                                "<p>MGYEWZ <span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NGYFWZ</p>"],
+                    options_hi: ["<p>MGWEWY<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>MGZEXZ</p>",
+                                "<p>MGYEWZ<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NGYFWZ</p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">6.(</span><span style=\"font-family: Cambria Math;\">c)</span><span style=\"font-family: Cambria Math;\">The required pattern is:</span></p>\n<p><strong id=\"docs-internal-guid-3a8f2ca3-7fff-b1f5-2cc2-cbc47a27d060\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfvrRtex0KN0WQr7JpWLEpOGIiCyB8-fAGwLtDSDXoNNVye6_lDJjk1v5rRXcaClnuXdRgMXDnvSTrRLv7uLJSH8gUYj-G30DE_CINX8zsy1MZyCx1kQKbY9a1W15AH_q2cXiT6hA?key=jWhwEtrfuScV_HrISU0Uqw\" width=\"145\" height=\"84\"></strong></p>\n<p><span style=\"font-family: Cambria Math;\">Similarly, TRAVEL wi</span><span style=\"font-family: Cambria Math;\">ll be written as MGYEWZ.</span></p>\n<p><strong id=\"docs-internal-guid-10b6b668-7fff-206c-e84e-5aefe3a86860\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXe4BnzF1ph2aDRn6mJrWsJNXGlpCZ-a1OgpY00unfdZ9tYEo258VIZGGY-VPWZVcRG_4pwcT3C7gJBRJflTDSROHiNvltcQiGfZme_H7iGD9p_ttjCN9DVWIGsfkNK6qe_hBuf5?key=jWhwEtrfuScV_HrISU0Uqw\" width=\"136\" height=\"80\"></strong></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">6.(</span><span style=\"font-family: Cambria Math;\">c)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">आवश्यक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">:</span></p>\n<p><strong id=\"docs-internal-guid-3a8f2ca3-7fff-b1f5-2cc2-cbc47a27d060\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfvrRtex0KN0WQr7JpWLEpOGIiCyB8-fAGwLtDSDXoNNVye6_lDJjk1v5rRXcaClnuXdRgMXDnvSTrRLv7uLJSH8gUYj-G30DE_CINX8zsy1MZyCx1kQKbY9a1W15AH_q2cXiT6hA?key=jWhwEtrfuScV_HrISU0Uqw\" width=\"137\" height=\"79\"></strong></p>\n<p><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\"> TRAVEL </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> MGYEWZ </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा।</span></p>\n<p><strong id=\"docs-internal-guid-10b6b668-7fff-206c-e84e-5aefe3a86860\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXe4BnzF1ph2aDRn6mJrWsJNXGlpCZ-a1OgpY00unfdZ9tYEo258VIZGGY-VPWZVcRG_4pwcT3C7gJBRJflTDSROHiNvltcQiGfZme_H7iGD9p_ttjCN9DVWIGsfkNK6qe_hBuf5?key=jWhwEtrfuScV_HrISU0Uqw\" width=\"136\" height=\"80\"></strong></p>\n<p>&nbsp;</p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "7",
+                    section: "6",
+                    question_en: "<p>7.<span style=\"font-family: Cambria Math;\"> In a certain code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> STRAIGHT is written as TSARGITH. How will be </span><span style=\"font-family: Cambria Math;\">THURSDAY written</span><span style=\"font-family: Cambria Math;\"> in that language ?&nbsp;</span></p>",
+                    question_hi: "<p>7.<span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, STRAIGHT </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> TSARGITH </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> THURSDAY </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span><span style=\"font-family: Cambria Math;\">&nbsp;</span></p>",
+                    options_en: ["<p>UHTDRSYA<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>AYSDURTH</p>", 
+                                "<p>HTRUDSYA<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>HTRUDSAY</p>"],
+                    options_hi: ["<p>UHTDRSYA<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>AYSDURTH</p>",
+                                "<p>HTRUDSYA<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>HTRUDSAY</p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">7.(</span><span style=\"font-family: Cambria Math;\">c)</span><span style=\"font-family: Cambria Math;\">The required pattern is:</span></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfiMsgR-PWUwVhSGnK-OQzjpmGdAPEtmzqAclC_kWybX48wN7CDGKjTBJeEFNO17z6Wmj9ommg9LTqpChsaoVdggvfmMIHTL3JKN-4fDTmqb4s5QEhv3BaZZWB4RdSZ3U796FgzgQ?key=uwf5w0H05FyIs8b6APp21W3s\" width=\"233\" height=\"58\"></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdjRTaCxx6GGTUjvX2v3AJ5DDwpcctVIhU8RUFnLrlI6ufAZu8hBf4lODIvj-w0fGZCep-xwW1V6kriSeIieADjCX9m_1BWzQIZZWKUz_vY9aaBULHWvgyjtlsEeo0_8dGlBDEa?key=uwf5w0H05FyIs8b6APp21W3s\" width=\"237\" height=\"58\"></p>\n<p>&nbsp;</p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">7.(</span><span style=\"font-family: Cambria Math;\">c)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">आवश्यक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">:</span></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfiMsgR-PWUwVhSGnK-OQzjpmGdAPEtmzqAclC_kWybX48wN7CDGKjTBJeEFNO17z6Wmj9ommg9LTqpChsaoVdggvfmMIHTL3JKN-4fDTmqb4s5QEhv3BaZZWB4RdSZ3U796FgzgQ?key=uwf5w0H05FyIs8b6APp21W3s\" width=\"233\" height=\"58\"></p>\n<p dir=\"ltr\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdjRTaCxx6GGTUjvX2v3AJ5DDwpcctVIhU8RUFnLrlI6ufAZu8hBf4lODIvj-w0fGZCep-xwW1V6kriSeIieADjCX9m_1BWzQIZZWKUz_vY9aaBULHWvgyjtlsEeo0_8dGlBDEa?key=uwf5w0H05FyIs8b6APp21W3s\" width=\"237\" height=\"58\"></p>\n<p>&nbsp;</p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "8",
+                    section: "6",
+                    question_en: "<p>8. <span style=\"font-family: Cambria Math;\">In a certain code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> LARVAE is written as 15-1-9-5-1-2. How will INSECT be written in that </span><span style=\"font-family: Cambria Math;\">language ?</span></p>",
+                    question_hi: "<p>8. <span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, LARVAE </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 15-1-9-5-1-2 </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> INSECT </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span></p>",
+                    options_en: ["<p>18-13-8-2-24-7</p>", "<p>9-13-8-22-24-7</p>", 
+                                "<p>3-13-8-2-24-7<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>3-13-8-2-24-8</p>"],
+                    options_hi: ["<p>18-13-8-2-24-7</p>", "<p>9-13-8-22-24-7</p>",
+                                "<p>3-13-8-2-24-7<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>3-13-8-2-24-8</p>"],
+                    solution_en: "<pre><span style=\"font-family: Cambria Math;\">8.(</span><span style=\"font-family: Cambria Math;\">c)</span><span style=\"font-family: Cambria Math;\"> The logic: consonants are numbered according to their reverse position </span><span style=\"font-family: Cambria Math;\">value.and</span><span style=\"font-family: Cambria Math;\"> vowels are A</span><span style=\"font-family: Cambria Math;\">1, E</span><span style=\"font-family: Cambria Math;\">2, I</span><span style=\"font-family: Cambria Math;\">3. &amp; so on.<br></span><span style=\"font-family: Cambria Math;\">I&nbsp;</span><span style=\"font-family: Cambria Math;\">N S</span><span style=\"font-family: Cambria Math;\"> E C T</span><br><span style=\"font-family: Cambria Math;\">3 13&nbsp;</span><span style=\"font-family: Cambria Math;\">8 2</span><span style=\"font-family: Cambria Math;\"> 24 7</span></pre>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">8.(</span><span style=\"font-family: Cambria Math;\">c)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तर्क</span><span style=\"font-family: Cambria Math;\">: </span><span style=\"font-family: Nirmala UI;\">व्यंजन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उनके</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">विपरीत</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थिति</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अनुसार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गिने</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">हैं</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">और</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्वर</span><span style=\"font-family: Cambria Math;\"> A</span><span style=\"font-family: Cambria Math;\">1, E</span><span style=\"font-family: Cambria Math;\">2, I</span><span style=\"font-family: Cambria Math;\">3 </span><span style=\"font-family: Nirmala UI;\">हैं।<br></span><span style=\"font-family: Cambria Math;\">I </span><span style=\"font-family: Cambria Math;\">N S</span><span style=\"font-family: Cambria Math;\"> E C T</span><br><span style=\"font-family: Cambria Math;\">3 13&nbsp;</span><span style=\"font-family: Cambria Math;\">8 2</span><span style=\"font-family: Cambria Math;\"> 24 7</span></p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "9",
+                    section: "6",
+                    question_en: "<p>9.<span style=\"font-family: Cambria Math;\"> In a certain code language, &lsquo;GUM&rsquo; is coded as &lsquo;49441169&rsquo;. How will &lsquo;WAX&rsquo; be coded as in that languag</span><span style=\"font-family: Cambria Math;\">e?</span></p>",
+                    question_hi: "<p>9.<span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, &lsquo;GUM&rsquo; </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> &lsquo;49441169&rsquo; </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &lsquo;WAX&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूटबद्ध</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएग</span><span style=\"font-family: Nirmala UI;\">ा</span><span style=\"font-family: Cambria Math;\"> ?</span><span style=\"font-family: Cambria Math;\">&nbsp;</span></p>",
+                    options_en: ["<p>5291576<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>2891400</p>", 
+                                "<p>3611121<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>8412525</p>"],
+                    options_hi: ["<p>5291576<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>2891400</p>",
+                                "<p>3611121<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>8412525</p>"],
+                    solution_en: "<p><span style=\"font-family: Cambria Math;\">9.(</span><span style=\"font-family: Cambria Math;\">a) </span><span style=\"font-family: Cambria Math;\">The pattern followed is as follows:<br></span><span style=\"font-family: Cambria Math;\">The alphabets of GUM are replaced by the squares of their numerical values in the given code.<br></span><span style=\"font-family: Cambria Math;\">GUM<br></span><span style=\"font-family: Cambria Math;\">G =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>7</mn><mo>)</mo></mrow><mn>2</mn></msup></math><br></span><span style=\"font-family: Cambria Math;\">U =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>21</mn><mo>)</mo></mrow><mn>2</mn></msup></math>&nbsp;<br></span><span style=\"font-family: Cambria Math;\">M =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>13</mn><mo>)</mo></mrow><mn>2</mn></msup></math><br></span><span style=\"font-family: Cambria Math;\">GUM = 49441169<br></span><span style=\"font-family: Cambria Math;\">Similarly, WAX =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>23</mn><mo>)</mo></mrow><mn>2</mn></msup><msup><mrow><mo>(</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup><msup><mrow><mo>(</mo><mn>24</mn><mo>)</mo></mrow><mn>2</mn></msup></math>&nbsp;</span><span style=\"font-family: Cambria Math;\">= 5291576</span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">9.(</span><span style=\"font-family: Cambria Math;\">a) </span><span style=\"font-family: Nirmala UI;\">अनुसरण</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">:<br></span><span style=\"font-family: Nirmala UI;\">दिए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोड</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> GUM </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अक्षरों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उनके</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">संख्यात्मक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मानों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">वर्गों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">द्वारा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रतिस्थापित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।<br></span><span style=\"font-family: Cambria Math;\">GUM<br>G =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>7</mn><mo>)</mo></mrow><mn>2</mn></msup></math><br>U =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>21</mn><mo>)</mo></mrow><mn>2</mn></msup></math>&nbsp;<br>M =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>13</mn><mo>)</mo></mrow><mn>2</mn></msup></math><br>GUM = 49441169<br></span><span style=\"font-family: Nirmala UI;\">उसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\">, WAX =<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><msup><mrow><mo>(</mo><mn>23</mn><mo>)</mo></mrow><mn>2</mn></msup><msup><mrow><mo>(</mo><mn>1</mn><mo>)</mo></mrow><mn>2</mn></msup><msup><mrow><mo>(</mo><mn>24</mn><mo>)</mo></mrow><mn>2</mn></msup></math></span><span style=\"font-family: Cambria Math;\">= 5291576</span></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "10",
+                    section: "6",
+                    question_en: "<p>10<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> In a certain code language, &lsquo;PYTHON&rsquo; is written as &lsquo;LMFRWN&rsquo;. How will &lsquo;RHYTHM&rsquo; be written in that language?</span></p>",
+                    question_hi: "<p>10<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, &lsquo;PYTHON&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> &lsquo;LMFRWN&rsquo; </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &lsquo;RHYTHM&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>KFRWFP<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NFRWFS</p>", 
+                                "<p>MFRWFT<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>MFRWFX</p>"],
+                    options_hi: ["<p>KFRWFP<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NFRWFS</p>",
+                                "<p>MFRWFT<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>MFRWFX</p>"],
+                    solution_en: "<p>10<span style=\"font-family: Cambria Math;\">.(a)</span></p>\n<p><span style=\"font-family: Cambria Math;\">The</span><span style=\"font-family: Cambria Math;\"> required pattern is:</span></p>\n<p><strong id=\"docs-internal-guid-69b56906-7fff-933f-7214-70e4b174ed73\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdsPx6iuYV45n4btNFF_f_S6oy0CAR2zE08QYxwnO8XwcKUB0pFXdEZUbrwUbgMxPDVkfk0VUt71iweXxlvlJsDItx_-K2JuG7SCXiioCUbpXpU-5J7N2EI0Fe7A-C3He1D0Doi?key=o4kZDvyKbeF5libFyQvdZv6m\" width=\"147\" height=\"79\"> &nbsp;</strong><span style=\"font-family: Cambria Math;\">Similarly,&nbsp; &nbsp;</span><strong id=\"docs-internal-guid-97dc7760-7fff-b63d-77f3-36adda81be06\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXeUAy6IZkDFnfUQPGzmz3XwvF3xfHSbR6ntxA2s5MXJC8rETMKjsd85KFP4rO8WCms3BEsu4N1eQJYNCJY5wlHJKmLhshPcTeTqR5xOf2BzANNhlwqjeW07mY_rry8lc9petPZt?key=o4kZDvyKbeF5libFyQvdZv6m\" width=\"147\" height=\"82\"> </strong>&nbsp; &nbsp;</p>",
+                    solution_hi: "<p>10<span style=\"font-family: Cambria Math;\">.(a)</span></p>\n<p><span style=\"font-family: Nirmala UI;\">आवश्यक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">:</span></p>\n<p><strong id=\"docs-internal-guid-69b56906-7fff-933f-7214-70e4b174ed73\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdsPx6iuYV45n4btNFF_f_S6oy0CAR2zE08QYxwnO8XwcKUB0pFXdEZUbrwUbgMxPDVkfk0VUt71iweXxlvlJsDItx_-K2JuG7SCXiioCUbpXpU-5J7N2EI0Fe7A-C3He1D0Doi?key=o4kZDvyKbeF5libFyQvdZv6m\" width=\"147\" height=\"79\"> &nbsp;</strong><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\">,&nbsp; </span><strong id=\"docs-internal-guid-97dc7760-7fff-b63d-77f3-36adda81be06\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXeUAy6IZkDFnfUQPGzmz3XwvF3xfHSbR6ntxA2s5MXJC8rETMKjsd85KFP4rO8WCms3BEsu4N1eQJYNCJY5wlHJKmLhshPcTeTqR5xOf2BzANNhlwqjeW07mY_rry8lc9petPZt?key=o4kZDvyKbeF5libFyQvdZv6m\" width=\"147\" height=\"82\"></strong></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "11",
+                    section: "6",
+                    question_en: "<p>11<span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Cambria Math;\">In a certain language &lsquo;EARTH&rsquo; is coded as &lsquo;8201815&rsquo;. How will &lsquo;ORBIT&rsquo; be coded in that language?</span></p>",
+                    question_hi: "<p>11<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, EARTH </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> &lsquo;8201815&rsquo; </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> ORBIT </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">होगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>18172372<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>20921815</p>", 
+                                "<p>37681026<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>17113912</p>"],
+                    options_hi: ["<p>18172372<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>20921815</p>",
+                                "<p>37681026<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>17113912</p>"],
+                    solution_en: "<p>11<span style=\"font-family: Cambria Math;\">.(b)</span><span style=\"font-family: Cambria Math;\">) </span><span style=\"font-family: Cambria Math;\"> In </span><span style=\"font-family: Cambria Math;\">the given question, the alphabetical positions of each alphabet are written in reverse order.</span></p>\n<p><strong id=\"docs-internal-guid-dfc60e9d-7fff-13c2-fa24-635c19627ef4\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfz6pA2nejst60OS4zBIHaxZI7fCh3NaxHFYZWHPEdmaQhsYsn3az6EmP_FXy-e5YM5dY5OWxBZ-IXgABbtWbok0p8nq60s6PCybJaPWB7wt_iq_RmBOd6Nr3v-FpUjG-w2VTmL?key=mSkLPrkAckrFHqgecBv0ND0l\" width=\"126\" height=\"127\"></strong></p>\n<p><span style=\"font-family: Cambria Math;\">Similarly, &lsquo;</span><span style=\"font-family: Cambria Math;\">ORBIT&rsquo; will be coded as 20921815.</span></p>",
+                    solution_hi: "<p>11<span style=\"font-family: Cambria Math;\">.(b)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">दिए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रश्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">प्रत्येक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">वर्णमाला</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">की</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">वर्णानुक्रमिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थिति</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उल्टे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्रम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गई</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">।</span></p>\n<p><strong id=\"docs-internal-guid-dfc60e9d-7fff-13c2-fa24-635c19627ef4\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXfz6pA2nejst60OS4zBIHaxZI7fCh3NaxHFYZWHPEdmaQhsYsn3az6EmP_FXy-e5YM5dY5OWxBZ-IXgABbtWbok0p8nq60s6PCybJaPWB7wt_iq_RmBOd6Nr3v-FpUjG-w2VTmL?key=mSkLPrkAckrFHqgecBv0ND0l\" width=\"126\" height=\"127\"></strong></p>\n<p><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\">, ORBIT\' </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> 20921815 </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा।</span></p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "12",
+                    section: "6",
+                    question_en: "<p>12<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> In a certain code language, &lsquo;JUPITER&rsquo; is written as &lsquo;JVOJSFR&rsquo;. How will &lsquo;NEPTUNE </span><span style=\"font-family: Cambria Math;\">&lsquo; be</span><span style=\"font-family: Cambria Math;\"> written as in that language?</span></p>",
+                    question_hi: "<p>12<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, JUPITER </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> &lsquo;JVOJSFR&rsquo; </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &lsquo;NEPTUNE&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>NDPSVME<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NGOUTOE</p>", 
+                                "<p>N<span style=\"font-family: Cambria Math;\">FOUTOE</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NFOSTOE</p>"],
+                    options_hi: ["<p>NDPSVME<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NGOUTOE</p>",
+                                "<p>NFOUTOE<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>NFOSTOE</p>"],
+                    solution_en: "<p>12<span style=\"font-family: Cambria Math;\">.(c)</span><span style=\"font-family: Cambria Math;\"> The required pattern is:1st &amp; last alphabet </span><span style=\"font-family: Cambria Math;\">no change, then +1, -1 rule is used.</span></p>\n<p><strong id=\"docs-internal-guid-5ba79ff6-7fff-c1ed-4687-da62e827c5b9\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdqsx1N9FgCNMiwZEkfKLVd_ruj8cUoN4Sdl0hMAR7JarV9DhS2wOQAPdy2LxjEueg31wNhhfR421zotpqKJ5H5ePCGONpkY_juAFWs4jpe12mL-3FXjlxjYywsJ4ndoDdjiC0XIw?key=mSkLPrkAckrFHqgecBv0ND0l\" width=\"177\" height=\"101\"></strong></p>\n<p><span style=\"font-family: Cambria Math;\">Following the same pattern, &lsquo;NEPTUNE&rsquo; will be coded as &lsquo;NFOUTOE&rsquo;</span></p>",
+                    solution_hi: "<p>12<span style=\"font-family: Cambria Math;\">.(c)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">आवश्यक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">: </span><span style=\"font-family: Nirmala UI;\">पहला</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">और</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अंतिम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अक्षर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोई</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">परिवर्तन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">नहीं</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">फिर</span><span style=\"font-family: Cambria Math;\"> +1, -1 </span><span style=\"font-family: Nirmala UI;\">नियम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उपयोग</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span></p>\n<p><strong id=\"docs-internal-guid-1eb60112-7fff-407b-5e09-b05610477685\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXcQxo0I7xARIfvJpkGEFjXWdX71TI9UFBjfFhOc09HOf6OP44k9IDMV4iRYd9U7Z_j4ufjr15xKHNTW9tNaw0669zr5_dcH-I94aT7gCCBG_WkWlePT3ZsbdAxBstC2nFp00fM2Lg?key=mSkLPrkAckrFHqgecBv0ND0l\" width=\"185\" height=\"108\"></strong></p>\n<p><span style=\"font-family: Nirmala UI;\">उसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अनुसरण</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">करते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">हुए</span><span style=\"font-family: Cambria Math;\">, \'NEPTUNE\' </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> \'NFOUTOE\' </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा।</span></p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "13",
+                    section: "6",
+                    question_en: "<p>13<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> If each letter of the English alphabet is assigned an odd numerical value in increasing order, such as A=1, B=3 and so </span><span style=\"font-family: Cambria Math;\">on ,</span><span style=\"font-family: Cambria Math;\"> then what will be the code of HONEY?</span></p>",
+                    question_hi: "<p>13<span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Nirmala UI;\">यदि</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अंग्रेजी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">वर्णमाला</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रत्येक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अक्षर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">बढ़ते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्रम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">एक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">विषम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">संख्यात्मक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">दिया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाए</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">जैसे</span><span style=\"font-family: Cambria Math;\"> A = 1, B = 3 </span><span style=\"font-family: Nirmala UI;\">तथा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">आगे</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">तो</span><span style=\"font-family: Cambria Math;\"> HONEY </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">क्या</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">होगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>132725745<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>132725747</p>", 
+                                "<p>152927949<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>1<span style=\"font-family: Cambria Math;\">52927947</span></p>"],
+                    options_hi: ["<p>132725745<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>132725747</p>",
+                                "<p>152927949<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>152927947</p>"],
+                    solution_en: "<p>13<span style=\"font-family: Cambria Math;\">.(c)</span><span style=\"font-family: Cambria Math;\"> As per the given information A=1, B=3 and so on, thus place values of Honey are: <br></span><span style=\"font-family: Cambria Math;\">H = 15, O = 29, N = 27, E = 9, Y = 49</span></p>",
+                    solution_hi: "<p>13<span style=\"font-family: Cambria Math;\">.(c)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">दी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गई</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जानकारी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अनुसार</span><span style=\"font-family: Cambria Math;\"> A=1, B=3 </span><span style=\"font-family: Nirmala UI;\">इत्यादि</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">शहद</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थानीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">हैं</span><span style=\"font-family: Cambria Math;\">:<br></span><span style=\"font-family: Cambria Math;\">H = 15, O = 29, N = 27, E = 9, Y = 49</span></p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "14",
+                    section: "6",
+                    question_en: "<p>14<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> In a certain code language, U is written as C, K is written as H , L is written as U, N is written as E, S is written as L, E is written as K, and C is written as N .How will &lsquo;KNUCKLES&rsquo; be written as in that la</span><span style=\"font-family: Cambria Math;\">nguage?</span></p>",
+                    question_hi: "<p>14<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, U </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> C </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">, K </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> H </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">, L </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> U </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">, N </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> E </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">, S </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> L </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">, E </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> K </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तथा</span><span style=\"font-family: Cambria Math;\"> C </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> N </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &lsquo;KNUCKLES&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कैसे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>KECNKUHL<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>CHUECKN</p>", 
+                                "<p>HECNHULK<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>HECNHUKL</p>"],
+                    options_hi: ["<p><span style=\"font-family: Cambria Math;\">KECNKUHL</span><span style=\"font-family: Cambria Math;\"> </span></p>", "<p>CHUECKN</p>",
+                                "<p>HECNHULK<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>HECNHUKL</p>"],
+                    solution_en: "<p>14<span style=\"font-family: Cambria Math;\">.(d)</span><span style=\"font-family: Cambria Math;\"> As per the question,<br></span><span style=\"font-family: Cambria Math;\">U<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\">C ,</span><span style=\"font-family: Cambria Math;\"> K<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\"> H, L<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\"> U, N <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math></span><span style=\"font-family: Cambria Math;\">&nbsp;E, S<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\"> L, E<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\"> K ,C<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\">&nbsp;N<br></span><span style=\"font-family: Cambria Math;\">Thus, KNUCKLES will be written as HECNHUKL.</span></p>",
+                    solution_hi: "<p>14<span style=\"font-family: Cambria Math;\">.(d)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रश्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अनुसार</span><span style=\"font-family: Cambria Math;\">,<br></span><span style=\"font-family: Cambria Math;\">U<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\">C ,</span><span style=\"font-family: Cambria Math;\"> K <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math></span><span style=\"font-family: Cambria Math;\"> H, L<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\"> U, N<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\"> E, S<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math> </span><span style=\"font-family: Cambria Math;\"> L, E <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math></span><span style=\"font-family: Cambria Math;\"> K , C <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8658;</mo></math></span><span style=\"font-family: Cambria Math;\"> N<br></span><span style=\"font-family: Nirmala UI;\">इस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\">, KNUCKLES </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> HECNHUKL </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "15",
+                    section: "6",
+                    question_en: "<p><span style=\"font-family: Cambria Math;\">15</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> In a certain code language, &lsquo;CAUGHT&rdquo; is coded as </span><span style=\"font-family: Cambria Math;\">&lsquo;326212087&rsquo; .</span><span style=\"font-family: Cambria Math;\"> How will &lsquo;SOLDIER&rsquo; be coded as in that language?&nbsp;</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">15</span><span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, &lsquo;CAUGHT&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> &lsquo;326212087&rsquo; </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूटबद्ध</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &lsquo;SOLDIER&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूटबद्ध</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा </span><span style=\"font-family: Cambria Math;\">?&nbsp;</span></p>",
+                    options_en: ["<p>1812122459019</p>", "<p>1915<span style=\"font-family: Cambria Math;\">124359012</span></p>", 
+                                "<p>2012152358014</p>", "<p>1912122392218</p>"],
+                    options_hi: ["<p>1812122459</p>", "<p>1915124359</p>",
+                                "<p>2012152358</p>", "<p>1912122359</p>"],
+                    solution_en: "<p>15<span style=\"font-family: Cambria Math;\">.(d)</span><span style=\"font-family: Cambria Math;\">)</span><span style=\"font-family: Cambria Math;\"><strong> The logic: </strong>alphabets written at odd places are coded as their same positional values &amp; even places are coded as their reverse positional value.<br></span><span style=\"font-family: Cambria Math;\">So code for SOLDIER will become 19-12-12-23-9-22-18.</span></p>",
+                    solution_hi: "<p><span style=\"font-family: Cambria Math;\">15</span><span style=\"font-family: Cambria Math;\">.(d)</span><span style=\"font-family: Cambria Math;\"> </span><strong><span style=\"font-family: Nirmala UI;\">तर्क</span></strong><span style=\"font-family: Cambria Math;\">: </span><span style=\"font-family: Nirmala UI;\">विषम</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थानों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">गए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अक्षरों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उनके</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">समान</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थितीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">और</span><span style=\"font-family: Cambria Math;\"> सम <span style=\"font-family: Nirmala UI;\">स्थानों</span> &nbsp;<span style=\"font-family: Nirmala UI;\">पर</span> &nbsp;<span style=\"font-family: Nirmala UI;\">लिखे</span> <span style=\"font-family: Nirmala UI;\">गए</span> <span style=\"font-family: Nirmala UI;\">अक्षरों</span> <span style=\"font-family: Nirmala UI;\">को </span></span><span style=\"font-family: Nirmala UI;\">उनके</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">विपरीत</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थितीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।<br></span><span style=\"font-family: Nirmala UI;\">तो</span><span style=\"font-family: Cambria Math;\"> SOLDIER </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोड</span><span style=\"font-family: Cambria Math;\"> 19-12-12-23-9-22-18 </span><span style=\"font-family: Nirmala UI;\">हो</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा।</span></p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "16",
+                    section: "6",
+                    question_en: "<p><span style=\"font-family: Cambria Math;\">16</span><span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Cambria Math;\">In a certain code language, &lsquo;SANCTION&rsquo; is written as &lsquo;XFSHODJI&rsquo;. How will &lsquo;PROFOUND&rsquo; be written in that language?</span></p>",
+                    question_hi: "<p><span style=\"font-family: Cambria Math;\">16</span><span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, &lsquo;SANCTION&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> &lsquo;XFSHODJI&rsquo; </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &lsquo;PROFOUND&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कैसे</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>UWTKJPIY<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>UWTKKPIZ</p>", 
+                                "<p>VWUKMPIY</p>", "<p>UXTKNQIY</p>"],
+                    options_hi: ["<p>UWTKJPIY<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>UWTKKPIZ</p>",
+                                "<p>VWUKMPIY</p>", "<p>UXTKNQIY</p>"],
+                    solution_en: "<p>16<span style=\"font-family: Cambria Math;\">.(a)</span><span style=\"font-family: Cambria Math;\"> <strong>The pattern</strong>: for 1st 4 alphabets +5, for next 4 alphabets -5.&nbsp;<br></span><span style=\"font-family: Cambria Math;\">SANCTION&rsquo; S + 5 = X,&nbsp; A + 5 = F,&nbsp; N + 5 =&nbsp; </span><span style=\"font-family: Cambria Math;\">S..</span><span style=\"font-family: Cambria Math;\">&amp; so on.<br></span><span style=\"font-family: Cambria Math;\">Similarly, </span><span style=\"font-family: Cambria Math;\">&lsquo;PROFOUND&rsquo; will</span><span style=\"font-family: Cambria Math;\"> be written as &lsquo;UWTKJPIY&rsquo; following the same pattern.</span></p>",
+                    solution_hi: "<p>16<span style=\"font-family: Cambria Math;\">.(a)</span><span style=\"font-family: Cambria Math;\"> </span><strong><span style=\"font-family: Nirmala UI;\">पैटर्न</span></strong><span style=\"font-family: Cambria Math;\">: </span><span style=\"font-family: Nirmala UI;\">पहले</span><span style=\"font-family: Cambria Math;\"> 4 </span><span style=\"font-family: Nirmala UI;\">अक्षर</span><span style=\"font-family: Cambria Math;\">, + 5&nbsp;</span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिए</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">अगले</span><span style=\"font-family: Cambria Math;\"> 4 </span><span style=\"font-family: Nirmala UI;\">अक्षर</span><span style=\"font-family: Cambria Math;\">, -5 </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिए।<br></span><span style=\"font-family: Cambria Math;\">SANCTION\' S + 5 = X,&nbsp; A + 5 = F,&nbsp; N + 5 =&nbsp; </span><span style=\"font-family: Cambria Math;\">S. .</span><span style=\"font-family: Cambria Math;\">&amp; </span><span style=\"font-family: Nirmala UI;\">इत्यादि।<br></span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\">, \'PROFOUND\'</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अनुसरण</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">करते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">हुए</span><span style=\"font-family: Cambria Math;\"> \'UWTKJPIY\' </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा।</span></p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "17",
+                    section: "6",
+                    question_en: "<p>17<span style=\"font-family: Cambria Math;\">. </span><span style=\"font-family: Cambria Math;\">In a code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> &lsquo;AUSTERE&rsquo; is coded as &lsquo;13102595&rsquo;. How will &lsquo;SETTING&rsquo; be coded as in that language?</span></p>",
+                    question_hi: "<p>17<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, &lsquo;AUSTREE&rsquo; </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> &lsquo;13102595&rsquo; </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &ldquo;SETTING&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूटबद्ध</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>11522867<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>10522948</p>", 
+                                "<p>10522957<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>11<span style=\"font-family: Cambria Math;\">544957</span></p>"],
+                    options_hi: ["<p>11522867<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>10522948</p>",
+                                "<p>10522957<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>11544957</p>"],
+                    solution_en: "<p>17<span style=\"font-family: Cambria Math;\">.(c)</span><span style=\"font-family: Cambria Math;\"> Here, position</span><span style=\"font-family: Cambria Math;\">al values are used. If the value of an alphabet is more than </span><span style=\"font-family: Cambria Math;\">9 ,</span><span style=\"font-family: Cambria Math;\"> then its digits are added.</span><span style=\"font-family: Cambria Math;\">&nbsp;<br></span><span style=\"font-family: Cambria Math;\">A<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">1<br></span><span style=\"font-family: Cambria Math;\">U<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">21(2+1</span><span style=\"font-family: Cambria Math;\">)=</span><span style=\"font-family: Cambria Math;\">3<br></span><span style=\"font-family: Cambria Math;\">S<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">19</span><span style=\"font-family: Cambria Math;\">=(</span><span style=\"font-family: Cambria Math;\">1+9)=10<br></span><span style=\"font-family: Cambria Math;\">T<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">20</span><span style=\"font-family: Cambria Math;\">=(</span><span style=\"font-family: Cambria Math;\">2+0)=2<br></span><span style=\"font-family: Cambria Math;\">E<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">5<br></span><span style=\"font-family: Cambria Math;\">R<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">18</span><span style=\"font-family: Cambria Math;\">=(</span><span style=\"font-family: Cambria Math;\">1+8)=9<br></span><span style=\"font-family: Cambria Math;\">E<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">5<br></span><span style=\"font-family: Cambria Math;\">Similarly, Setting will be coded as 10522957.</span></p>",
+                    solution_hi: "<p>17<span style=\"font-family: Cambria Math;\">.(c)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">यहां</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">स्थितीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मूल्यों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उपयोग</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">यदि</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अक्षर</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> 9 </span><span style=\"font-family: Nirmala UI;\">से</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अधिक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">तो</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">उसके</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">अंक</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जोड़े</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाते</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">हैं।<br></span><span style=\"font-family: Cambria Math;\">A<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">1<br></span><span style=\"font-family: Cambria Math;\">U<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">21(2+1</span><span style=\"font-family: Cambria Math;\">)=</span><span style=\"font-family: Cambria Math;\">3<br></span><span style=\"font-family: Cambria Math;\">S<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">19</span><span style=\"font-family: Cambria Math;\">=(</span><span style=\"font-family: Cambria Math;\">1+9)=10<br></span><span style=\"font-family: Cambria Math;\">T<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">20</span><span style=\"font-family: Cambria Math;\">=(</span><span style=\"font-family: Cambria Math;\">2+0)=2<br></span><span style=\"font-family: Cambria Math;\">E<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">5<br></span><span style=\"font-family: Cambria Math;\">R<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">18</span><span style=\"font-family: Cambria Math;\">=(</span><span style=\"font-family: Cambria Math;\">1+8)=9<br></span><span style=\"font-family: Cambria Math;\">E<math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mo>&#8594;</mo></math></span><span style=\"font-family: Cambria Math;\">5<br></span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">तरह</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">सेटिंग</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोड</span><span style=\"font-family: Cambria Math;\"> 10522957 </span><span style=\"font-family: Nirmala UI;\">होगा।</span></p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "18",
+                    section: "misc",
+                    question_en: "<p>18<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> In a certain code </span><span style=\"font-family: Cambria Math;\">language ,</span><span style=\"font-family: Cambria Math;\"> &lsquo;FASTER&rsquo; is written as &lsquo;CDPQHO&rsquo; . How will &lsquo;VIOLIN&rsquo; be written as in that language?&nbsp;</span></p>",
+                    question_hi: "<p>18<span style=\"font-family: Cambria Math;\">.</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">निश्चित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कूट</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\">, &lsquo;FASTER&rsquo; </span><span style=\"font-family: Nirmala UI;\">क</span><span style=\"font-family: Nirmala UI;\">ो</span><span style=\"font-family: Cambria Math;\"> &lsquo;CDPQHO&rsquo; </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">।</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">इसी</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">भाषा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> &lsquo;VIOLIN&rsquo; </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किस</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">प्रकार</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिखा</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाएगा</span><span style=\"font-family: Cambria Math;\"> ?&nbsp;</span></p>",
+                    options_en: ["<p>SKIRKO<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>SLRILK</p>", 
+                                "<p>RLTILK<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>SLIRLM</p>"],
+                    options_hi: ["<p>SKIRKO<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>SLRILK</p>",
+                                "<p>RLTILK<span style=\"font-family: Cambria Math;\"> </span></p>", "<p>SLIRLM</p>"],
+                    solution_en: "<p>18<span style=\"font-family: Cambria Math;\">.(b)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Cambria Math;\">Here,The</span><span style=\"font-family: Cambria Math;\"> pattern for consonants positional value -3.<br></span><span style=\"font-family: Cambria Math;\">For vowels positional value + 3.</span></p>\n<p><span style=\"font-family: Cambria Math;\"><strong id=\"docs-internal-guid-6ae88226-7fff-ddf3-40a5-e457520bee77\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdyfRDQGimlM4SgL8bpbez9fj9tG7AcP_j0I1Vwv8RzCpcjNPh5HLVAHkcV9PhaxmwMAzI5Ntjxj8qnualEM7c9w44C3s7DEr99m0hZZc6I3WJerEQgfNWyjZimoZOAWE6he8zlww?key=XcqzRaQWq4w5ZBXjICNut-VQ\" width=\"128\" height=\"84\"><br></strong></span><span style=\"font-family: Cambria Math;\">So, &lsquo;VIOLIN&rsquo; on following the above pattern is coded as &lsquo;SLRILK&rsquo;.</span></p>",
+                    solution_hi: "<p>18<span style=\"font-family: Cambria Math;\">.(b)</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">यहाँ</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">व्यंजन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थितिगत</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> -3 </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न।<br></span><span style=\"font-family: Nirmala UI;\">स्वरों</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">लिए</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">स्थितीय</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">मान</span><span style=\"font-family: Cambria Math;\"> +3.<br></span><strong id=\"docs-internal-guid-6ae88226-7fff-ddf3-40a5-e457520bee77\"><img src=\"https://lh7-rt.googleusercontent.com/docsz/AD_4nXdyfRDQGimlM4SgL8bpbez9fj9tG7AcP_j0I1Vwv8RzCpcjNPh5HLVAHkcV9PhaxmwMAzI5Ntjxj8qnualEM7c9w44C3s7DEr99m0hZZc6I3WJerEQgfNWyjZimoZOAWE6he8zlww?key=XcqzRaQWq4w5ZBXjICNut-VQ\" width=\"128\" height=\"84\"><br></strong><span style=\"font-family: Nirmala UI;\">तो</span><span style=\"font-family: Cambria Math;\">, </span><span style=\"font-family: Nirmala UI;\">उपरोक्त</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पैटर्न</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">का</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पालन</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">करने</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">पर</span><span style=\"font-family: Cambria Math;\"> \'VIOLIN\' </span><span style=\"font-family: Nirmala UI;\">को</span><span style=\"font-family: Cambria Math;\"> \'SLRILK\' </span><span style=\"font-family: Nirmala UI;\">के</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">रूप</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">में</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">कोडित</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">किया</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">जाता</span><span style=\"font-family: Cambria Math;\"> </span><span style=\"font-family: Nirmala UI;\">है।</span></p>\n<p><span style=\"font-family: Cambria Math;\"> </span></p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+            
+            // Generate question boxes
+            const boxesContainer = document.getElementById('question-boxes');
+            questions.forEach((q, index) => {
+                const box = document.createElement('div');
+                box.className = 'q-box';
+                box.textContent = index + 1;
+                box.onclick = () => showQuestion(index);
+                box.id = `box-${index}`;
+                boxesContainer.appendChild(box);
+            });
+            
+            // Show first question
+            showQuestion(0);
+            updateProgress();
+        }
+        
+        // Show a specific question
+        
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/<img/g, '<img style="max-width:100%;height:auto;"');
+        }
+        
+        function showQuestion(index) {
+            if (index < 0 || index >= questions.length) return;
+            
+            currentQuestion = index;
+            const question = questions[index];
+            
+            // Update question counter
+            document.getElementById('question-counter').textContent = `Question ${index + 1} of ${questions.length}`;
+            
+            // Update question boxes
+            document.querySelectorAll('.q-box').forEach(box => box.classList.remove('current'));
+            document.getElementById(`box-${index}`).classList.add('current');
+            
+            // Generate question HTML
+            let html = `
+                <div class="question-card">
+                    <div class="question-text">
+                        <div class="en">${formatContent(question.question_en)}</div>
+                        <div class="hi" style="display:none">${formatContent(question.question_hi)} </div>
+                    </div>
+                    <div class="options" id="options-container">`;
+            
+            // Add options
+            ['a', 'b', 'c', 'd'].forEach((opt, i) => {
+                let optionClass = '';
+                let isCorrectAnswer = opt === question.correct;
+                let isUserAnswer = answers[question.id] === opt;
+                
+                // When reviewing, add appropriate classes
+                if (submitted) {
+                    if (isCorrectAnswer) {
+                        optionClass += ' correct-answer';
+                    } else if (isUserAnswer && !isCorrectAnswer) {
+                        optionClass += ' incorrect';
+                    }
+                }
+                
+                html += `
+                    <div class="option-item">
+                        <input class="option-input" type="radio" name="q${index}" 
+                            id="opt-${index}-${opt}" value="${opt}" 
+                            ${isUserAnswer ? 'checked' : ''}
+                            onclick="selectAnswer('${question.id}', '${opt}')">
+                       <label class="option-label${optionClass}" for="opt-${index}-${opt}">
+                            <div class="en">${question.options_en[i]}</div>
+                            <div class="hi" style="display:none">${question.options_hi[i]}</div>
+                        </label>
+                    </div>`;
+            });
+            
+            // Add solution if submitted
+            if (submitted) {
+                const isCorrect = answers[question.id] === question.correct;
+                const resultText = answers[question.id] ? (isCorrect ? 'Correct!' : 'Incorrect!') : 'Not attempted';
+                
+                html += `
+                    <div class="solution-container">
+                        <div class="solution-title">${resultText}</div>
+                        <div class="solution-text">
+                            <div class="en">${question.solution_en}</div>
+                            <div class="hi" style="display:none">${question.solution_hi}</div>
+                        </div>
+                    </div>`;
+            }
+            
+            html += `</div></div>`;
+            
+            document.getElementById('questions-container').innerHTML = html;
+            
+            // Apply language settings
+            applyLanguage();
+            
+            // If in mobile view, close the menu
+            if (window.innerWidth < 992) {
+                toggleNav(false);
+            }
+            
+            // Add review mode class if submitted
+            if (submitted) {
+                document.getElementById('options-container').classList.add('review-mode');
+            }
+        }
+        
+        // Apply current language
+        function applyLanguage() {
+            document.querySelectorAll(`.${currentLang}`).forEach(el => el.style.display = 'block');
+            document.querySelectorAll(`.${currentLang === 'en' ? 'hi' : 'en'}`).forEach(el => el.style.display = 'none');
+            
+            // Update language button text
+            document.getElementById('lang-text').textContent = currentLang === 'en' ? 'Hi' : 'En';
+        }
+        
+        // Select an answer
+        function selectAnswer(qId, option) {
+            if (submitted) return;
+            
+            answers[qId] = option;
+            updateProgress();
+            
+            // Mark question as attempted in the navigation
+            const index = questions.findIndex(q => q.id === qId);
+            if (index >= 0) {
+                const box = document.getElementById(`box-${index}`);
+                box.classList.add('attempted');
+                box.classList.remove('unattempted');
+            }
+        }
+        
+        // Navigate to previous/next question
+        function prevQuestion() { 
+            if (currentQuestion > 0) showQuestion(currentQuestion - 1); 
+        }
+        
+        function nextQuestion() { 
+            if (currentQuestion < questions.length - 1) showQuestion(currentQuestion + 1); 
+        }
+        
+        // Switch section
+        function switchSection(sectionId) {
+            if (sectionId === 'all') {
+                showQuestion(0);
+                return;
+            }
+            
+            const section = sections[sectionId];
+            if (section) showQuestion(section.start);
+        }
+        
+        // Toggle language
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            applyLanguage();
+        }
+        
+        // Toggle navigation sidebar
+        function toggleNav(show) {
+            const nav = document.getElementById('question-nav');
+            const overlay = document.getElementById('nav-overlay');
+            
+            if (show === undefined) {
+                show = !nav.classList.contains('show');
+            }
+            
+            if (show) {
+                nav.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } else {
+                nav.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Update progress
+        function updateProgress() {
+            const attempted = Object.keys(answers).length;
+            document.getElementById('attempted-count').textContent = attempted;
+        }
+        
+        // Start timer
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer-display');
+            let timeLeft = totalTime;
+            
+            const timerInterval = setInterval(() => {
+                if (timeLeft <= 0 || submitted) {
+                    clearInterval(timerInterval);
+                    if (!submitted) submitTest();
+                    return;
+                }
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                timeLeft--;
+            }, 1000);
+        }
+        
+        // Confirm before submitting
+        function confirmSubmit() {
+            if (submitted) return;
+            
+            const attempted = Object.keys(answers).length;
+            const remaining = questions.length - attempted;
+            
+            // Create a more modern confirmation dialog
+            const confirmHtml = `
+                <div style="text-align: center; padding: 20px;">
+                    <h4 style="margin-bottom: 16px; color: var(--dark);">Confirm Submission</h4>
+                    <p style="margin-bottom: 24px; color: var(--gray);">
+                        You have attempted ${attempted} of ${questions.length} questions.<br>
+                        ${remaining} questions are unattempted.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 12px;">
+                        <button onclick="this.closest('.modal').querySelector('.cancel-btn').click()" 
+                            style="padding: 8px 20px; border: 1px solid var(--light-gray); background: white; border-radius: 8px; cursor: pointer;">
+                            Cancel
+                        </button>
+                        <button onclick="submitTest(); this.closest('.modal').querySelector('.cancel-btn').click()" 
+                            style="padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Submit Test
+                        </button>
+                    </div>
+                </div>`;
+            
+            // Create modal element
+            const modal = document.createElement('div');
+            modal.className = 'results-modal show';
+            modal.innerHTML = `
+                <div class="results-card" style="max-width: 400px;">
+                    <button class="cancel-btn" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--gray);" onclick="this.closest('.results-modal').remove()">
+                        ×
+                    </button>
+                    ${confirmHtml}
+                </div>`;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Submit test
+        function submitTest() {
+            if (submitted) return;
+            
+            submitted = true;
+            
+            let score = 0;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unattemptedCount = 0;
+            
+            questions.forEach((q, index) => {
+                const userAns = answers[q.id];
+                const box = document.getElementById(`box-${index}`);
+                
+                box.classList.remove('attempted');
+                
+                if (!userAns) {
+                    unattemptedCount++;
+                    box.classList.add('unattempted');
+                } else if (userAns === q.correct) {
+                    correctCount++;
+                    score += q.pos_marks;
+                    box.classList.add('correct');
+                } else {
+                    incorrectCount++;
+                    score -= q.neg_marks;
+                    box.classList.add('incorrect');
+                }
+            });
+            
+            // Update result values
+            document.getElementById('score-value').textContent = score.toFixed(2);
+            document.getElementById('correct-value').textContent = correctCount;
+            document.getElementById('incorrect-value').textContent = incorrectCount;
+            document.getElementById('unattempted-value').textContent = unattemptedCount;
+            
+            // Show the results modal
+            document.getElementById('results-modal').classList.add('show');
+            
+            // Disable submit button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-check"></i>';
+            submitBtn.style.backgroundColor = 'var(--success)';
+            
+            // Refresh current question view to show solution
+            showQuestion(currentQuestion);
+        }
+        
+        // Review test
+        function reviewTest() {
+            document.getElementById('results-modal').classList.remove('show');
+            showQuestion(0);
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('results-modal')) {
+                document.getElementById('results-modal').classList.remove('show');
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') prevQuestion();
+            if (e.key === 'ArrowRight') nextQuestion();
+        });
+    </script>
+</body>
+</html>

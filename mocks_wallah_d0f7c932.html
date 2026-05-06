@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocks Wallah</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --primary-dark: #5649c0;
+            --secondary: #00cec9;
+            --accent: #fd79a8;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --light: #f8f9fa;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --light-gray: #dfe6e9;
+            --card-bg: #ffffff;
+            --body-bg: #f5f6fa;
+            --header-bg: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            --footer-bg: #ffffff;
+            --box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --box-shadow-sm: 0 2px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: var(--body-bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            color: var(--dark);
+            line-height: 1.6;
+            padding-bottom: 80px; /* Space for fixed navigation */
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--header-bg);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .header-brand {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .header-brand i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .control-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .control-btn.active {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .timer-display {
+            background: rgba(0,0,0,0.2);
+            border-radius: 18px;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .timer-display i {
+            margin-right: 6px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-top: 60px;
+            padding: 16px;
+            min-height: calc(100vh - 140px);
+        }
+        
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--box-shadow-sm);
+            border: none;
+            transition: var(--transition);
+        }
+        
+        .question-counter {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-align: center;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .option-item {
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        .option-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+            .question-text {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
+    }
+
+    .question-text img,
+    .option-label img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 8px 0;
+        border-radius: 8px;
+    }
+
+    .option-label {
+        overflow: hidden;
+    }
+
+    .question-card {
+        overflow: hidden;
+    }
+        
+        .option-label {
+            display: block;
+            padding: 14px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-label:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .option-input:checked + .option-label {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+        
+        .option-input:checked + .option-label::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        /* When reviewing answers */
+        .review-mode .option-input:checked + .option-label.correct {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.05);
+            box-shadow: 0 0 0 1px var(--success);
+        }
+        
+        .review-mode .option-input:checked + .option-label.correct::after {
+            background: var(--success);
+        }
+        
+        .review-mode .option-input:checked + .option-label.incorrect {
+            border-color: var(--danger);
+            background: rgba(214, 48, 49, 0.05);
+            box-shadow: 0 0 0 1px var(--danger);
+        }
+        
+        .MathJax, .mjx-chtml {
+            overflow-x: auto;
+            max-width: 100%;
+            display: inline-block;
+        }
+
+        
+        .review-mode .option-input:checked + .option-label.incorrect::after {
+            background: var(--danger);
+        }
+        
+        .review-mode .option-label.correct-answer {
+            border-color: var(--success);
+            background: rgba(0, 184, 148, 0.05);
+            box-shadow: 0 0 0 1px var(--success);
+        }
+        
+        .review-mode .option-label.correct-answer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--success);
+        }
+        
+        .solution-container {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(108, 92, 231, 0.05);
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .solution-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        /* Question Navigation */
+        .question-nav {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            bottom: 80px;
+            width: 100%;
+            max-width: 320px;
+            background: var(--card-bg);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            transition: var(--transition);
+            z-index: 900;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .question-nav.show {
+            transform: translateX(0);
+        }
+        
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        
+        .question-stats {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .stat-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .section-selector {
+            width: 100%;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            padding: 10px 16px;
+            border: 1px solid var(--light-gray);
+            background: var(--card-bg);
+            font-size: 0.9rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        
+        .question-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+        }
+        
+        .q-box {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            border: 1px solid var(--light-gray);
+            background: var(--card-bg);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .q-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .q-box.attempted {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .q-box.correct {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        
+        .q-box.incorrect {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+        
+        .q-box.current {
+            border: 2px solid var(--accent) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .q-box.unattempted {
+            background-color: var(--gray);
+            color: white;
+            border-color: var(--gray);
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--footer-bg);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 800;
+        }
+        
+        .nav-btn {
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            transition: var(--transition);
+            gap: 8px;
+        }
+        
+        .nav-btn i {
+            font-size: 1rem;
+        }
+        
+        .nav-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .nav-btn-outline:hover {
+            background: rgba(108, 92, 231, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Overlay when nav is open */
+        .nav-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 80px;
+            background: rgba(0,0,0,0.5);
+            z-index: 800;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        
+        .nav-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        /* Results Modal */
+        .results-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            padding: 16px;
+        }
+        
+        .results-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .results-card {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+        
+        .results-modal.show .results-card {
+            transform: translateY(0);
+        }
+        
+        .results-header {
+            background: var(--header-bg);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .results-title {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .results-body {
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            box-shadow: var(--box-shadow-sm);
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .results-footer {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        /* Responsive Adjustments */
+        @media (min-width: 992px) {
+            .question-nav {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-right: 320px;
+            }
+            
+            .nav-overlay {
+                display: none;
+            }
+            
+            .bottom-nav {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .question-grid {
+                grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+                gap: 6px;
+            }
+            
+            .q-box {
+                width: 36px;
+                height: 36px;
+                font-size: 0.9rem;
+            }
+            
+            .option-label {
+                padding: 12px 14px;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+            }
+            
+            .header-brand {
+                font-size: 1rem;
+            }
+            
+            .control-btn {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .timer-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+            
+            .nav-btn {
+                height: 44px;
+                padding: 0 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="header-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Mocks Wallah</span>
+            </a>
+            
+            <div class="header-controls">
+                <!-- Timer -->
+                <div class="timer-display">
+                    <i class="far fa-clock"></i>
+                    <span id="timer-display">12:00</span>
+                </div>
+                
+                <!-- Language toggle -->
+                <button class="control-btn" id="lang-btn" onclick="toggleLanguage()">
+                    <span id="lang-text">En</span>
+                </button>
+                
+                <!-- Submit button -->
+                <button class="control-btn" id="submit-btn" onclick="confirmSubmit()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                
+                <!-- Questions toggle for mobile -->
+                <button class="control-btn nav-toggle-btn" id="nav-toggle" onclick="toggleNav()">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main content -->
+    <main class="main-content" id="main-content">
+        <div class="question-counter" id="question-counter">Question 1 of 15</div>
+        
+        <!-- Questions will be displayed here -->
+        <div id="questions-container"></div>
+    </main>
+    
+    <!-- Overlay for mobile nav -->
+    <div class="nav-overlay" id="nav-overlay" onclick="toggleNav(false)"></div>
+    
+    <!-- Question navigation sidebar -->
+    <aside class="question-nav" id="question-nav">
+        <div class="nav-header">
+            <h3 class="nav-title">Questions</h3>
+            <div class="question-stats">
+                <span class="stat-badge bg-primary" id="attempted-count">0</span>
+                <span class="stat-badge bg-gray" id="total-count">15</span>
+                <button class="control-btn d-lg-none" onclick="toggleNav(false)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Section selector -->
+        <select class="section-selector" id="section-selector" onchange="switchSection(this.value)">
+            <option value="all">All Sections</option>
+        </select>
+        
+        <!-- Question grid -->
+        <div class="question-grid" id="question-boxes"></div>
+    </aside>
+    
+    <!-- Bottom navigation for mobile -->
+    <nav class="bottom-nav d-lg-none">
+        <button class="nav-btn nav-btn-outline" onclick="prevQuestion()">
+            <i class="fas fa-chevron-left"></i>
+            <span>Previous</span>
+        </button>
+        <button class="nav-btn nav-btn-outline" onclick="nextQuestion()">
+            <span>Next</span>
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </nav>
+    
+    <!-- Results modal -->
+    <div class="results-modal" id="results-modal">
+        <div class="results-card">
+            <div class="results-header">
+                <h3 class="results-title">Test Results</h3>
+            </div>
+            <div class="results-body">
+                <div class="stats-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark))">
+                        <div class="stat-value" id="score-value">0</div>
+                        <div class="stat-label">Score</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--success), #1b9aaa)">
+                        <div class="stat-value" id="correct-value">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--danger), var(--accent))">
+                        <div class="stat-value" id="incorrect-value">0</div>
+                        <div class="stat-label">Incorrect</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--gray), var(--dark))">
+                        <div class="stat-value" id="unattempted-value">0</div>
+                        <div class="stat-label">Unattempted</div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-footer">
+                <button class="nav-btn nav-btn-primary" onclick="reviewTest()">
+                    <i class="fas fa-search me-1"></i>
+                    <span>Review Test</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Questions data
+        const questions = [];
+        const sections = {};
+        let currentLang = "en";
+        let currentQuestion = 0;
+        let answers = {};
+        let submitted = false;
+        let totalTime = 12 * 60;
+        
+        // Initialize the test
+        window.onload = function() {
+            initializeTest();
+            startTimer();
+            
+            // If on desktop, show the question navigation by default
+            if (window.innerWidth >= 992) {
+                document.getElementById('question-nav').classList.add('show');
+                document.getElementById('main-content').classList.add('with-nav');
+            }
+        };
+        
+        // Initialize test data
+        function initializeTest() {
+            // Add sections and questions
+            
+            sections["17"] = {
+                name: "Quantitative Aptitude",
+                start: 0,
+                end: 13
+            };
+            
+            document.getElementById('section-selector').innerHTML += 
+                `<option value="17">Quantitative Aptitude</option>`;
+            
+            sections["misc"] = {
+                name: "Miscellaneous",
+                start: 14,
+                end: 14
+            };
+            
+            document.getElementById('section-selector').innerHTML += 
+                `<option value="misc">Miscellaneous</option>`;
+            
+            
+                questions.push({
+                    id: "1",
+                    section: "17",
+                    question_en: "<p>1. When 200 is divided by a positive integer x, the remainder is 8. How many values of x are there?</p>",
+                    question_hi: "<p>1. जब 200 को किसी धनात्मक पूर्णांक x से भाग दिया जाता है, तो शेषफल 8 आता है । x के कितने मान हैं ?</p>",
+                    options_en: ["<p>7</p>", "<p>5</p>", 
+                                "<p>8</p>", "<p>6</p>"],
+                    options_hi: ["<p>7</p>", "<p>5</p>",
+                                "<p>8</p>", "<p>6</p>"],
+                    solution_en: "<p>1.(c) When 200 is divided by x, the remainder is 8. So, the number exactly divisible by x is 192.<br>Factors of 192 =1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 192<br>The remainder is always less than the divisor , so x &gt; 8<br><math display=\"inline\"><mo>&#8658;</mo></math> Desired values are 12, 16, 24, 32, 48, 64, 96, 192.</p>",
+                    solution_hi: "<p>1.(c) जब 200 को x से विभाजित किया जाता है, तो शेषफल 8 प्राप्त होता है। अतः, x से पूर्णतः विभाज्य संख्या 192 है।<br>192 के गुणनखंड = 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 192 <br>शेषफल हमेशा भाजक से कम होता है, इसलिए <br>x &gt; 8<br>वांछित मान = 12, 16, 24, 32, 48, 64, 96, 192 हैं।</p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "2",
+                    section: "17",
+                    question_en: "<p>2. When a positive integer is divided by d, the remainder is 15. When ten times of the same number is divided by d, the remainder is 6. The least possible value of d is:</p>",
+                    question_hi: "<p>2. जब एक धनात्मक पूर्णांक को d से भाग दिया जाता है, तो शेषफल 15 आता है । जब इसी संख्या के 10 गुना को d से भाग दिया जाता है, तो शेषफल 6 आता है । d का न्यूनतम संभव मान हो सकता है :</p>",
+                    options_en: ["<p>9</p>", "<p>12</p>", 
+                                "<p>16</p>", "<p>18</p>"],
+                    options_hi: ["<p>9</p>", "<p>12</p>",
+                                "<p>16</p>", "<p>18</p>"],
+                    solution_en: "<p>2.(c) Let N be the number which gives Q as quotient and 15 as remainder when divided by d. Thus, d &gt; 15<br>N = d<math display=\"inline\"><mo>&#215;</mo></math>Q + 15<br>10N = 10(d<math display=\"inline\"><mo>&#215;</mo></math>Q) + 144 + 6 <br>clearly d is a multiple of 144 which are: 2, 3, 4, 6, 8, 9, 12, 16, 18, 24 and so on. <br>The least possible value of d is 16.(d &gt; 15)</p>",
+                    solution_hi: "<p>2.(c) मान लीजिए N वह संख्या है जो d से विभाजित करने पर Q को भागफल और शेषफल के रूप में 15 देता है। <br>इस प्रकार, d &gt; 15<br>N = d<math display=\"inline\"><mo>&#215;</mo></math>Q + 15<br>10N = 10(d<math display=\"inline\"><mo>&#215;</mo></math>Q)+ 144 + 6 <br>स्पष्ट रूप से d 144 का गुणज है जो हैं: 2, 3, 4, 6, 8, 9, 12, 16, 18, 24 इत्यादि।<br>d का न्यूनतम संभव मान है = 16.(d &gt; 15)</p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "3",
+                    section: "17",
+                    question_en: "<p>3. What should replace * in the number 94*2357, so that the number is divisible by 11?</p>",
+                    question_hi: "<p>3. संख्या 94*2357 में * के स्थान पर कौन सी संख्या आनी चाहिए ताकि यह संख्या 11 से विभाजित हो जाए ।</p>",
+                    options_en: ["<p>3</p>", "<p>7</p>", 
+                                "<p>1</p>", "<p>8</p>"],
+                    options_hi: ["<p>3</p>", "<p>7</p>",
+                                "<p>1</p>", "<p>8</p>"],
+                    solution_en: "<p>3.(a) For a number to be divisible by 11, the difference of sum of alternative numbers is divisible by 11.<br>Hence, (7 + 3 + * +9 ) - ( 5 + 2 + 4 )<br>= (19 + *) - (11) = 8 + *<br>* must be 3 for 94*2357 to be divisible by 11.</p>",
+                    solution_hi: "<p>3.(a) किसी संख्या के 11 से विभाज्य होने के लिए, वैकल्पिक संख्याओं के योग का अंतर 11 से विभाज्य होता है।<br>अतः, ((7 + 3 + * + 9 ) - ( 5 + 2 + 4 )<br>=(19 + *) - (11) = 8 + *<br>94*2357 के11 से विभाज्य होने के लिए * = 3 होना चाहिए।</p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "4",
+                    section: "17",
+                    question_en: "<p>4. When 732 is divided by a positive integer x, the remainder is 12. How many values of x are there?</p>",
+                    question_hi: "<p>4. जब 732 को एक धनात्मक पूर्णांक x से भाग दिया जाता है, तो शेषफल 12 आता है । x के कितने मान हैं ?</p>",
+                    options_en: ["<p>19</p>", "<p>20</p>", 
+                                "<p>18</p>", "<p>16</p>"],
+                    options_hi: ["<p>19</p>", "<p>20</p>",
+                                "<p>18</p>", "<p>16</p>"],
+                    solution_en: "<p>4.(b) When 732 is divided by x, the remainder is 12. So, the number exactly divisible by x is 720.<br>The remainder is always less than the divisor , so x &gt; 12<br>Now, the factors of 720 which are more than 12 are possible values of x, i.e. (15,16,18,20,24,30,36, 40,45, 48,60, 72, 80, 90, 120, 144, 180, 240, 360, 720).</p>",
+                    solution_hi: "<p>4.(b) जब 732 को x से विभाजित किया जाता है, तो शेषफल 12 प्राप्त होता है। अतः, x से पूर्णतः विभाज्य संख्या 720 है।<br>शेषफल हमेशा भाजक से छोटा होता है, इसलिए x &gt; 12<br>अब, 720 के गुणनखंड जो 12 से अधिक हैं, x के संभावित मान हैं, अर्थात (15, 16, 18, 20, 24, 30, 36 , 40, 45, 48 ,60, 72, 80, 90, 120, 144 , 180, 240, 360, 720)।</p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "5",
+                    section: "17",
+                    question_en: "<p>5. If the 6-digit numbers x35624 and 1257y4 are divisible by 11 and 72, respectively, then what is the value of (5x-2y)?</p>",
+                    question_hi: "<p>5. यदि 6 अंकों की संख्या x35624 तथा 1257y4 क्रमशः 11 और 72 से विभाज्य है, तो (5x-2y) का मान क्या होगा ?</p>",
+                    options_en: ["<p>14</p>", "<p>12</p>", 
+                                "<p>10</p>", "<p>13</p>"],
+                    options_hi: ["<p>14</p>", "<p>12</p>",
+                                "<p>10</p>", "<p>13</p>"],
+                    solution_en: "<p>5.(a) In such questions directly check divisibility by 11, 9 and 8.<br>For a number to be divisible by 11, the difference of the sum of digits at odd or even places must be divisible by 11.<br>For a number to be divisible by 9, the sum of numbers must be divisible by 9.<br>For divisibility by 8, the last 3 numbers must be divisible by 8.<br>Accordingly, For x35624 divisible by 11<br>(x + 5 + 2 ) - ( 3 + 6 + 4 ) = 0 or 11<br><math display=\"inline\"><mo>&#8658;</mo><mi>&#160;</mi></math>x = 6<br>And for 1257y4 divisible by 72,<br>1 + 2 + 5 + 7 + y + 4 must be divisible by 9 and the only possible value of y is 8, here.<br>also 784 is divisible by 8 so desired value of y = 8<br>Then, 5x - 2y = 30 -16 = 14</p>",
+                    solution_hi: "<p>5.(a) ऐसे प्रश्नों में सीधे 11, 9 और 8 से विभाज्यता की जाँच करें।<br>किसी संख्या को 11 से विभाज्य होने के लिए, विषम या सम स्थानों पर अंकों के योग का अंतर 11 से विभाज्य होना चाहिए।<br>किसी संख्या के 9 से विभाज्य होने के लिए, संख्याओं का योग 9 से विभाज्य होना चाहिए।<br>8 से विभाज्य होने के लिए, अंतिम 3 संख्याएँ 8 से विभाज्य होनी चाहिए।<br>तदनुसार, x35624 के लिए से विभाज्य होने के लिए 11<br>(x + 5 + 2) - (3 + 6 + 4) = 0 or 11<br><math display=\"inline\"><mo>&#8658;</mo></math>x = 6<br>और 1257y4 के 72 से विभाज्य होने के लिए <br>1 + 2 + 5 + 7 + y + 4 को 9 से विभाज्य होना चाहिए और यहाँ y का एकमात्र संभावित मान 8 है ।<br>784 भी 8 से विभाज्य है इसलिए y का वांछित मान = 8<br>फिर, 5x - 2y = 30 - 16 = 14</p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "6",
+                    section: "17",
+                    question_en: "<p>6. How many numbers are there from 200 to 800 which are neither divisible by 5 nor by 7?</p>",
+                    question_hi: "<p>6. 200 से 800 तक ऐसी कितनी संख्याएँ हैं जो ना तो 5 से ना ही 7 से विभाज्य हैं ?</p>",
+                    options_en: ["<p>407</p>", "<p>410</p>", 
+                                "<p>413</p>", "<p>411</p>"],
+                    options_hi: ["<p>407</p>", "<p>410</p>",
+                                "<p>413</p>", "<p>411</p>"],
+                    solution_en: "<p>6.(d) From 200 to 800, numbers which are divisible by <br>(i) 5 : <math display=\"inline\"><mfrac><mrow><mn>800</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math>- <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn>200</mn><mn>5</mn></mfrac></math>= 120 + 1<br>(ii) 7 : <math display=\"inline\"><mfrac><mrow><mn>800</mn></mrow><mrow><mn>7</mn></mrow></mfrac></math> - <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn>200</mn><mn>7</mn></mfrac></math>= 114 - 28 = 86<br>(iii) 35 : <math display=\"inline\"><mfrac><mrow><mn>800</mn></mrow><mrow><mn>35</mn></mrow></mfrac></math>- <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn>200</mn><mn>35</mn></mfrac></math> = 22 - 5 = 17<br>Total number = 121 + 86 - 17 = 190<br>Numbers from 200 to 800 which are neither divisible by 5 nor by 7<br>= (800-199)- 190 = 411</p>",
+                    solution_hi: "<p>6.(d) 200 से 800 तक, संख्याएँ जो से विभाज्य हैं<br>(i) 5 : <math display=\"inline\"><mfrac><mrow><mn>800</mn></mrow><mrow><mn>5</mn></mrow></mfrac></math> - <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn>200</mn><mn>5</mn></mfrac></math>= 120+1<br>(ii) 7 : <math display=\"inline\"><mfrac><mrow><mn>800</mn></mrow><mrow><mn>7</mn></mrow></mfrac></math> - <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn>200</mn><mn>7</mn></mfrac></math>= 114 - 28 = 86<br>(iii) 35 : <math display=\"inline\"><mfrac><mrow><mn>800</mn></mrow><mrow><mn>35</mn></mrow></mfrac></math> - <math xmlns=\"http://www.w3.org/1998/Math/MathML\"><mfrac><mn>200</mn><mn>35</mn></mfrac></math>= 22 - 5 = 17<br>कुल संख्याएँ = 121 + 86 - 17 = 190<br>200 से 800 तक की संख्याएँ जो न तो 5 से और न ही 7 से विभाज्य हैं = (800 - 199) - 190 = 411</p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "7",
+                    section: "17",
+                    question_en: "<p>7. If the nine-digit number 708x6y8z9 is divisible by 99, then what is the value of x + y + z ?</p>",
+                    question_hi: "<p>7. यदि नौ अंकों की संख्या 708x6y8z9 , 99 से विभाज्य है, तो x + y + z का मान क्या है ?</p>",
+                    options_en: ["<p>9</p>", "<p>16</p>", 
+                                "<p>5</p>", "<p>27</p>"],
+                    options_hi: ["<p>9</p>", "<p>16</p>",
+                                "<p>5</p>", "<p>27</p>"],
+                    solution_en: "<p>7.(b) It is given that 708x6y8z9 is divisible by 99.<br>Thus, 708x6y8z9 is divisible by both 11 and 9<br>For divisibility by 9, the sum of digits are divisible by 9 (7 + 0 + 8 + x + 6 + y + 8 + z + 9 = 38 + x + y + z. We get 2 as remainder when 38 <math display=\"inline\"><mo>&#247;</mo></math> 9. Thus, 2 + x + y +z must be divisible by 9)<br>Possible values of (z + y + x) = 7,16,25, etc. <br>For divisibility by 11, the difference of sum of digits at odd and even place is divisible by 11 (i.e. in 708x6y8z9 : (9 + 8 + 6 + 8 + 7 ) - (z + y + x + 0) = 38 - ( z + y + x) is divisible by 11 )<br>Possible values of (z + y + x ) =38,5,16 etc.<br>In such questions, we must directly verify options.</p>",
+                    solution_hi: "<p>7. (b) यह दिया गया है कि 708x6y8z9, 99 से विभाज्य है।<br>अत:, 708x6y8z9, 11 और 9 दोनों से विभाज्य है <br>9 से विभाज्यता के लिए, अंकों का योग (7 + 0 + 8 + x + 6 + y + 8 + z + 9 = 38 + x + y + z), 9 से विभाज्य है। 38&divide;9 होने पर हमें शेषफल 2 मिलता है। इस प्रकार, 2 + x + y + z को 9 से विभाज्य होना चाहिए।<br>(z + y + x) = 7,16,25, आदि के संभावित मान।<br>11 से विभाज्यता के लिए, विषम और सम स्थान पर अंकों के योग का अंतर 11 से विभाज्य है (अर्थात 708x6y8z9 में: (9 + 8 + 6 + 8 + 7 ) - (z + y + x + 0) = 38 - ( z + y + x), 11 से विभाज्य है)<br>(z+y+x) =38,5,16 आदि के संभावित मान।<br>ऐसे प्रश्नों में, हमें सीधे विकल्पों का सत्यापन करना चाहिए।</p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "8",
+                    section: "17",
+                    question_en: "<p>8. The greatest number which should be replace &lsquo;*&rsquo; in the number 146*48 to make it divisible by 8 is:</p>",
+                    question_hi: "<p>8. 146*48 को 8 से विभाज्य बनाने के लिए * के स्थान पर सबसे बड़ी किस संख्या को रखा जाना चाहिए ?</p>",
+                    options_en: ["<p>9</p>", "<p>2</p>", 
+                                "<p>8</p>", "<p>0</p>"],
+                    options_hi: ["<p>9</p>", "<p>2</p>",
+                                "<p>8</p>", "<p>0</p>"],
+                    solution_en: "<p>8.(c) For 146*48 to be divisible by 8, *48 must be divisible by 8.<br>Check options: * = 0, 2, 4, 6, 8 satisfies the condition. But 8 &gt; 2. <br>Option C is the correct answer.</p>",
+                    solution_hi: "<p>8.(c) 146*48 को 8 से विभाज्य होने के लिए, *48 को 8 से विभाज्य होना चाहिए।<br>विकल्पों की जाँच करें: * = 0, 2, 4, 6, 8 शर्त को पूरा करता है। लेकिन 8 &gt; 2<br>विकल्प (c) सही उत्तर है।</p>",
+                    correct: "c",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "9",
+                    section: "17",
+                    question_en: "<p>9. The largest number which could replace * in the 2365*4 to make the number divisible by 4 is :</p>",
+                    question_hi: "<p>9. 2365*4 को 4 से विभाज्य बनाने के लिए * के स्थान पर सबसे बड़ी कौन सी संख्या आ सकती है ?</p>",
+                    options_en: ["<p>8</p>", "<p>9</p>", 
+                                "<p>2</p>", "<p>0</p>"],
+                    options_hi: ["<p>8</p>", "<p>9</p>",
+                                "<p>2</p>", "<p>0</p>"],
+                    solution_en: "<p>9.(a) For a number to be divisible by 4, the last two digits must be divisible by 4. Among the given options 8 is maximum number to replace *</p>",
+                    solution_hi: "<p>9.(a) किसी संख्या के 4 से विभाज्य होने के लिए, अंतिम दो अंक 4 से विभाज्य होने चाहिए। दिए गए विकल्पों में से 8 * को प्रतिस्थापित करने के लिए अधिकतम संख्या है</p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "10",
+                    section: "17",
+                    question_en: "<p>10. If the given number 925x85 is divisible by 11, then the smallest value of x is:</p>",
+                    question_hi: "<p>10. यदि दी गयी संख्या 925 x 85 , 11 से विभाज्य है, तो x का सबसे छोटा मान कितना होगा ?</p>",
+                    options_en: ["<p>4</p>", "<p>2</p>", 
+                                "<p>1</p>", "<p>3</p>"],
+                    options_hi: ["<p>4</p>", "<p>2</p>",
+                                "<p>1</p>", "<p>3</p>"],
+                    solution_en: "<p>10.(a) For a number to be divisible by 11, the difference of the sum of digits at odd and even places must be divisible by 11.<br>(9 + 5 + 8 ) - ( 2 + x + 5 ) = 15 - x<br>For x = 4, the number is divisible by 11.</p>",
+                    solution_hi: "<p>10.(a) किसी संख्या को 11 से विभाज्य होने के लिए, विषम और सम स्थानों पर अंकों के योग का अंतर 11 से विभाज्य होना चाहिए।<br>( 9 + 5 + 8 ) - ( 2 + x + 5) = 15 - x<br>x = 4 के लिए, संख्या 11 से विभाज्य है।</p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "11",
+                    section: "17",
+                    question_en: "<p>11. If 7 divided a positive integer n, the remainder is 2. Which of the following numbers gives a remainder of 0 when divided by 7?</p>",
+                    question_hi: "<p>11. यदि किसी धनात्मक पूर्णांक n को 7 से भाग देने पर शेषफल 2 आता है, तो निम्नलिखित में से किस संख्या को 7 से भाग देने पर शेषफल 0 आएगा ?</p>",
+                    options_en: ["<p>n-5</p>", "<p>n+5</p>", 
+                                "<p>n+2</p>", "<p>n+1</p>"],
+                    options_hi: ["<p>n-5</p>", "<p>n+5</p>",
+                                "<p>n+2</p>", "<p>n+1</p>"],
+                    solution_en: "<p>11.(b) n = 7Q + 2<br>For remainder 0, add 5 both sides, we get: n + 5 = 7Q + 7</p>",
+                    solution_hi: "<p>11.(b) n = 7Q + 2<br>शेष 0 के लिए, दोनों पक्षों में 5 जोड़ दें, हमें प्राप्त होता है: n + 5 = 7Q + 7</p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "12",
+                    section: "17",
+                    question_en: "<p>12. If 5 divided the integer n, the remainder is 2. What will be the remainder if 7n is divided by 5?</p>",
+                    question_hi: "<p>12. यदि 5 से पूर्णांक n में भाग दिया जाए, तो शेषफल 2 आता है । यदि 7n में 5 से भाग दिया जाए, तो शेषफल कितना आएगा ?</p>",
+                    options_en: ["<p>1</p>", "<p>4</p>", 
+                                "<p>3</p>", "<p>2</p>"],
+                    options_hi: ["<p>1</p>", "<p>4</p>",
+                                "<p>3</p>", "<p>2</p>"],
+                    solution_en: "<p>12.(b) n = 5Q + 2<br>7n = 35Q + 14<br><math display=\"inline\"><mn>7</mn><mi>n</mi></math> = 5 &times; 7Q + 10 + 4 , Remainder = 4</p>",
+                    solution_hi: "<p>12.(b) n = 5Q + 2<br>7n = 35Q + 14<br><math display=\"inline\"><mn>7</mn><mi>n</mi></math>= 5&times;7Q + 10 + 4 &rArr; शेषफल = 4</p>",
+                    correct: "b",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "13",
+                    section: "17",
+                    question_en: "<p>13. The greatest number which may replace * in the number 1190*6 to make the number divisible by 9 is:</p>",
+                    question_hi: "<p>13. संख्या 1190*6 में * के स्थान पर सबसे बड़ी कौन सी संख्या आ सकती है, जिससे यह 9 से विभाज्य हो जाएगी ?</p>",
+                    options_en: ["<p>1</p>", "<p>9</p>", 
+                                "<p>3</p>", "<p>0</p>"],
+                    options_hi: ["<p>1</p>", "<p>9</p>",
+                                "<p>3</p>", "<p>0</p>"],
+                    solution_en: "<p>13.(a) For a number to be divisible by 9, the sum of its digits must be divisible by 9. <br>In 1190*6, 1 + 1 + 9 + 0 + * + 6 = 17 +*<br>By replacing * by 1, 1190*6 is divisible by 9.</p>",
+                    solution_hi: "<p>13.(a) किसी संख्या के 9 से विभाज्य होने के लिए, उसके अंकों का योग 9 से विभाज्य होना चाहिए।<br>1190*6 में,1 + 1 + 9 + 0 + * + 6 = 17 + *<br>* को 1 से बदलने पर, 1190*6, 9 से विभाज्य है।</p>",
+                    correct: "a",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "14",
+                    section: "17",
+                    question_en: "<p>14. What is the smallest integer that is divisible by 3,7 and 18?</p>",
+                    question_hi: "<p>14. 3, 7 और 18 से विभाजित सबसे छोटा पूर्णांक कौन सा है ?</p>",
+                    options_en: ["<p>72</p>", "<p>63</p>", 
+                                "<p>252</p>", "<p>126</p>"],
+                    options_hi: ["<p>72</p>", "<p>63</p>",
+                                "<p>252</p>", "<p>126</p>"],
+                    solution_en: "<p>14.(d) LCM (3,7,18) = 18<math display=\"inline\"><mo>&#215;</mo></math>7 = 126</p>",
+                    solution_hi: "<p>14.(d) LCM (3,7,18) = 18<math display=\"inline\"><mo>&#215;</mo></math>7 = 126</p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+                questions.push({
+                    id: "15",
+                    section: "misc",
+                    question_en: "<p>15. What is the smallest integer that is a multiple of 5, 8 and 15?</p>",
+                    question_hi: "<p>15. वह सबसे छोटा पूर्णांक कौन सा है जो 5, 8 तथा 15 का एक गुणज है ?</p>",
+                    options_en: ["<p>40</p>", "<p>60</p>", 
+                                "<p>600</p>", "<p>120</p>"],
+                    options_hi: ["<p>40</p>", "<p>60</p>",
+                                "<p>600</p>", "<p>120</p>"],
+                    solution_en: "<p>15.(d) LCM (5, 8, 15) = 15 <math display=\"inline\"><mo>&#215;</mo></math> 8 = 120</p>",
+                    solution_hi: "<p>15.(d) LCM(5, 8, 15) = 15 <math display=\"inline\"><mo>&#215;</mo></math> 8 = 120</p>",
+                    correct: "d",
+                    pos_marks: 2.0,
+                    neg_marks: 0.5
+                });
+            
+            // Generate question boxes
+            const boxesContainer = document.getElementById('question-boxes');
+            questions.forEach((q, index) => {
+                const box = document.createElement('div');
+                box.className = 'q-box';
+                box.textContent = index + 1;
+                box.onclick = () => showQuestion(index);
+                box.id = `box-${index}`;
+                boxesContainer.appendChild(box);
+            });
+            
+            // Show first question
+            showQuestion(0);
+            updateProgress();
+        }
+        
+        // Show a specific question
+        
+        function formatContent(text) {
+            if (!text) return '';
+            return text.replace(/<img/g, '<img style="max-width:100%;height:auto;"');
+        }
+        
+        function showQuestion(index) {
+            if (index < 0 || index >= questions.length) return;
+            
+            currentQuestion = index;
+            const question = questions[index];
+            
+            // Update question counter
+            document.getElementById('question-counter').textContent = `Question ${index + 1} of ${questions.length}`;
+            
+            // Update question boxes
+            document.querySelectorAll('.q-box').forEach(box => box.classList.remove('current'));
+            document.getElementById(`box-${index}`).classList.add('current');
+            
+            // Generate question HTML
+            let html = `
+                <div class="question-card">
+                    <div class="question-text">
+                        <div class="en">${formatContent(question.question_en)}</div>
+                        <div class="hi" style="display:none">${formatContent(question.question_hi)} </div>
+                    </div>
+                    <div class="options" id="options-container">`;
+            
+            // Add options
+            ['a', 'b', 'c', 'd'].forEach((opt, i) => {
+                let optionClass = '';
+                let isCorrectAnswer = opt === question.correct;
+                let isUserAnswer = answers[question.id] === opt;
+                
+                // When reviewing, add appropriate classes
+                if (submitted) {
+                    if (isCorrectAnswer) {
+                        optionClass += ' correct-answer';
+                    } else if (isUserAnswer && !isCorrectAnswer) {
+                        optionClass += ' incorrect';
+                    }
+                }
+                
+                html += `
+                    <div class="option-item">
+                        <input class="option-input" type="radio" name="q${index}" 
+                            id="opt-${index}-${opt}" value="${opt}" 
+                            ${isUserAnswer ? 'checked' : ''}
+                            onclick="selectAnswer('${question.id}', '${opt}')">
+                       <label class="option-label${optionClass}" for="opt-${index}-${opt}">
+                            <div class="en">${question.options_en[i]}</div>
+                            <div class="hi" style="display:none">${question.options_hi[i]}</div>
+                        </label>
+                    </div>`;
+            });
+            
+            // Add solution if submitted
+            if (submitted) {
+                const isCorrect = answers[question.id] === question.correct;
+                const resultText = answers[question.id] ? (isCorrect ? 'Correct!' : 'Incorrect!') : 'Not attempted';
+                
+                html += `
+                    <div class="solution-container">
+                        <div class="solution-title">${resultText}</div>
+                        <div class="solution-text">
+                            <div class="en">${question.solution_en}</div>
+                            <div class="hi" style="display:none">${question.solution_hi}</div>
+                        </div>
+                    </div>`;
+            }
+            
+            html += `</div></div>`;
+            
+            document.getElementById('questions-container').innerHTML = html;
+            
+            // Apply language settings
+            applyLanguage();
+            
+            // If in mobile view, close the menu
+            if (window.innerWidth < 992) {
+                toggleNav(false);
+            }
+            
+            // Add review mode class if submitted
+            if (submitted) {
+                document.getElementById('options-container').classList.add('review-mode');
+            }
+        }
+        
+        // Apply current language
+        function applyLanguage() {
+            document.querySelectorAll(`.${currentLang}`).forEach(el => el.style.display = 'block');
+            document.querySelectorAll(`.${currentLang === 'en' ? 'hi' : 'en'}`).forEach(el => el.style.display = 'none');
+            
+            // Update language button text
+            document.getElementById('lang-text').textContent = currentLang === 'en' ? 'Hi' : 'En';
+        }
+        
+        // Select an answer
+        function selectAnswer(qId, option) {
+            if (submitted) return;
+            
+            answers[qId] = option;
+            updateProgress();
+            
+            // Mark question as attempted in the navigation
+            const index = questions.findIndex(q => q.id === qId);
+            if (index >= 0) {
+                const box = document.getElementById(`box-${index}`);
+                box.classList.add('attempted');
+                box.classList.remove('unattempted');
+            }
+        }
+        
+        // Navigate to previous/next question
+        function prevQuestion() { 
+            if (currentQuestion > 0) showQuestion(currentQuestion - 1); 
+        }
+        
+        function nextQuestion() { 
+            if (currentQuestion < questions.length - 1) showQuestion(currentQuestion + 1); 
+        }
+        
+        // Switch section
+        function switchSection(sectionId) {
+            if (sectionId === 'all') {
+                showQuestion(0);
+                return;
+            }
+            
+            const section = sections[sectionId];
+            if (section) showQuestion(section.start);
+        }
+        
+        // Toggle language
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            applyLanguage();
+        }
+        
+        // Toggle navigation sidebar
+        function toggleNav(show) {
+            const nav = document.getElementById('question-nav');
+            const overlay = document.getElementById('nav-overlay');
+            
+            if (show === undefined) {
+                show = !nav.classList.contains('show');
+            }
+            
+            if (show) {
+                nav.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            } else {
+                nav.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Update progress
+        function updateProgress() {
+            const attempted = Object.keys(answers).length;
+            document.getElementById('attempted-count').textContent = attempted;
+        }
+        
+        // Start timer
+        function startTimer() {
+            const timerDisplay = document.getElementById('timer-display');
+            let timeLeft = totalTime;
+            
+            const timerInterval = setInterval(() => {
+                if (timeLeft <= 0 || submitted) {
+                    clearInterval(timerInterval);
+                    if (!submitted) submitTest();
+                    return;
+                }
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                timeLeft--;
+            }, 1000);
+        }
+        
+        // Confirm before submitting
+        function confirmSubmit() {
+            if (submitted) return;
+            
+            const attempted = Object.keys(answers).length;
+            const remaining = questions.length - attempted;
+            
+            // Create a more modern confirmation dialog
+            const confirmHtml = `
+                <div style="text-align: center; padding: 20px;">
+                    <h4 style="margin-bottom: 16px; color: var(--dark);">Confirm Submission</h4>
+                    <p style="margin-bottom: 24px; color: var(--gray);">
+                        You have attempted ${attempted} of ${questions.length} questions.<br>
+                        ${remaining} questions are unattempted.
+                    </p>
+                    <div style="display: flex; justify-content: center; gap: 12px;">
+                        <button onclick="this.closest('.modal').querySelector('.cancel-btn').click()" 
+                            style="padding: 8px 20px; border: 1px solid var(--light-gray); background: white; border-radius: 8px; cursor: pointer;">
+                            Cancel
+                        </button>
+                        <button onclick="submitTest(); this.closest('.modal').querySelector('.cancel-btn').click()" 
+                            style="padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                            Submit Test
+                        </button>
+                    </div>
+                </div>`;
+            
+            // Create modal element
+            const modal = document.createElement('div');
+            modal.className = 'results-modal show';
+            modal.innerHTML = `
+                <div class="results-card" style="max-width: 400px;">
+                    <button class="cancel-btn" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--gray);" onclick="this.closest('.results-modal').remove()">
+                        ×
+                    </button>
+                    ${confirmHtml}
+                </div>`;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Submit test
+        function submitTest() {
+            if (submitted) return;
+            
+            submitted = true;
+            
+            let score = 0;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unattemptedCount = 0;
+            
+            questions.forEach((q, index) => {
+                const userAns = answers[q.id];
+                const box = document.getElementById(`box-${index}`);
+                
+                box.classList.remove('attempted');
+                
+                if (!userAns) {
+                    unattemptedCount++;
+                    box.classList.add('unattempted');
+                } else if (userAns === q.correct) {
+                    correctCount++;
+                    score += q.pos_marks;
+                    box.classList.add('correct');
+                } else {
+                    incorrectCount++;
+                    score -= q.neg_marks;
+                    box.classList.add('incorrect');
+                }
+            });
+            
+            // Update result values
+            document.getElementById('score-value').textContent = score.toFixed(2);
+            document.getElementById('correct-value').textContent = correctCount;
+            document.getElementById('incorrect-value').textContent = incorrectCount;
+            document.getElementById('unattempted-value').textContent = unattemptedCount;
+            
+            // Show the results modal
+            document.getElementById('results-modal').classList.add('show');
+            
+            // Disable submit button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-check"></i>';
+            submitBtn.style.backgroundColor = 'var(--success)';
+            
+            // Refresh current question view to show solution
+            showQuestion(currentQuestion);
+        }
+        
+        // Review test
+        function reviewTest() {
+            document.getElementById('results-modal').classList.remove('show');
+            showQuestion(0);
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('results-modal')) {
+                document.getElementById('results-modal').classList.remove('show');
+            }
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') prevQuestion();
+            if (e.key === 'ArrowRight') nextQuestion();
+        });
+    </script>
+</body>
+</html>
