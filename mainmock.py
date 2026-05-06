@@ -2358,6 +2358,29 @@ async def _raid_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Use /raid to check status.\nAdmins: /raid create <name> <hp> <reward>")
 
 
+async def _editorial_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """View or upload editorials."""
+    if not DB_OK:
+        await update.message.reply_text("Database not available.")
+        return
+    args = context.args
+    if args and args[0] == "upload":
+        await update.message.reply_text(
+            "Send me the editorial .html file and I'll extract and store it.\n"
+            "File should contain highlighted vocabulary, cloze test, idioms etc."
+        )
+        return
+    # List recent editorials
+    editorials = list_editorials(10)
+    if not editorials:
+        await update.message.reply_text("No editorials yet. Admins can upload with /editorial upload")
+        return
+    lines = ["📰 *Recent Editorials*", ""]
+    for e in editorials:
+        lines.append(f"• *{e['title'][:50]}* ({e.get('source','N/A')}) — {e.get('article_date','')[:10]}")
+    await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.MARKDOWN)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ADMIN DASHBOARD  (ADMIN-01 through ADMIN-04)
 # ═══════════════════════════════════════════════════════════════════════════
@@ -2405,6 +2428,8 @@ async def _admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await _admin_export_users(update)
     elif sub == "export_mocks":
         await _admin_export_mocks(update)
+    elif sub == "backup":
+        await _admin_backup(update)
     elif sub == "set_benchmark" and len(args) >= 3:
         try:
             bmock_id = args[1]
@@ -2577,6 +2602,23 @@ async def _admin_export_mocks(update: Update):
     tf.write("\n".join(lines)); tpath = tf.name; tf.close()
     with open(tpath, "rb") as f:
         await update.message.reply_document(f, filename="mocks_export.csv")
+    os.unlink(tpath)
+
+
+async def _admin_backup(update: Update):
+    """Export all tables as JSON dump."""
+    tables = db_fetchall("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+    dump = {}
+    for t in tables:
+        tname = t["name"]
+        rows = db_fetchall(f"SELECT * FROM {tname}")
+        dump[tname] = [dict(r) for r in (rows or [])]
+    import tempfile
+    tf = tempfile.NamedTemporaryFile(suffix=".json", mode="w", encoding="utf-8", delete=False)
+    json.dump(dump, tf, indent=2, default=str)
+    tpath = tf.name; tf.close()
+    with open(tpath, "rb") as f:
+        await update.message.reply_document(f, filename=f"a2z_backup_{datetime.now().strftime('%Y%m%d_%H%M')}.json")
     os.unlink(tpath)
 
 
@@ -3209,6 +3251,7 @@ def main():
     app.add_handler(CommandHandler("access", _access_cmd))
     app.add_handler(CommandHandler("challenge", _challenge_cmd))
     app.add_handler(CommandHandler("raid", _raid_cmd))
+    app.add_handler(CommandHandler("editorial", _editorial_cmd))
 
     # File upload (admin-only enforced in handler)
     app.add_handler(MessageHandler(filters.Document.ALL, _handle_file))
@@ -3229,6 +3272,48 @@ def main():
             loop.run_until_complete(api.start())
         except Exception as e:
             log.warning("API server failed to start: %s", e)
+
+    # Background scheduler tasks
+    async def _scheduler_loop():
+        """Run periodic maintenance: daily quests, rank decay, premium expiry."""
+        while True:
+            now = datetime.now()
+            # IST offset: +5:30
+            ist_hour = (now.hour + 5 + (now.minute >= 30 and 1 or 0)) % 24
+            try:
+                if DB_OK and GAME_OK:
+                    # Daily quest auto-send at 6 AM IST
+                    if 6 <= ist_hour < 7 and getattr(_scheduler_loop, '_quest_sent_date', '') != now.strftime('%Y-%m-%d'):
+                        users = db_fetchall("SELECT telegram_id FROM users WHERE telegram_id != 0")
+                        for u in (users or []):
+                            create_daily_quest(db_execute, db_commit, u["telegram_id"])
+                        _scheduler_loop._quest_sent_date = now.strftime('%Y-%m-%d')
+                        log.info("Scheduler: Daily quests created for %d users", len(users or []))
+
+                    # Rank decay check at midnight IST
+                    if ist_hour == 0 and getattr(_scheduler_loop, '_decay_done_date', '') != now.strftime('%Y-%m-%d'):
+                        users = db_fetchall("SELECT telegram_id FROM users WHERE telegram_id != 0")
+                        for u in (users or []):
+                            apply_rank_decay(db_execute, db_commit, u["telegram_id"])
+                        _scheduler_loop._decay_done_date = now.strftime('%Y-%m-%d')
+                        log.info("Scheduler: Rank decay checked for %d users", len(users or []))
+
+                    # Premium access expiry check (hourly)
+                    if getattr(_scheduler_loop, '_expiry_last_run', 0) != now.hour:
+                        db_execute(
+                            "UPDATE users SET premium_access_expiry = NULL, premium_tier = 'free' "
+                            "WHERE premium_access_expiry IS NOT NULL AND premium_access_expiry < date('now')"
+                        )
+                        db_commit()
+                        _scheduler_loop._expiry_last_run = now.hour
+            except Exception as e:
+                log.warning("Scheduler error: %s", e)
+            await asyncio.sleep(300)  # Run every 5 minutes
+
+    try:
+        asyncio.get_event_loop().create_task(_scheduler_loop())
+    except Exception:
+        pass
 
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
