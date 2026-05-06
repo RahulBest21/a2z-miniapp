@@ -61,6 +61,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:
 .badge-new{background:rgba(139,92,246,.15);color:var(--purple)}
 .back-btn{background:none;border:none;color:var(--primary);font-weight:600;font-size:.85rem;cursor:pointer;padding:8px 0;margin-bottom:8px}
 
+/* ── Series Cards (Testbook-style) ── */
+.series-card{background:var(--panel);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer;transition:all .2s}
+.series-card:hover{border-color:var(--primary)}
+.series-card.locked{opacity:.55;pointer-events:none;background:rgba(20,28,45,.5)}
+.series-card .series-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.series-card .series-title{font-weight:700;font-size:.9rem;flex:1}
+.series-card .series-tag{font-size:.6rem;padding:2px 8px;border-radius:6px;font-weight:700}
+.tag-live{background:rgba(34,197,94,.15);color:var(--green)}
+.tag-upcoming{background:rgba(148,163,184,.15);color:var(--sub)}
+.tag-completed{background:rgba(139,92,246,.15);color:var(--purple)}
+.series-sub{font-size:.7rem;color:var(--sub);margin-bottom:8px}
+.series-progress{margin:8px 0}
+.series-progress .progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.series-progress .progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--gold));border-radius:3px;transition:width .5s}
+.series-progress .progress-text{font-size:.65rem;color:var(--sub);margin-top:4px}
+.series-stats{display:flex;gap:12px;margin-top:8px}
+.series-stats .mini-stat{font-size:.65rem;color:var(--sub)}
+.series-stats .mini-stat span{color:var(--text);font-weight:700}
+.series-status{font-size:.7rem;margin-top:8px;padding:4px 0}
+.series-status.live{color:var(--green)}
+.series-status.upcoming{color:var(--sub)}
+.series-status.completed{color:var(--purple)}
+
+/* ── Mock Card v2 ── */
+.mock-card-v2{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+.mock-card-v2:hover{background:rgba(255,255,255,.02)}
+.mock-card-v2.locked{opacity:.45;pointer-events:none}
+.mock-card-v2 .mock-left{flex:1;min-width:0}
+.mock-card-v2 .mock-title-v2{font-weight:600;font-size:.82rem}
+.mock-card-v2 .mock-meta-v2{font-size:.65rem;color:var(--sub);margin-top:3px}
+.mock-card-v2 .mock-right{text-align:right;min-width:70px}
+.mock-card-v2 .mock-score{font-weight:700;font-size:.85rem;color:var(--gold)}
+.mock-card-v2 .mock-acc{font-size:.65rem;color:var(--sub)}
+.mock-card-v2 .mock-badge-v2{font-size:.6rem;padding:2px 6px;border-radius:6px;font-weight:700;display:inline-block;margin-top:3px}
+
 /* ── Leaderboard ── */
 .lb-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.85rem}
 .lb-rank{width:32px;text-align:center;font-weight:800;font-size:1rem}
@@ -180,13 +215,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:
   <button class="btn btn-red" onclick="shareApp()" style="margin-top:16px;">📤 Share A2Z with Friends</button>
 </div>
 
+<!-- ANALYTICS TAB -->
+<div id="tab-analytics" class="tab-content">
+  <div id="analytics-content">
+    <div class="empty-state"><i class="fas fa-chart-pie"></i>
+      <p style="margin:16px 0;">Complete some mocks to unlock analytics</p>
+      <button class="btn btn-primary btn-sm" onclick="loadAnalytics()">🔄 Load Analytics</button>
+    </div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottom-nav">
   <button class="nav-item active" onclick="switchTab('home')"><i class="fas fa-home"></i> Home</button>
   <button class="nav-item" onclick="switchTab('mocks')"><i class="fas fa-file-alt"></i> Mocks</button>
-  <button class="nav-item" onclick="switchTab('leaderboard')"><i class="fas fa-trophy"></i> Leaderboard</button>
+  <button class="nav-item" onclick="switchTab('analytics')"><i class="fas fa-chart-bar"></i> Analytics</button>
+  <button class="nav-item" onclick="switchTab('leaderboard')"><i class="fas fa-trophy"></i> LBoard</button>
   <button class="nav-item" onclick="switchTab('guild')"><i class="fas fa-users"></i> Guild</button>
-  <button class="nav-item" onclick="switchTab('profile')"><i class="fas fa-user"></i> Profile</button>
 </div>
 
 <script>
@@ -394,6 +439,7 @@ function switchTab(tab) {
   if (navBtns[navIcons[tab]]) navBtns[navIcons[tab]].classList.add('active');
 
   if (tab === 'mocks') { renderMockBrowser(); if (tg) fetchMocks(); }
+  if (tab === 'analytics') { loadAnalytics(); }
   if (tab === 'leaderboard') { renderLeaderboard(); if (tg && state.lbMockId) sendToBot('get_leaderboard', {mock_id: state.lbMockId}); }
   if (tab === 'guild') { renderGuild(); if (tg) fetchGuild(); }
   window.scrollTo(0,0);
@@ -434,21 +480,43 @@ function renderMockBrowser() {
   } else if (mockNav.view === 'mocks') {
     let exam = mockNav.exam, subj = mockNav.subject;
     let mocks = (getMockCategories()[exam]?.subjects || {})[subj] || [];
+    let attempted = mocks.filter(function(m) { return (m.userAttempts || 0) > 0; }).length;
     let html = `<button class="back-btn" onclick="mockNav.view='subjects';renderMockBrowser()">← Back to ${exam}</button>
-      <div class="section-title">${exam} · ${subj}</div>`;
+      <div class="section-title">${exam} · ${subj}
+        <span style="font-size:.65rem;color:var(--sub);font-weight:400;"> · ${attempted}/${mocks.length} attempted</span>
+      </div>`;
     if (mocks.length === 0) {
       html += '<div class="empty-state"><i class="fas fa-folder-open"></i><p>No mocks available yet</p></div>';
     } else {
+      // Series progress bar
+      let pct = mocks.length > 0 ? Math.round(attempted / mocks.length * 100) : 0;
+      html += `<div style="margin-bottom:12px;">
+        <div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--primary),var(--gold));border-radius:3px;"></div>
+        </div>
+        <div style="font-size:.65rem;color:var(--sub);margin-top:3px;">${pct}% complete</div>
+      </div>`;
+      // Mock cards
       for (let m of mocks) {
-        let badgeClass = m.type === 'premium' ? 'badge-premium' : 'badge-free';
-        let badgeText = m.type === 'premium' ? 'Premium' : 'Free';
-        html += `<div class="mock-item" onclick="startMock('${m.id}')">
-          <div class="mock-icon">📝</div>
-          <div class="mock-info">
-            <div class="mock-title">${m.title}</div>
-            <div class="mock-meta">${m.qs} Qs · ${m.time} min · ${m.date}</div>
+        let now = new Date();
+        let activeDate = m.active_at || m.scheduled_at;
+        let isLive = !activeDate || new Date(activeDate) <= now;
+        let isAttempted = (m.userAttempts || 0) > 0;
+        let locked = !isLive;
+        let statusBadge = locked ? '<span class="mock-badge-v2 tag-upcoming" style="font-size:.6rem">🔒 '+activeDate+'</span>'
+                        : isAttempted ? '<span class="mock-badge-v2 tag-completed" style="font-size:.6rem">✅ Done</span>'
+                        : '<span class="mock-badge-v2 tag-live" style="font-size:.6rem">🟢 Live</span>';
+        let cardClass = locked ? 'mock-card-v2 locked' : 'mock-card-v2';
+        let onTap = locked ? '' : 'onclick="startMock(\''+m.id+'\')"';
+        let scoreHTML = isAttempted && m.userScore ? `<div class="mock-score">${m.userScore}/${m.qs}</div><div class="mock-acc">${m.userAcc||0}%</div>` : '';
+        html += `<div class="${cardClass}" ${onTap}>
+          <div style="font-size:1.2rem;width:32px;">📝</div>
+          <div class="mock-left">
+            <div class="mock-title-v2">${m.title}</div>
+            <div class="mock-meta-v2">${m.qs} Qs · ${m.time} min · ${m.date || ''} · ${m.attempts || 0} attempts</div>
+            ${statusBadge}
           </div>
-          <span class="mock-badge ${badgeClass}">${badgeText}</span>
+          <div class="mock-right">${scoreHTML}</div>
         </div>`;
       }
     }
@@ -664,6 +732,78 @@ function requestLeaderboard(mockId) {
 
 function requestMyStats() {
   sendToBot('my_stats');
+}
+
+async function loadAnalytics() {
+  let el = document.getElementById('analytics-content');
+  el.innerHTML = '<div class="empty-state"><i class="fas fa-spinner"></i><p>Loading analytics...</p></div>';
+
+  // Try API first
+  if (API_BASE_URL) {
+    let data = await fetchFromAPI('analytics');
+    if (data) {
+      renderAnalyticsUI(data);
+      return;
+    }
+  }
+
+  // Fallback: show from state
+  let html = '<div class="section-title">📊 Analytics</div>';
+  html += '<div class="card"><div style="font-weight:700;margin-bottom:6px;">📝 Overview</div>';
+  html += `<div class="stat-row">`;
+  html += `<div class="stat-chip"><div class="val">${state.mocksDone}</div><div class="lbl">Mocks Done</div></div>`;
+  html += `<div class="stat-chip"><div class="val">${state.accuracy}%</div><div class="lbl">Avg Accuracy</div></div>`;
+  html += `<div class="stat-chip"><div class="val">${state.streak}</div><div class="lbl">Day Streak</div></div>`;
+  html += `</div></div>`;
+  html += '<button class="btn btn-primary btn-sm" onclick="sendToBot(\'get_ai_insights\')" style="width:100%;margin-top:12px;">🤖 Get AI Insights</button>';
+  html += '<button class="btn btn-outline btn-sm" onclick="sendToBot(\'get_my_analytics\')" style="width:100%;margin-top:8px;">📊 Detailed Analytics</button>';
+  el.innerHTML = html;
+}
+
+function renderAnalyticsUI(data) {
+  let el = document.getElementById('analytics-content');
+  let html = '<div class="section-title">📊 Analytics</div>';
+
+  // Subject accuracy
+  if (data.subject_summary && data.subject_summary.length) {
+    html += '<div class="card"><div style="font-weight:700;margin-bottom:8px;">📚 Subject-wise Accuracy</div>';
+    for (let s of data.subject_summary) {
+      let emoji = s.accuracy >= 70 ? '🟢' : s.accuracy >= 40 ? '🟡' : '🔴';
+      html += `<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
+        <span style="flex:1;font-size:.82rem;">${s.subject}</span>
+        <span style="font-weight:700;color:var(--gold);">${s.accuracy}%</span>
+        <span style="font-size:.65rem;color:var(--sub);margin-left:8px;">(${s.attempts} Qs)</span>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  // Weak areas
+  if (data.weak_areas && data.weak_areas.length) {
+    html += '<div class="card"><div style="font-weight:700;margin-bottom:8px;">⚠️ Weak Areas</div>';
+    for (let w of data.weak_areas.slice(0,4)) {
+      html += `<div style="font-size:.78rem;padding:4px 0;border-bottom:1px solid var(--border);">
+        🔴 ${w.topic} (${w.chapter}): ${w.accuracy}% — ${w.correct}/${w.attempts} correct
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  // Score trend
+  if (data.score_trend && data.score_trend.length) {
+    html += '<div class="card"><div style="font-weight:700;margin-bottom:8px;">📈 Recent Scores</div>';
+    for (let t of data.score_trend.slice(0,7)) {
+      let date = (t.submitted_at || '').slice(0,10);
+      html += `<div style="display:flex;padding:4px 0;border-bottom:1px solid var(--border);font-size:.78rem;">
+        <span style="flex:1;">${t.mock_title||'Mock'} <span style="color:var(--sub);">${date}</span></span>
+        <span style="font-weight:700;color:var(--gold);">${t.total_score} (${t.accuracy}%)</span>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  html += '<button class="btn btn-primary btn-sm" onclick="sendToBot(\'get_ai_insights\')" style="width:100%;margin-top:12px;">🤖 Get AI Insights</button>';
+  el.innerHTML = html;
 }
 
 function guildCreateAction() {

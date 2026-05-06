@@ -2419,6 +2419,18 @@ async def _admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 log_admin_action(uid, "admin:set_benchmark", detail=f"{bmock_id}={bscore}")
         except ValueError:
             await update.message.reply_text("Usage: /admin set_benchmark <mock_id> <score>")
+    elif sub == "schedule" and len(args) >= 3:
+        smock_id = args[1]
+        sdate = args[2]
+        mock = get_mock(smock_id)
+        if not mock:
+            await update.message.reply_text("Mock not found.")
+        else:
+            db_execute("UPDATE mocks SET active_at = ?, scheduled_at = ? WHERE mock_id = ?",
+                       (sdate, sdate, smock_id))
+            db_commit()
+            await update.message.reply_text(f"📅 {mock['title'][:30]} scheduled for {sdate}")
+            log_admin_action(uid, "admin:schedule", detail=f"{smock_id}={sdate}")
     else:
         await update.message.reply_text(
             "*Admin Commands:*\n"
@@ -2806,6 +2818,8 @@ async def _webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "question_count": m["question_count"], "timer_minutes": m["timer_minutes"],
             "total_attempts": m["total_attempts"], "created_at": m["created_at"][:10],
             "section": m["section"],
+            "scheduled_at": m.get("scheduled_at",""), "active_at": m.get("active_at",""),
+            "expires_at": m.get("expires_at",""), "benchmark": m.get("benchmark_score"),
         } for m in mocks]
         # Store in CloudStorage for mini app
         resp = json.dumps(mock_list)

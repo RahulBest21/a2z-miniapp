@@ -62,7 +62,10 @@ CREATE TABLE IF NOT EXISTS mocks (
     file_hash    TEXT,                     -- SHA256 of the HTML content
     created_at   TEXT NOT NULL DEFAULT (datetime('now')),
     total_attempts INTEGER DEFAULT 0,
-    benchmark_score INTEGER                -- AIR 209 target score
+    benchmark_score INTEGER,               -- AIR 209 target score
+    scheduled_at   TEXT,                   -- YYYY-MM-DD when mock appears
+    active_at      TEXT,                   -- YYYY-MM-DD HH:MM when mock unlocks
+    expires_at     TEXT                    -- YYYY-MM-DD after which mock is hidden
 );
 
 CREATE TABLE IF NOT EXISTS questions (
