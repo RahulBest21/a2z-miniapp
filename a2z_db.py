@@ -251,6 +251,18 @@ CREATE TABLE IF NOT EXISTS challenges (
     created_at    TEXT NOT NULL DEFAULT (datetime('now')),
     completed_at  TEXT
 );
+
+-- ═══ Study Trio ═══
+CREATE TABLE IF NOT EXISTS trios (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    trio_code     TEXT UNIQUE NOT NULL,      -- invite code
+    leader_id     INTEGER NOT NULL REFERENCES users(telegram_id),
+    member_2      INTEGER REFERENCES users(telegram_id),
+    member_3      INTEGER REFERENCES users(telegram_id),
+    target_mock   TEXT,                     -- specific mock or NULL for any
+    completed_at  TEXT,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
 """
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1286,10 +1298,7 @@ def complete_challenge(match_id: str, user_id: int, score: int, attempt_id: str)
     else:
         return dict(ch)
     db_commit()
-
-    # Re-read after update
     ch = db_fetchone("SELECT * FROM challenges WHERE match_id = ?", (match_id,))
-    # Check if both have scored
     if ch["challenger_score"] is not None and ch["rival_score"] is not None:
         winner = ch["challenger_id"] if (ch["challenger_score"] or 0) >= (ch["rival_score"] or 0) else ch["rival_id"]
         db_execute(
@@ -1299,6 +1308,64 @@ def complete_challenge(match_id: str, user_id: int, score: int, attempt_id: str)
         db_commit()
         ch = db_fetchone("SELECT * FROM challenges WHERE match_id = ?", (match_id,))
     return dict(ch) if ch else None
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# STUDY TRIO
+# ═══════════════════════════════════════════════════════════════════════════
+
+def create_trio(leader_id: int) -> str:
+    import secrets
+    code = secrets.token_hex(4)
+    db_execute("INSERT INTO trios (trio_code, leader_id) VALUES (?, ?)", (code, leader_id))
+    db_commit()
+    return code
+
+def join_trio(code: str, user_id: int) -> bool:
+    trio = db_fetchone("SELECT * FROM trios WHERE trio_code = ? AND completed_at IS NULL", (code,))
+    if not trio or user_id == trio["leader_id"]:
+        return False
+    if trio["member_2"] and trio["member_2"] != user_id and trio["member_3"] and trio["member_3"] != user_id:
+        return False  # trio full
+    col = "member_2" if not trio["member_2"] else "member_3"
+    db_execute(f"UPDATE trios SET {col} = ? WHERE trio_code = ?", (user_id, code))
+    db_commit()
+    return True
+
+def check_trio_completion(user_id: int, mock_id: str, context_bot=None) -> Optional[str]:
+    """If this user is in a trio and all 3 submitted the same mock, grant bonus."""
+    trio = db_fetchone(
+        "SELECT * FROM trios WHERE (leader_id=? OR member_2=? OR member_3=?) AND completed_at IS NULL",
+        (user_id, user_id, user_id),
+    )
+    if not trio:
+        return None
+    members = [trio["leader_id"], trio["member_2"], trio["member_3"]]
+    members = [m for m in members if m]
+    if len(members) < 3:
+        return None
+    # Check if all 3 have submitted this mock
+    all_done = True
+    for mid in members:
+        a = db_fetchone(
+            "SELECT 1 FROM attempts WHERE user_id = ? AND mock_id = ? AND status = 'submitted'",
+            (mid, mock_id),
+        )
+        if not a:
+            all_done = False
+            break
+    if all_done:
+        db_execute("UPDATE trios SET completed_at = ? WHERE trio_code = ?", (_now(), trio["trio_code"]))
+        db_commit()
+        for mid in members:
+            grant_premium_access(mid, 15, "trio")
+            if context_bot:
+                try:
+                    context_bot.send_message(mid, "🎉 *TRIO BONUS!* All 3 members completed the mock! 15 days premium access UNLOCKED!", parse_mode="Markdown")
+                except Exception:
+                    pass
+        return trio["trio_code"]
+    return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════

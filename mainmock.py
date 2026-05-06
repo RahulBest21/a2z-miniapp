@@ -49,6 +49,7 @@ try:
         get_user_topic_breakdown, get_user_score_trend,
         get_user_weak_areas, get_user_silly_mistakes,
         create_challenge, accept_challenge, complete_challenge,
+        create_trio, join_trio, check_trio_completion,
         close_db,
     )
     DB_OK = True
@@ -1808,6 +1809,9 @@ async def _handle_submit_link(update: Update, deep_link: str):
                 parse_mode=ParseMode.MARKDOWN,
             )
 
+        # Study Trio: check if all 3 completed this mock
+        check_trio_completion(uid, mock_id, context.bot)
+
         rank, total, percentile = get_user_rank(mock_id, attempt_id)
 
         # Auto-award XP for quiz performance
@@ -3108,109 +3112,46 @@ async def _webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
         analysis = _generate_ai_mock_analysis(uid, mock_id)
         await update.message.reply_text(analysis, parse_mode=ParseMode.MARKDOWN)
 
-    elif action == "get_state":
-        user = db_fetchone("SELECT * FROM users WHERE telegram_id = ?", (uid,))
-        if user:
-            has_access, days_left, free_left = has_free_access(uid)
-            invites = get_monthly_invite_count(uid)
-            stats = get_user_stats(uid) or {}
-            state_data = {
-                "xp": user["xp"] or 0, "rank": user["rank"] or "E",
-                "streak": user["streak_days"] or 0,
-                "mocksDone": stats.get("total_mocks", 0),
-                "accuracy": round(stats.get("avg_accuracy", 0), 1),
-                "bestScore": stats.get("best_score", 0),
-                "hasAccess": has_access, "accessDays": days_left,
-                "freeMocksLeft": free_left,
-                "invites": invites,
-            }
-            # Build mock list for the mini app
-            mocks = db_fetchall("SELECT * FROM mocks ORDER BY created_at DESC LIMIT 50") or []
-            mock_list = [{
-                "mock_id": m["mock_id"], "title": m["title"], "topic": m["topic"],
-                "question_count": m["question_count"], "timer_minutes": m["timer_minutes"],
-                "total_attempts": m["total_attempts"], "created_at": m["created_at"][:10],
-                "section": m["section"],
-            } for m in mocks]
-            # Build guild info if applicable
-            guild_info = None
-            if GAME_OK and user.get("guild_id"):
-                guild_info = get_guild_info(db_execute, uid)
-            # Preserve any existing leaderboard data from previous stored state
-            leaderboard_data = None
-            prev = get_stored_state(uid)
-            if prev:
-                try:
-                    prev_data = json.loads(prev)
-                    leaderboard_data = prev_data.get("leaderboard")
-                except Exception:
-                    pass
-            # Combine and store for roundtrip
-            combined = json.dumps({
-                "state": state_data,
-                "mocks": mock_list,
-                "guild": guild_info,
-                "leaderboard": leaderboard_data,
-                "timestamp": int(time.time()),
-            })
-            store_state(uid, combined)
-            await update.message.reply_text(
-                f"📊 State updated: {state_data['xp']} XP | Rank {state_data['rank']} | "
-                f"{len(mock_list)} mocks available\n\n_Send /start or refresh mini app._",
-                parse_mode=ParseMode.MARKDOWN,
-            )
-            log.info("Mini app state stored for user %d — %d mocks", uid, len(mock_list))
-
-    elif action == "get_updates":
-        stored = get_stored_state(uid)
-        if stored:
-            # Parse and send a readable summary
-            try:
-                data = json.loads(stored)
-                st = data.get("state", {})
-                mocks = data.get("mocks", [])
-                guild = data.get("guild")
-                lines = [
-                    f"🔄 *Synced Data*",
-                    f"",
-                    f"👤 XP: {st.get('xp',0)} | Rank: {st.get('rank','E')} | Streak: {st.get('streak',0)}",
-                    f"📊 Accuracy: {st.get('accuracy',0)}% | Mocks: {st.get('mocksDone',0)} | Best: {st.get('bestScore',0)}",
-                    f"🔑 Access: {'Active' if st.get('hasAccess') else 'Free'} | {st.get('freeMocksLeft',0)} mocks left",
-                    f"📋 {len(mocks)} mocks available",
-                ]
-                if guild:
-                    lines.append(f"⚔️ Guild: {guild.get('name','N/A')}")
-                await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.MARKDOWN)
-            except Exception:
-                await update.message.reply_text(stored[:4000])
-        else:
-            await update.message.reply_text("No stored data. Use /start first.")
-
     elif action == "complete_quest":
         if GAME_OK:
             complete_daily_quest(db_execute, db_commit, uid)
             deal_raid_damage(db_execute, db_commit, uid, 1, "quest_complete")
-            # Referral verification on action
             inviter = verify_referral_by_action(uid)
             if inviter:
                 award_xp(db_execute, db_commit, inviter, INVITE_XP, "Referral verified — friend completed quest", f"invite_q_{uid}")
                 try:
-                    await context.bot.send_message(
-                        inviter,
-                        f"🎯 *Referral Verified!*\n"
-                        f"+{INVITE_XP} XP. Your friend just completed a daily quest.\n"
-                        f"Check /verify to see your invite status.",
-                        parse_mode=ParseMode.MARKDOWN,
-                    )
-                except Exception:
-                    pass
+                    await context.bot.send_message(inviter,
+                        f"🎯 *Referral Verified!*\n+{INVITE_XP} XP. Your friend just completed a daily quest.\nCheck /verify to see your invite status.",
+                        parse_mode=ParseMode.MARKDOWN)
+                except Exception: pass
             user = db_fetchone("SELECT xp, rank, streak_days FROM users WHERE telegram_id = ?", (uid,))
             if user:
-                await update.message.reply_text(
-                    f"✅ Quest completed!\n{user['xp']} XP | Rank {user['rank']} | Streak: {user['streak_days']}"
-                )
+                await update.message.reply_text(f"✅ Quest completed!\n{user['xp']} XP | Rank {user['rank']} | Streak: {user['streak_days']}")
         else:
             await update.message.reply_text("⚠️ Game system unavailable.")
+
+
+async def _trio_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Create or join a study trio."""
+    if not DB_OK:
+        await update.message.reply_text("Database not available.")
+        return
+    uid = update.effective_user.id
+    args = context.args
+    if not args:
+        await update.message.reply_text(
+            "👥 *Study Trio*\n\nCreate: /trio create\nJoin: /trio join <code>\n\n_Invite 2 friends. All 3 complete the same mock → 15 days premium access!_",
+            parse_mode=ParseMode.MARKDOWN)
+        return
+    sub = args[0].lower()
+    if sub == "create":
+        code = create_trio(uid)
+        await update.message.reply_text(f"👥 *Trio Created!*\nShare this code: `{code}`\n\nFriends join with: /trio join {code}\n_All 3 must complete the same mock to unlock 15 days premium access._", parse_mode=ParseMode.MARKDOWN)
+    elif sub == "join" and len(args) >= 2:
+        ok = join_trio(args[1], uid)
+        await update.message.reply_text("✅ Joined the trio!" if ok else "❌ Failed. Code invalid or trio full.")
+    else:
+        await update.message.reply_text("Usage: /trio create | /trio join <code>")
 
 # CLI MODE
 # ═══════════════════════════════════════════════════════════════════════════
@@ -3273,6 +3214,7 @@ def main():
     app.add_handler(CommandHandler("challenge", _challenge_cmd))
     app.add_handler(CommandHandler("raid", _raid_cmd))
     app.add_handler(CommandHandler("editorial", _editorial_cmd))
+    app.add_handler(CommandHandler("trio", _trio_cmd))
 
     # File upload (admin-only enforced in handler)
     app.add_handler(MessageHandler(filters.Document.ALL, _handle_file))
