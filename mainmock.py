@@ -44,6 +44,10 @@ try:
         get_admin_overview, get_admin_users_list, get_admin_mocks_list,
         get_user_deep_stats, get_admin_invite_network, get_admin_all_user_ids,
         log_admin_action,
+        get_taxonomy_tree, resolve_tags,
+        update_user_stats_after_attempt, get_user_subject_summary,
+        get_user_topic_breakdown, get_user_score_trend,
+        get_user_weak_areas, get_user_silly_mistakes,
         close_db,
     )
     DB_OK = True
@@ -85,7 +89,7 @@ CHANNEL_ID = os.environ.get("A2Z_CHANNEL_ID", "@A2Zupdates4U")  # for membership
 CTA = "\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"
 
 # ── Bot credentials (override via env vars) ──
-BOT_TOKEN = os.environ.get("A2Z_BOT_TOKEN", "8399136305:AAHfXljiCOvlJpcpgDM9yA2VkqBtvfPocM4")
+BOT_TOKEN = os.environ.get("A2Z_BOT_TOKEN", "8781772186:AAExbgKmoPt1ILIyGfjScdmMqQOBxIMjR9k")
 
 # ── 40 Gemini API keys (hardcoded pool) ──
 GEMINI_KEYS = [
@@ -803,7 +807,7 @@ STRICT RULES:
    - NO AI-sounding phrases like "The correct answer is...", "Hence proved", "Therefore option..."
    - Just explain the logic naturally as if writing on a whiteboard.
    - MATH: Show formula → plug values → step-by-step working → final answer.
-     Use ×, ÷, √, ², ³, = signs. Example: "7 का unit digit cycle = 4 (7,9,3,1). 103÷4 = 25 remainder 3. तीसरी position = 3."
+     Use ×, ÷, √, ², ³, = signs. Example: "7 ka unit digit cycle = 4 (7,9,3,1). 103÷4 = 25 remainder 3. Teesri position = 3."
    - REASONING: Break the pattern/logic into simple steps. Show the trick.
    - ENGLISH: Give word meaning, root/origin if helpful, memory trick (mnemonic).
    - GK/GS: Give key fact + 1-line context. Link to current affairs if relevant.
@@ -814,8 +818,19 @@ STRICT RULES:
 10. Append this exact CTA on a NEW LINE at the end of every explanation (EN and HI):
     "---\\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"
 
+11. TAXONOMY TAGS (for every question):
+    - Analyze the question content and assign: subject, chapter, topic, subtopic.
+    - Subjects: "Quantitative Aptitude", "English Language", "General Awareness", "Reasoning"
+    - Chapters under Quant: "Arithmetic", "Algebra", "Geometry", "Trigonometry", "Data Interpretation", "Number System"
+    - Chapters under English: "Vocabulary", "Grammar", "Comprehension", "Error Detection"
+    - Chapters under GA: "History", "Geography", "Polity", "Economics", "Science", "Current Affairs"
+    - Chapters under Reasoning: "Verbal Reasoning", "Non-Verbal Reasoning"
+    - Assign difficulty_level: "easy" / "medium" / "hard"
+    - Assign cognitive_level: "knowledge" (rote recall) / "application" (apply formula/logic) / "analysis" (multi-step reasoning)
+    - concept_tags: array of specific tags like ["LCM-based", "ratio-based", "formula-based", "trick", "rule-based", "memory-based"]
+
 Output ONLY this valid JSON:
-{"questions": [ { "text": "...", "text_hi": "...", "options": [...], "options_hi": [...], "correctIndex": N, "explanation": "...", "explanation_hi": "..." }, ... ] }"""
+{"questions": [ { "text": "...", "text_hi": "...", "options": [...], "options_hi": [...], "correctIndex": N, "explanation": "...", "explanation_hi": "...", "subject": "...", "chapter": "...", "topic": "...", "subtopic": "...", "difficulty": "medium", "cognitive": "knowledge", "tags": ["..."] }, ... ] }"""
 
 
 async def _gemini_call(payload: str, model_name: str, max_retries: int = 6, state: Optional['ProcessState'] = None) -> str:
@@ -1734,6 +1749,9 @@ async def _handle_submit_link(update: Update, deep_link: str):
         submit_attempt(attempt_id, score, correct, wrong, skipped, accuracy, time_sec, 0)
         increment_mock_attempts(mock_id)
 
+        # Aggregate analytics from responses
+        update_user_stats_after_attempt(uid, mock_id)
+
         rank, total, percentile = get_user_rank(mock_id, attempt_id)
 
         # Auto-award XP for quiz performance
@@ -1793,6 +1811,173 @@ async def _handle_invite_link(update: Update, deep_link: str):
     uid = update.effective_user.id
     record_invite_join(token, uid)
     await update.message.reply_text("Invite accepted! Welcome to A2Z Updates.\nUse /start to begin.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AI INSIGHTS ENGINE  (PHASE 5B — Deterministic + Gemini Polish)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _classify_accuracy(acc: float) -> str:
+    if acc >= 70: return "Strong"
+    if acc >= 40: return "Moderate"
+    return "Weak"
+
+
+def _generate_insights_text(user_id: int) -> str:
+    """Template-based Hinglish insights from analytics data. Falls back if no Gemini."""
+    if not DB_OK:
+        return "_Analytics not available._"
+    subj = get_user_subject_summary(user_id) or []
+    weak = get_user_weak_areas(user_id, min_attempts=2, top_n=4) or []
+    silly = get_user_silly_mistakes(user_id, 3) or []
+    if not subj and not weak:
+        return "_Not enough data yet. Complete a few mocks to unlock AI insights._"
+
+    lines = ["🤖 *AI Insights*", ""]
+    # Subject overview
+    if subj:
+        strongest = max(subj, key=lambda x: x["accuracy"])
+        weakest = min(subj, key=lambda x: x["accuracy"])
+        lines.append(f"🟢 *Strongest:* {strongest['subject']} ({strongest['accuracy']}% accuracy)")
+        lines.append(f"🔴 *Weakest:* {weakest['subject']} ({weakest['accuracy']}% — {weakest['attempts']} questions)")
+        lines.append("")
+
+    # Weak areas with Hinglish tips
+    if weak:
+        lines.append("*⚡ Priority Weak Areas:*")
+        for w in weak[:3]:
+            cls = _classify_accuracy(w["accuracy"])
+            if cls == "Weak" and w["attempts"] >= 3:
+                lines.append(f"• *{w['topic']}* ({w['chapter']}): sirf {w['accuracy']}% accuracy. "
+                             f"Yahan conceptual clarity improve karo. {w['attempts']} sawaal kiye, {w['correct']} sahi.")
+            elif cls == "Weak":
+                lines.append(f"• *{w['topic']}* ({w['chapter']}): {w['accuracy']}% accuracy. "
+                             f"Is topic pe focus badhao — abhi tak sirf {w['attempts']} sawaal kiye hain.")
+            else:
+                lines.append(f"• *{w['topic']}* ({w['chapter']}): {w['accuracy']}%. Room for improvement.")
+        lines.append("")
+
+    # Silly mistakes
+    if silly:
+        lines.append("*🤦 Silly Mistakes Detected:*")
+        for s in silly:
+            q_text = (s.get("text") or "")[:80].strip()
+            lines.append(f"• Easy Q answered wrong: _{q_text}..._ ({s.get('mock_title','Mock')})")
+        lines.append("_Tip: Easy sawaalon me jaldbaazi na karein. Double-check before moving on._")
+        lines.append("")
+
+    # Time management tip
+    lines.append("*⏱️ Time Strategy:*")
+    lines.append("Pehle easy sawaal karo, phir medium, last me hard. Agar koi sawaal 2 min se zyada lag raha hai — skip karo aur baad me aao.")
+    return "\n".join(lines)
+
+
+async def _generate_gemini_insights(user_id: int) -> Optional[str]:
+    """Use Gemini to generate Hinglish coaching text from analytics JSON."""
+    if not DB_OK:
+        return None
+    subj = get_user_subject_summary(user_id) or []
+    weak = get_user_weak_areas(user_id, top_n=5) or []
+    trend = get_user_score_trend(user_id, 8) or []
+    if not subj:
+        return None
+    payload = {
+        "subjects": [dict(s) for s in subj],
+        "weak_areas": [dict(w) for w in weak],
+        "recent_trend": [{"title": t["mock_title"], "score": t["total_score"], "accuracy": t["accuracy"]} for t in trend],
+    }
+    prompt = (
+        "You are an exam performance coach for SSC/RRB students. Based on this analytics JSON, "
+        "write 3-4 lines of personalized feedback in Hinglish. Focus on weakest topics first, "
+        "then time management tip. Be encouraging but direct. Keep it under 500 chars.\n\n"
+        f"JSON: {json.dumps(payload)}"
+    )
+    try:
+        result = await _gemini_call(prompt, GEMINI_MODEL, max_retries=2)
+        result = result.strip()
+        if result and len(result) > 10:
+            return f"🤖 *AI Coach says:*\n{result[:800]}"
+    except Exception:
+        pass
+    return None
+
+
+def _generate_ai_mock_analysis(user_id: int, mock_id: str) -> str:
+    """Deterministic mock-level analysis: errors, speed, weak areas."""
+    attempt = db_fetchone(
+        "SELECT * FROM attempts WHERE user_id = ? AND mock_id = ? ORDER BY submitted_at DESC LIMIT 1",
+        (user_id, mock_id),
+    )
+    if not attempt:
+        return "_Attempt data not found._"
+
+    mock = get_mock(mock_id)
+    title = (mock["title"] if mock else mock_id)[:40]
+    acc = attempt["accuracy"]
+    score = attempt["total_score"]
+    correct = attempt["correct_count"]
+    wrong = attempt["wrong_count"]
+    skipped = attempt["skipped_count"]
+    time_sec = attempt["total_time_sec"] or 0
+
+    # Classification
+    perf_label = "Excellent" if acc >= 85 else ("Good" if acc >= 65 else ("Average" if acc >= 45 else "Needs Work"))
+    emoji = "🔥" if acc >= 85 else ("✅" if acc >= 65 else ("⚠️" if acc >= 45 else "❌"))
+
+    # Speed analysis
+    total_q = correct + wrong + skipped
+    avg_time = round(time_sec / total_q, 1) if total_q > 0 else 0
+    speed_label = "Too fast" if avg_time < 20 else ("Ideal" if avg_time < 60 else "Slow")
+
+    # Silly mistakes from this mock
+    silly = db_fetchall(
+        """SELECT q.text, q.q_number FROM responses r
+           JOIN questions q ON r.question_id = q.question_id
+           WHERE r.user_id = ? AND r.attempt_id = ? AND r.is_correct = 0 AND q.difficulty_level = 'easy'""",
+        (user_id, attempt["attempt_id"]),
+    ) or []
+
+    lines = [
+        f"{emoji} *Mock Analysis: {title}*",
+        f"",
+        f"📊 Score: {score} | Accuracy: {acc}% | *{perf_label}*",
+        f"✅ Correct: {correct} | ❌ Wrong: {wrong} | ⏭️ Skipped: {skipped}",
+        f"⏱️ Avg time/Q: {avg_time}s — *{speed_label}*",
+    ]
+
+    if silly:
+        lines.append(f"")
+        lines.append(f"🤦 *{len(silly)} silly mistakes* (easy Qs answered wrong):")
+        for s in silly[:3]:
+            lines.append(f"  • Q{s['q_number']}: _{ (s['text'] or '')[:60] }..._")
+
+    # Weak topics in this mock
+    topic_q = db_fetchall(
+        """SELECT t.name as topic, COUNT(*) as total, SUM(r.is_correct) as correct
+           FROM responses r JOIN questions q ON r.question_id = q.question_id
+           LEFT JOIN topics t ON q.topic_id = t.id
+           WHERE r.user_id = ? AND r.attempt_id = ? AND q.topic_id IS NOT NULL
+           GROUP BY q.topic_id HAVING SUM(r.is_correct) * 1.0 / COUNT(*) < 0.5
+           ORDER BY total DESC LIMIT 3""",
+        (user_id, attempt["attempt_id"]),
+    ) or []
+    if topic_q:
+        lines.append(f"")
+        lines.append(f"⚡ *Topics to improve:*")
+        for t in topic_q:
+            t_acc = round((t["correct"] / t["total"]) * 100, 1) if t["total"] > 0 else 0
+            lines.append(f"  • {t['topic']}: {t['correct']}/{t['total']} ({t_acc}%)")
+
+    # Tips
+    lines.append(f"")
+    if skipped > 3:
+        lines.append("💡 *Tip:* Zyada skip mat karo — attempted questions me accuracy badhao.")
+    if avg_time < 15:
+        lines.append("💡 *Tip:* Bahut tez ho — thoda slow karo, accuracy badhegi.")
+    elif avg_time > 90:
+        lines.append("💡 *Tip:* Speed badhao. Easy questions 30-45 sec me khatam karo.")
+
+    return "\n".join(lines)
 
 
 # ── Command handlers ─────────────────────────────────────────────────────
@@ -2597,6 +2782,81 @@ async def _webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"_Keep it private._",
             parse_mode=ParseMode.MARKDOWN,
         )
+
+    elif action == "get_my_analytics":
+        # Return full analytics: subject summary, topic breakdown, weak areas, trends
+        subj_summary = get_user_subject_summary(uid) or []
+        weak = get_user_weak_areas(uid) or []
+        trend = get_user_score_trend(uid, 15) or []
+        silly = get_user_silly_mistakes(uid) or []
+        analytics = {
+            "subject_summary": [dict(r) for r in subj_summary],
+            "weak_areas": [dict(r) for r in weak],
+            "score_trend": [dict(r) for r in trend],
+            "silly_mistakes": [dict(r) for r in silly],
+        }
+        # Store for mini-app API
+        stored = get_stored_state(uid)
+        if stored:
+            try:
+                state_data = json.loads(stored)
+                state_data["analytics"] = analytics
+                store_state(uid, json.dumps(state_data))
+            except Exception:
+                pass
+        summary = f"📊 *Analytics*\n"
+        for s in subj_summary[:5]:
+            bar = "🟢" if s["accuracy"] >= 70 else ("🟡" if s["accuracy"] >= 40 else "🔴")
+            summary += f"{bar} {s['subject']}: {s['accuracy']}% ({s['attempts']} Qs)\n"
+        if weak:
+            summary += "\n⚠️ *Weak Areas:*\n"
+            for w in weak[:3]:
+                summary += f"• {w['topic']} ({w['chapter']}): {w['accuracy']}%\n"
+        await update.message.reply_text(summary, parse_mode=ParseMode.MARKDOWN)
+
+    elif action == "get_mock_analysis":
+        mock_id = data.get("mock_id", "")
+        if not mock_id:
+            await update.message.reply_text("Specify mock_id.")
+            return
+        mock = get_mock(mock_id)
+        attempt = db_fetchone(
+            "SELECT * FROM attempts WHERE user_id = ? AND mock_id = ? ORDER BY submitted_at DESC LIMIT 1",
+            (uid, mock_id),
+        )
+        if not attempt:
+            await update.message.reply_text("No attempt found for this mock.")
+            return
+        responses = db_fetchall(
+            """SELECT r.*, q.text, q.subject_id, q.topic_id, q.difficulty_level
+               FROM responses r JOIN questions q ON r.question_id = q.question_id
+               WHERE r.user_id = ? AND r.attempt_id = ?""",
+            (uid, attempt["attempt_id"]),
+        )
+        mock_title = mock["title"] if mock else mock_id
+        msg = (
+            f"📊 *{mock_title}*\n\n"
+            f"Score: {attempt['total_score']} | Accuracy: {attempt['accuracy']}%\n"
+            f"Correct: {attempt['correct_count']} | Wrong: {attempt['wrong_count']} | Skipped: {attempt['skipped_count']}\n"
+            f"Time: {int((attempt['total_time_sec'] or 0) // 60)}m {int((attempt['total_time_sec'] or 0) % 60)}s\n"
+        )
+        await update.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+
+    elif action == "get_ai_insights":
+        text = _generate_insights_text(uid)
+        await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+        if GEMINI_KEYS:
+            enhanced = await _generate_gemini_insights(uid)
+            if enhanced:
+                await update.message.reply_text(enhanced, parse_mode=ParseMode.MARKDOWN)
+
+    elif action == "get_mock_ai_analysis":
+        mock_id = data.get("mock_id", "")
+        if not mock_id:
+            await update.message.reply_text("Specify mock_id.")
+            return
+        analysis = _generate_ai_mock_analysis(uid, mock_id)
+        await update.message.reply_text(analysis, parse_mode=ParseMode.MARKDOWN)
 
     elif action == "get_state":
         user = db_fetchone("SELECT * FROM users WHERE telegram_id = ?", (uid,))

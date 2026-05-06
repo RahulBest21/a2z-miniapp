@@ -107,18 +107,34 @@ async def get_analytics_api(request: web.Request):
     if not user_id:
         return web.json_response({"error": "unauthorized"}, status=403, headers=_cors_headers())
 
-    from a2z_db import get_user_stats, db_fetchall
+    from a2z_db import (get_user_stats, db_fetchall, get_user_subject_summary,
+                        get_user_topic_breakdown, get_user_score_trend,
+                        get_user_weak_areas, get_user_silly_mistakes)
     stats = get_user_stats(user_id) or {}
-    # Get recent attempts
+    subj_summary = [dict(r) for r in (get_user_subject_summary(user_id) or [])]
+    weak = [dict(r) for r in (get_user_weak_areas(user_id) or [])]
+    trend = [dict(r) for r in (get_user_score_trend(user_id, 10) or [])]
+    silly = [dict(r) for r in (get_user_silly_mistakes(user_id, 5) or [])]
     attempts = db_fetchall(
         "SELECT a.*, m.title as mock_title FROM attempts a LEFT JOIN mocks m ON a.mock_id = m.mock_id WHERE a.user_id = ? ORDER BY a.submitted_at DESC LIMIT 10",
         (user_id,),
     )
     result = {
         "stats": stats,
+        "subject_summary": subj_summary,
+        "weak_areas": weak,
+        "score_trend": trend,
+        "silly_mistakes": silly,
         "recent_attempts": [dict(a) for a in (attempts or [])],
     }
     return web.json_response(result, headers=_cors_headers())
+
+
+async def get_taxonomy_api(request: web.Request):
+    """Return full taxonomy tree (subject→chapter→topic). No auth needed."""
+    from a2z_db import get_taxonomy_tree
+    tree = get_taxonomy_tree()
+    return web.json_response({"taxonomy": tree}, headers=_cors_headers())
 
 
 async def options_handler(request: web.Request):
@@ -144,6 +160,7 @@ class APIServer:
         app.router.add_get(f"{_API_BASE}/state", get_state_api)
         app.router.add_get(f"{_API_BASE}/leaderboard", get_leaderboard_api)
         app.router.add_get(f"{_API_BASE}/analytics", get_analytics_api)
+        app.router.add_get(f"{_API_BASE}/taxonomy", get_taxonomy_api)
         app.router.add_route("OPTIONS", f"{_API_BASE}/{{tail:.*}}", options_handler)
         return app
 

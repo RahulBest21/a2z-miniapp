@@ -75,6 +75,13 @@ CREATE TABLE IF NOT EXISTS questions (
     correct_index INTEGER,
     explanation  TEXT,
     explanation_hi TEXT,
+    subject_id    INTEGER,                  -- FK → taxonomy.subjects
+    chapter_id    INTEGER,                  -- FK → taxonomy.chapters
+    topic_id      INTEGER,                  -- FK → taxonomy.topics
+    subtopic_id   INTEGER,                  -- FK → taxonomy.subtopics
+    difficulty_level TEXT DEFAULT 'medium', -- easy / medium / hard
+    cognitive_level  TEXT DEFAULT 'knowledge', -- knowledge / application / analysis
+    concept_tags  TEXT,                     -- JSON array of extra concept tags
     UNIQUE(mock_id, q_number)
 );
 CREATE INDEX IF NOT EXISTS idx_questions_mock ON questions(mock_id);
@@ -138,6 +145,90 @@ CREATE TABLE IF NOT EXISTS editorials (
     filename     TEXT,
     file_hash    TEXT,
     created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ═══ TAXONOMY (Subject → Chapter → Topic → Subtopic) ═══
+CREATE TABLE IF NOT EXISTS subjects (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    name          TEXT NOT NULL UNIQUE,
+    exam_category TEXT DEFAULT 'General'   -- SSC CGL / UPSC / Banking / etc.
+);
+
+CREATE TABLE IF NOT EXISTS chapters (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_id    INTEGER NOT NULL REFERENCES subjects(id),
+    name          TEXT NOT NULL,
+    order_index   INTEGER DEFAULT 0,
+    UNIQUE(subject_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS topics (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id    INTEGER NOT NULL REFERENCES chapters(id),
+    name          TEXT NOT NULL,
+    weightage     REAL DEFAULT 0,          -- exam weightage 0-100
+    order_index   INTEGER DEFAULT 0,
+    UNIQUE(chapter_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS subtopics (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    topic_id      INTEGER NOT NULL REFERENCES topics(id),
+    name          TEXT NOT NULL,
+    order_index   INTEGER DEFAULT 0,
+    UNIQUE(topic_id, name)
+);
+
+-- ═══ USER ANALYTICS AGGREGATION (updated on mock submit) ═══
+CREATE TABLE IF NOT EXISTS user_subject_stats (
+    user_id       INTEGER NOT NULL REFERENCES users(telegram_id),
+    subject_id    INTEGER NOT NULL REFERENCES subjects(id),
+    total_attempts INTEGER DEFAULT 0,
+    correct_count INTEGER DEFAULT 0,
+    wrong_count   INTEGER DEFAULT 0,
+    skipped_count INTEGER DEFAULT 0,
+    accuracy      REAL DEFAULT 0,
+    last_attempted_at TEXT,
+    PRIMARY KEY (user_id, subject_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_chapter_stats (
+    user_id       INTEGER NOT NULL REFERENCES users(telegram_id),
+    chapter_id    INTEGER NOT NULL REFERENCES chapters(id),
+    subject_id    INTEGER NOT NULL REFERENCES subjects(id),
+    total_attempts INTEGER DEFAULT 0,
+    correct_count INTEGER DEFAULT 0,
+    wrong_count   INTEGER DEFAULT 0,
+    skipped_count INTEGER DEFAULT 0,
+    accuracy      REAL DEFAULT 0,
+    last_attempted_at TEXT,
+    PRIMARY KEY (user_id, chapter_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_topic_stats (
+    user_id       INTEGER NOT NULL REFERENCES users(telegram_id),
+    topic_id      INTEGER NOT NULL REFERENCES topics(id),
+    chapter_id    INTEGER NOT NULL REFERENCES chapters(id),
+    subject_id    INTEGER NOT NULL REFERENCES subjects(id),
+    total_attempts INTEGER DEFAULT 0,
+    correct_count INTEGER DEFAULT 0,
+    wrong_count   INTEGER DEFAULT 0,
+    skipped_count INTEGER DEFAULT 0,
+    accuracy      REAL DEFAULT 0,
+    last_attempted_at TEXT,
+    PRIMARY KEY (user_id, topic_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_mock_group_stats (
+    user_id       INTEGER NOT NULL REFERENCES users(telegram_id),
+    group_id      TEXT NOT NULL,            -- "SSC_CGL_Maths" etc.
+    mocks_attempted INTEGER DEFAULT 0,
+    avg_score     REAL DEFAULT 0,
+    best_score    REAL DEFAULT 0,
+    latest_score  REAL DEFAULT 0,
+    trend_json    TEXT,                     -- last N scores as JSON
+    last_attempted_at TEXT,
+    PRIMARY KEY (user_id, group_id)
 );
 """
 
@@ -477,14 +568,29 @@ def register_mock(uploader_id: int, title: str, topic: str = "", section: str = 
 
 
 def register_questions(mock_id: str, questions: List[Dict]):
-    """Bulk insert questions for a mock."""
+    """Bulk insert questions for a mock. Stores taxonomy tags if present."""
     for i, q in enumerate(questions):
         qid = _gen_question_id(mock_id, i + 1)
+        # Resolve taxonomy tags from Gemini output
+        subj_id = None; chap_id = None; top_id = None; subtop_id = None
+        subj_name = q.get("subject", "")
+        chap_name = q.get("chapter", "")
+        topic_name = q.get("topic", "")
+        subtopic_name = q.get("subtopic", "")
+        if subj_name:
+            tags = resolve_tags(subj_name, chap_name, topic_name, subtopic_name)
+            if tags:
+                subj_id = tags.get("subject_id")
+                chap_id = tags.get("chapter_id")
+                top_id = tags.get("topic_id")
+                subtop_id = tags.get("subtopic_id")
         db_execute(
             """INSERT OR REPLACE INTO questions
                (question_id, mock_id, q_number, text, text_hi, options, options_hi,
-                correct_index, explanation, explanation_hi)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                correct_index, explanation, explanation_hi,
+                subject_id, chapter_id, topic_id, subtopic_id,
+                difficulty_level, cognitive_level, concept_tags)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 qid, mock_id, i + 1,
                 q.get("text", ""),
@@ -494,6 +600,10 @@ def register_questions(mock_id: str, questions: List[Dict]):
                 q.get("correctIndex", -1),
                 q.get("explanation", ""),
                 q.get("explanation_hi", ""),
+                subj_id, chap_id, top_id, subtop_id,
+                q.get("difficulty", "medium"),
+                q.get("cognitive", "knowledge"),
+                json.dumps(q.get("tags", [])),
             ),
         )
     db_commit()
@@ -634,8 +744,141 @@ def get_user_rank(mock_id: str, attempt_id: str) -> Tuple[int, int, float]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ANALYTICS
+# TAXONOMY SEED
 # ═══════════════════════════════════════════════════════════════════════════
+
+TAXONOMY_SEED = {
+    "Quantitative Aptitude": {
+        "exam": "SSC CGL",
+        "chapters": {
+            "Arithmetic": ["Percentage", "Ratio & Proportion", "Profit & Loss", "Simple & Compound Interest", "Time & Work", "Time Speed Distance", "Average", "Mixture & Alligation"],
+            "Algebra": ["Basic Algebra", "Linear Equations", "Quadratic Equations", "Polynomials"],
+            "Geometry": ["Lines & Angles", "Triangles", "Circles", "Quadrilaterals", "Mensuration 2D", "Mensuration 3D", "Coordinate Geometry"],
+            "Trigonometry": ["Trigonometric Ratios", "Heights & Distances", "Identities"],
+            "Data Interpretation": ["Bar Graph", "Pie Chart", "Line Graph", "Table", "Mixed DI"],
+            "Number System": ["LCM & HCF", "Divisibility", "Remainders", "Unit Digit", "Simplification"],
+        }
+    },
+    "English Language": {
+        "exam": "SSC CGL",
+        "chapters": {
+            "Vocabulary": ["Synonyms", "Antonyms", "One Word Substitution", "Idioms & Phrases", "Spelling"],
+            "Grammar": ["Parts of Speech", "Tenses", "Active/Passive Voice", "Direct/Indirect Speech", "Articles", "Prepositions"],
+            "Comprehension": ["Reading Comprehension", "Cloze Test", "Para Jumble", "Sentence Arrangement"],
+            "Error Detection": ["Spotting Errors", "Sentence Improvement", "Fill in the Blanks"],
+        }
+    },
+    "General Awareness": {
+        "exam": "SSC CGL",
+        "chapters": {
+            "History": ["Ancient India", "Medieval India", "Modern India", "World History"],
+            "Geography": ["Physical Geography", "Indian Geography", "World Geography"],
+            "Polity": ["Constitution", "Parliament", "President & Governor", "Fundamental Rights", "DPSP"],
+            "Economics": ["Micro Economics", "Macro Economics", "Indian Economy", "Budget", "Five Year Plans"],
+            "Science": ["Physics", "Chemistry", "Biology", "Computer Science"],
+            "Current Affairs": ["National", "International", "Sports", "Awards", "Science & Tech"],
+        }
+    },
+    "Reasoning": {
+        "exam": "SSC CGL",
+        "chapters": {
+            "Verbal Reasoning": ["Analogy", "Classification", "Coding-Decoding", "Blood Relations", "Direction Sense", "Ranking", "Syllogism", "Venn Diagrams"],
+            "Non-Verbal Reasoning": ["Series", "Mirror Images", "Water Images", "Paper Cutting", "Cube & Dice", "Counting Figures"],
+        }
+    },
+}
+
+
+def _seed_taxonomy(conn: sqlite3.Connection):
+    """Insert taxonomy seed data (idempotent — skips existing)."""
+    for subject_name, data in TAXONOMY_SEED.items():
+        conn.execute(
+            "INSERT OR IGNORE INTO subjects (name, exam_category) VALUES (?, ?)",
+            (subject_name, data["exam"]),
+        )
+        subject_id = conn.execute(
+            "SELECT id FROM subjects WHERE name = ?", (subject_name,)
+        ).fetchone()[0]
+        for ci, (chapter_name, topic_names) in enumerate(data["chapters"].items()):
+            conn.execute(
+                "INSERT OR IGNORE INTO chapters (subject_id, name, order_index) VALUES (?, ?, ?)",
+                (subject_id, chapter_name, ci),
+            )
+            chapter_id = conn.execute(
+                "SELECT id FROM chapters WHERE subject_id = ? AND name = ?",
+                (subject_id, chapter_name),
+            ).fetchone()[0]
+            for ti, topic_name in enumerate(topic_names):
+                conn.execute(
+                    "INSERT OR IGNORE INTO topics (chapter_id, name, weightage, order_index) VALUES (?, ?, ?, ?)",
+                    (chapter_id, topic_name, 0, ti),
+                )
+    conn.commit()
+    log.info("Taxonomy seeded: %d subjects", len(TAXONOMY_SEED))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# TAXONOMY QUERIES
+# ═══════════════════════════════════════════════════════════════════════════
+
+def get_taxonomy_tree() -> List[Dict]:
+    """Return full taxonomy as nested JSON for mini app."""
+    subjects = db_fetchall("SELECT * FROM subjects ORDER BY id")
+    result = []
+    for s in (subjects or []):
+        subj = dict(s)
+        chapters = db_fetchall("SELECT * FROM chapters WHERE subject_id = ? ORDER BY order_index", (s["id"],))
+        subj["chapters"] = []
+        for c in (chapters or []):
+            ch = dict(c)
+            topics = db_fetchall("SELECT * FROM topics WHERE chapter_id = ? ORDER BY order_index", (c["id"],))
+            ch["topics"] = [dict(t) for t in (topics or [])]
+            subj["chapters"].append(ch)
+        result.append(subj)
+    return result
+
+
+def resolve_tags(subject_name: str, chapter_name: str = "", topic_name: str = "",
+                  subtopic_name: str = "") -> Optional[Dict]:
+    """Resolve tag names to IDs. Creates missing entries if needed."""
+    subj = db_fetchone("SELECT id FROM subjects WHERE name = ?", (subject_name,))
+    if not subj:
+        return None
+    result = {"subject_id": subj["id"]}
+
+    if chapter_name:
+        ch = db_fetchone("SELECT id FROM chapters WHERE subject_id = ? AND name = ?",
+                         (subj["id"], chapter_name))
+        if not ch:
+            db_execute("INSERT INTO chapters (subject_id, name) VALUES (?, ?)",
+                       (subj["id"], chapter_name))
+            db_commit()
+            ch = db_fetchone("SELECT id FROM chapters WHERE subject_id = ? AND name = ?",
+                             (subj["id"], chapter_name))
+        result["chapter_id"] = ch["id"]
+
+        if topic_name and ch:
+            tp = db_fetchone("SELECT id FROM topics WHERE chapter_id = ? AND name = ?",
+                             (ch["id"], topic_name))
+            if not tp:
+                db_execute("INSERT INTO topics (chapter_id, name) VALUES (?, ?)",
+                           (ch["id"], topic_name))
+                db_commit()
+                tp = db_fetchone("SELECT id FROM topics WHERE chapter_id = ? AND name = ?",
+                                 (ch["id"], topic_name))
+            result["topic_id"] = tp["id"]
+
+            if subtopic_name and tp:
+                st = db_fetchone("SELECT id FROM subtopics WHERE topic_id = ? AND name = ?",
+                                 (tp["id"], subtopic_name))
+                if not st:
+                    db_execute("INSERT INTO subtopics (topic_id, name) VALUES (?, ?)",
+                               (tp["id"], subtopic_name))
+                    db_commit()
+                    st = db_fetchone("SELECT id FROM subtopics WHERE topic_id = ? AND name = ?",
+                                     (tp["id"], subtopic_name))
+                result["subtopic_id"] = st["id"]
+    return result
 
 def get_mock_stats(mock_id: str) -> Dict:
     """Aggregate stats for a mock: avg score, accuracy, time, distribution."""
@@ -708,6 +951,152 @@ def register_editorial(uploader_id: int, title: str, source: str = "", article_d
 
 def list_editorials(limit: int = 30) -> List[sqlite3.Row]:
     return db_fetchall("SELECT * FROM editorials ORDER BY created_at DESC LIMIT ?", (limit,))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ANALYTICS AGGREGATION
+# ═══════════════════════════════════════════════════════════════════════════
+
+def update_user_stats_after_attempt(user_id: int, mock_id: str):
+    """Aggregate per-question responses into subject/chapter/topic stats."""
+    # Get all responses for this attempt with question tags
+    responses = db_fetchall(
+        """SELECT r.is_correct, r.is_skipped,
+                  q.subject_id, q.chapter_id, q.topic_id
+           FROM responses r
+           JOIN questions q ON r.question_id = q.question_id
+           WHERE r.user_id = ? AND r.attempt_id IN
+               (SELECT attempt_id FROM attempts WHERE mock_id = ? ORDER BY submitted_at DESC LIMIT 1)""",
+        (user_id, mock_id),
+    )
+    if not responses:
+        return
+    # Aggregate by subject
+    for row in responses:
+        sid = row["subject_id"]; cid = row["chapter_id"]; tid = row["topic_id"]
+        if not sid:
+            continue
+        is_correct = row["is_correct"] or 0
+        is_skipped = 1 if row.get("is_skipped") else 0
+        wrong = 0 if is_correct or is_skipped else 1
+        for table, id_col, id_val in [
+            ("user_subject_stats", "subject_id", sid),
+            ("user_chapter_stats", "chapter_id", cid),
+            ("user_topic_stats", "topic_id", tid),
+        ]:
+            if not id_val:
+                continue
+            existing = db_fetchone(
+                f"SELECT * FROM {table} WHERE user_id = ? AND {id_col} = ?",
+                (user_id, id_val),
+            )
+            if existing:
+                total = (existing["total_attempts"] or 0) + 1
+                new_acc = round(
+                    ((existing["correct_count"] or 0) + (1 if is_correct else 0)) / total * 100, 1
+                )
+                db_execute(
+                    f"""UPDATE {table} SET total_attempts = ?, correct_count = correct_count + ?,
+                        wrong_count = wrong_count + ?, skipped_count = skipped_count + ?,
+                        accuracy = ?, last_attempted_at = ?
+                        WHERE user_id = ? AND {id_col} = ?""",
+                    (total, 1 if is_correct else 0, wrong, 1 if is_skipped else 0,
+                     new_acc, _now(), user_id, id_val),
+                )
+            else:
+                db_execute(
+                    f"""INSERT INTO {table}
+                        (user_id, {id_col}, total_attempts, correct_count, wrong_count,
+                         skipped_count, accuracy, last_attempted_at)
+                        VALUES (?, ?, 1, ?, ?, ?, ?, ?)""",
+                    (user_id, id_val, 1 if is_correct else 0, wrong,
+                     1 if is_skipped else 0,
+                     round((1 if is_correct else 0) * 100, 1), _now()),
+                )
+    db_commit()
+
+
+def get_user_subject_summary(user_id: int) -> List[Dict]:
+    """Returns subject-wise accuracy + attempts for analytics."""
+    return db_fetchall(
+        """SELECT s.name as subject, s.id as subject_id,
+                  COALESCE(uss.total_attempts, 0) as attempts,
+                  COALESCE(uss.correct_count, 0) as correct,
+                  COALESCE(uss.wrong_count, 0) as wrong,
+                  COALESCE(uss.skipped_count, 0) as skipped,
+                  COALESCE(uss.accuracy, 0) as accuracy
+           FROM subjects s
+           LEFT JOIN user_subject_stats uss ON s.id = uss.subject_id AND uss.user_id = ?
+           WHERE COALESCE(uss.total_attempts, 0) > 0
+           ORDER BY accuracy ASC""",
+        (user_id,),
+    )
+
+
+def get_user_topic_breakdown(user_id: int, subject_id: int = None) -> List[Dict]:
+    """Returns topic-wise breakdown for a subject."""
+    q = """SELECT t.name as topic, t.id as topic_id,
+                  c.name as chapter, s.name as subject,
+                  COALESCE(uts.total_attempts, 0) as attempts,
+                  COALESCE(uts.correct_count, 0) as correct,
+                  COALESCE(uts.wrong_count, 0) as wrong,
+                  COALESCE(uts.skipped_count, 0) as skipped,
+                  COALESCE(uts.accuracy, 0) as accuracy
+           FROM user_topic_stats uts
+           JOIN topics t ON uts.topic_id = t.id
+           JOIN chapters c ON t.chapter_id = c.id
+           JOIN subjects s ON c.subject_id = s.id
+           WHERE uts.user_id = ?"""
+    params = [user_id]
+    if subject_id:
+        q += " AND uts.subject_id = ?"
+        params.append(subject_id)
+    q += " ORDER BY accuracy ASC"
+    return db_fetchall(q, params)
+
+
+def get_user_score_trend(user_id: int, limit: int = 10) -> List[Dict]:
+    """Returns score history across mocks."""
+    return db_fetchall(
+        """SELECT a.total_score, a.correct_count, a.wrong_count, a.skipped_count,
+                  a.accuracy, a.submitted_at, m.title as mock_title, m.section
+           FROM attempts a
+           LEFT JOIN mocks m ON a.mock_id = m.mock_id
+           WHERE a.user_id = ? AND a.status = 'submitted'
+           ORDER BY a.submitted_at DESC LIMIT ?""",
+        (user_id, limit),
+    )
+
+
+def get_user_weak_areas(user_id: int, min_attempts: int = 3, top_n: int = 5) -> List[Dict]:
+    """Returns weakest topics by accuracy, where user has min_attempts."""
+    return db_fetchall(
+        """SELECT t.name as topic, c.name as chapter, s.name as subject,
+                  uts.accuracy, uts.total_attempts as attempts,
+                  uts.correct_count as correct, uts.wrong_count as wrong
+           FROM user_topic_stats uts
+           JOIN topics t ON uts.topic_id = t.id
+           JOIN chapters c ON t.chapter_id = c.id
+           JOIN subjects s ON c.subject_id = s.id
+           WHERE uts.user_id = ? AND uts.total_attempts >= ?
+           ORDER BY uts.accuracy ASC LIMIT ?""",
+        (user_id, min_attempts, top_n),
+    )
+
+
+def get_user_silly_mistakes(user_id: int, limit: int = 5) -> List[Dict]:
+    """Detect easy questions answered wrong."""
+    return db_fetchall(
+        """SELECT q.text, q.q_number, r.time_spent_sec, m.title as mock_title
+           FROM responses r
+           JOIN questions q ON r.question_id = q.question_id
+           JOIN attempts a ON r.attempt_id = a.attempt_id
+           LEFT JOIN mocks m ON a.mock_id = m.mock_id
+           WHERE r.user_id = ? AND r.is_correct = 0
+             AND q.difficulty_level = 'easy'
+           ORDER BY a.submitted_at DESC LIMIT ?""",
+        (user_id, limit),
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -854,6 +1243,14 @@ def init_db(admin_ids: Optional[List[int]] = None, added_by: int = 0):
     except: pass
     try: conn.execute("ALTER TABLE users ADD COLUMN premium_tier TEXT DEFAULT 'free'"); conn.commit()
     except: pass
+    # Taxonomy columns on questions
+    for col in ["subject_id INTEGER", "chapter_id INTEGER", "topic_id INTEGER",
+                "subtopic_id INTEGER", "difficulty_level TEXT DEFAULT 'medium'",
+                "cognitive_level TEXT DEFAULT 'knowledge'", "concept_tags TEXT"]:
+        try: conn.execute(f"ALTER TABLE questions ADD COLUMN {col}"); conn.commit()
+        except: pass
+    # Seed taxonomy
+    _seed_taxonomy(conn)
     # Seed admins
     if admin_ids:
         for aid in admin_ids:
