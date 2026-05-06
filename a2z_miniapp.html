@@ -502,15 +502,20 @@ function renderMockBrowser() {
         let activeDate = m.active_at || m.scheduled_at;
         let isLive = !activeDate || new Date(activeDate) <= now;
         let isAttempted = (m.userAttempts || 0) > 0;
-        let locked = !isLive;
-        let statusBadge = locked ? '<span class="mock-badge-v2 tag-upcoming" style="font-size:.6rem">🔒 '+activeDate+'</span>'
-                        : isAttempted ? '<span class="mock-badge-v2 tag-completed" style="font-size:.6rem">✅ Done</span>'
-                        : '<span class="mock-badge-v2 tag-live" style="font-size:.6rem">🟢 Live</span>';
+        let isPremium = m.type === 'premium';
+        let hasAccess = state.hasAccess;
+        let locked = !isLive || (isPremium && !hasAccess);
+        let lockReason = !isLive ? ('🔒 '+activeDate) : '💎 Premium';
+        let statusBadge = locked
+          ? (isPremium && isLive ? '<span class="mock-badge-v2" style="font-size:.6rem;background:rgba(212,175,55,.15);color:var(--gold);">💎 Premium</span>' : '<span class="mock-badge-v2 tag-upcoming" style="font-size:.6rem">'+lockReason+'</span>')
+          : isAttempted ? '<span class="mock-badge-v2 tag-completed" style="font-size:.6rem">✅ Done</span>'
+          : '<span class="mock-badge-v2 tag-live" style="font-size:.6rem">🟢 Live</span>';
         let cardClass = locked ? 'mock-card-v2 locked' : 'mock-card-v2';
-        let onTap = locked ? '' : 'onclick="startMock(\''+m.id+'\')"';
+        let onTap = locked ? (isPremium && isLive ? 'onclick="tg.showPopup({title:\'Premium\',message:\'Unlock access by inviting 3 friends or upgrading.\',buttons:[{type:\'ok\',text:\'OK\'}]})"' : '')
+          : 'onclick="startMock(\''+m.id+'\')"';
         let scoreHTML = isAttempted && m.userScore ? `<div class="mock-score">${m.userScore}/${m.qs}</div><div class="mock-acc">${m.userAcc||0}%</div>` : '';
         html += `<div class="${cardClass}" ${onTap}>
-          <div style="font-size:1.2rem;width:32px;">📝</div>
+          <div style="font-size:1.2rem;width:32px;">${isPremium ? '💎' : '📝'}</div>
           <div class="mock-left">
             <div class="mock-title-v2">${m.title}</div>
             <div class="mock-meta-v2">${m.qs} Qs · ${m.time} min · ${m.date || ''} · ${m.attempts || 0} attempts</div>
@@ -525,6 +530,11 @@ function renderMockBrowser() {
 }
 
 function startMock(mockId) {
+  // Check if user has any access at all
+  if (!state.hasAccess && state.freeMocksLeft <= 0) {
+    if (tg) tg.showPopup({title:'Access Required',message:'You\'ve used all free mocks. Invite 3 friends or get premium to continue.',buttons:[{type:'ok',text:'OK'}]});
+    return;
+  }
   if (tg) {
     tg.showPopup({
       title: 'Start Mock',
