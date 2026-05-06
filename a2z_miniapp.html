@@ -866,6 +866,16 @@ function shareApp() {
   if (tg?.onEvent) {
     tg.onEvent('viewportChanged', () => tg.expand());
   }
+
+  // Pull-to-refresh: reload state on pull down
+  let touchStart = 0;
+  document.addEventListener('touchstart', function(e) { touchStart = e.touches[0].clientY; });
+  document.addEventListener('touchend', function(e) {
+    if (window.scrollY === 0 && e.changedTouches[0].clientY - touchStart > 80) {
+      if (API_BASE_URL) syncFromAPI();
+      else if (tg) fetchState();
+    }
+  });
 })();
 
 function updateUI() {

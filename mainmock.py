@@ -1785,6 +1785,17 @@ async def _handle_submit_link(update: Update, deep_link: str):
                                  f"PvP victory — {pc['match_id']}", f"pvp_{pc['match_id']}")
                     except Exception:
                         pass
+                # Lounge broadcast (GROWTH-05)
+                lounge_id = os.environ.get("A2Z_LOUNGE_CHAT_ID", "")
+                if lounge_id:
+                    try:
+                        await context.bot.send_message(
+                            lounge_id,
+                            f"🚨 *RIVALRY ALERT!*\n\n{scorecard}\n\n_Throttled: max 3/hr_",
+                            parse_mode=ParseMode.MARKDOWN,
+                        )
+                    except Exception:
+                        pass
 
         # AIR 209 Benchmark: if user beats benchmark, grant premium access
         benchmark = (mock["benchmark_score"] if mock else None)
@@ -2430,6 +2441,16 @@ async def _admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await _admin_export_mocks(update)
     elif sub == "backup":
         await _admin_backup(update)
+    elif sub == "pay" and len(args) >= 3:
+        try:
+            puser_id = int(args[1])
+            pdays = int(args[2])
+            get_or_create_user(puser_id)
+            grant_premium_access(puser_id, pdays, "paid")
+            await update.message.reply_text(f"✅ User {puser_id} granted PAID access for {pdays} days.")
+            log_admin_action(uid, "admin:pay", target_id=puser_id, detail=f"{pdays}d")
+        except ValueError:
+            await update.message.reply_text("Usage: /admin pay <user_id> <days>")
     elif sub == "set_benchmark" and len(args) >= 3:
         try:
             bmock_id = args[1]
