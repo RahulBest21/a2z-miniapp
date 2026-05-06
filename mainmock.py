@@ -48,6 +48,7 @@ try:
         update_user_stats_after_attempt, get_user_subject_summary,
         get_user_topic_breakdown, get_user_score_trend,
         get_user_weak_areas, get_user_silly_mistakes,
+        create_challenge, accept_challenge, complete_challenge,
         close_db,
     )
     DB_OK = True
@@ -1629,6 +1630,9 @@ async def _start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if args and args[0].startswith("inv_"):
         await _handle_invite_link(update, args[0])
         return
+    if args and args[0].startswith("challenge_"):
+        await _handle_challenge_link(update, args[0])
+        return
 
     from telegram import ReplyKeyboardMarkup, KeyboardButton
 
@@ -1752,6 +1756,47 @@ async def _handle_submit_link(update: Update, deep_link: str):
         # Aggregate analytics from responses
         update_user_stats_after_attempt(uid, mock_id)
 
+        # PvP Challenge: check if this user has pending challenges for this mock
+        pending_ch = db_fetchall(
+            "SELECT match_id FROM challenges WHERE mock_id = ? AND (challenger_id = ? OR rival_id = ?) AND status IN ('pending','accepted')",
+            (mock_id, uid, uid),
+        )
+        for pc in (pending_ch or []):
+            result = complete_challenge(pc["match_id"], uid, score, attempt_id)
+            if result and result["status"] == "completed":
+                # Send scorecard to both players
+                c_uid = result["challenger_id"]
+                r_uid = result["rival_id"]
+                ch_name = db_fetchone("SELECT first_name FROM users WHERE telegram_id = ?", (c_uid,))
+                ch_name = (ch_name["first_name"] if ch_name else "Challenger")[:15]
+                rv_name = db_fetchone("SELECT first_name FROM users WHERE telegram_id = ?", (r_uid,))
+                rv_name = (rv_name["first_name"] if rv_name else "Rival")[:15]
+                winner_name = ch_name if result["winner_id"] == c_uid else rv_name
+                scorecard = (
+                    f"⚔️ *Head-to-Head Scorecard*\n\n"
+                    f"🟦 {ch_name}: {result['challenger_score']}\n"
+                    f"🟥 {rv_name}: {result['rival_score']}\n\n"
+                    f"🏆 *Winner: {winner_name}* (+100 XP)"
+                )
+                for pid in [c_uid, r_uid]:
+                    try:
+                        await context.bot.send_message(pid, scorecard, parse_mode=ParseMode.MARKDOWN)
+                        award_xp(db_execute, db_commit, result["winner_id"], 100,
+                                 f"PvP victory — {pc['match_id']}", f"pvp_{pc['match_id']}")
+                    except Exception:
+                        pass
+
+        # AIR 209 Benchmark: if user beats benchmark, grant premium access
+        benchmark = (mock["benchmark_score"] if mock else None)
+        if benchmark and score >= benchmark:
+            grant_premium_access(uid, 30, "paid")
+            await update.message.reply_text(
+                f"🎯 *BENCHMARK CRUSHED!*\n"
+                f"You scored {score}/{benchmark} — beating the AIR 209 target!\n"
+                f"🏆 30 days PREMIUM access UNLOCKED!",
+                parse_mode=ParseMode.MARKDOWN,
+            )
+
         rank, total, percentile = get_user_rank(mock_id, attempt_id)
 
         # Auto-award XP for quiz performance
@@ -1764,6 +1809,9 @@ async def _handle_submit_link(update: Update, deep_link: str):
         # Hidden quest: First Blood (100% on a mock)
         if GAME_OK and accuracy >= 100 and total <= 1:
             check_first_blood(db_execute, db_commit, mock_id, uid)
+        # Raid boss damage
+        if GAME_OK:
+            deal_raid_damage(db_execute, db_commit, uid, 1, "mock_complete")
 
         # Referral verification: if this user was invited, verify the invite
         inviter_id = verify_referral_by_action(uid)
@@ -2200,6 +2248,117 @@ async def _access_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# PvP CHALLENGE  (GROWTH-03)
+# ═══════════════════════════════════════════════════════════════════════════
+
+async def _challenge_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Create a PvP challenge after mock submission."""
+    if not DB_OK:
+        await update.message.reply_text("Database not available.")
+        return
+    uid = update.effective_user.id
+    args = context.args
+    if not args:
+        # List pending challenges
+        ch = db_fetchall(
+            "SELECT * FROM challenges WHERE (challenger_id = ? OR rival_id = ?) AND status != 'completed' ORDER BY created_at DESC LIMIT 5",
+            (uid, uid),
+        )
+        if not ch:
+            await update.message.reply_text("No active challenges.\nUse /challenge <mock_id> to start one.")
+            return
+        lines = ["⚔️ *Active Challenges*", ""]
+        for c in ch:
+            status = "⏳ Pending" if c["status"] == "pending" else "🔄 Accepted"
+            mock = get_mock(c["mock_id"])
+            mtitle = (mock["title"] if mock else c["mock_id"])[:25]
+            lines.append(f"{status} *{mtitle}*\n  Challenger score: {c.get('challenger_score','-')}\n  Link: `{c['match_id']}`")
+        await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.MARKDOWN)
+        return
+
+    mock_id = args[0]
+    mock = get_mock(mock_id)
+    if not mock:
+        await update.message.reply_text("Mock not found. Use a valid mock_id.")
+        return
+    match_id = create_challenge(uid, mock_id)
+    deep_link = f"https://t.me/A2ZUpdatesBot?start=challenge_{match_id}"
+    await update.message.reply_text(
+        f"⚔️ *Challenge Created!*\n\n"
+        f"Mock: *{mock['title']}*\n"
+        f"Share this link:\n`{deep_link}`\n\n"
+        f"_Your rival must open this link, take the same mock, and submit results._",
+        parse_mode=ParseMode.MARKDOWN,
+    )
+
+
+async def _handle_challenge_link(update: Update, deep_link: str):
+    """Handle /start challenge_MATCHID deep link."""
+    if not DB_OK:
+        return
+    match_id = deep_link.replace("challenge_", "")
+    uid = update.effective_user.id
+    ch = accept_challenge(match_id, uid)
+    if not ch:
+        await update.message.reply_text("⚠️ Challenge not found or already accepted.")
+        return
+    mock = get_mock(ch["mock_id"])
+    uname = update.effective_user.first_name or "Aspirant"
+    await update.message.reply_text(
+        f"⚔️ *Challenge Accepted!*\n\n"
+        f"Mock: *{mock['title'] if mock else ch['mock_id']}*\n"
+        f"Challenger: {uname}\n\n"
+        f"_Now take the mock from the menu button and submit your results._\n"
+        f"_The bot will auto-compare scores._",
+        parse_mode=ParseMode.MARKDOWN,
+    )
+
+
+async def _raid_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin creates a raid boss, or users can check active raid status."""
+    if not DB_OK or not GAME_OK:
+        await update.message.reply_text("Game system offline.")
+        return
+    uid = update.effective_user.id
+    args = context.args
+
+    if not args or args[0].lower() == "status":
+        active = get_active_raid(db_execute)
+        if not active:
+            await update.message.reply_text("No active raid. Admins can create one with /raid create.")
+            return
+        await update.message.reply_text(
+            f"🚨 *Raid Boss: {active['boss_name']}*\n"
+            f"❤️ HP: {active['hp_current']}/{active['hp_total']}\n"
+            f"🏆 Reward: {active['reward']}\n"
+            f"⏰ Deadline: {active['deadline']}\n\n"
+            f"_Every quiz complete & new user join deals 1 damage!_",
+            parse_mode=ParseMode.MARKDOWN,
+        )
+        return
+
+    sub = args[0].lower()
+    if sub == "create" and is_admin(uid):
+        if len(args) < 4:
+            await update.message.reply_text("/raid create <name> <hp> <reward>")
+            return
+        name = args[1]
+        hp = int(args[2])
+        reward = " ".join(args[3:])
+        raid_id = create_raid(db_execute, db_commit, name, hp, 72, reward)
+        await update.message.reply_text(
+            f"🚨 *RAID EVENT LIVE!*\n\n"
+            f"Boss: {name} | HP: {hp}\n"
+            f"Reward: {reward}\n"
+            f"Raid ID: `{raid_id}`\n\n"
+            f"_Every quiz complete deals 1 damage!_",
+            parse_mode=ParseMode.MARKDOWN,
+        )
+    else:
+        await update.message.reply_text("Use /raid to check status.\nAdmins: /raid create <name> <hp> <reward>")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # ADMIN DASHBOARD  (ADMIN-01 through ADMIN-04)
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -2246,6 +2405,20 @@ async def _admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await _admin_export_users(update)
     elif sub == "export_mocks":
         await _admin_export_mocks(update)
+    elif sub == "set_benchmark" and len(args) >= 3:
+        try:
+            bmock_id = args[1]
+            bscore = int(args[2])
+            mock = get_mock(bmock_id)
+            if not mock:
+                await update.message.reply_text("Mock not found.")
+            else:
+                db_execute("UPDATE mocks SET benchmark_score = ? WHERE mock_id = ?", (bscore, bmock_id))
+                db_commit()
+                await update.message.reply_text(f"✅ Benchmark for {mock['title'][:30]}: {bscore}")
+                log_admin_action(uid, "admin:set_benchmark", detail=f"{bmock_id}={bscore}")
+        except ValueError:
+            await update.message.reply_text("Usage: /admin set_benchmark <mock_id> <score>")
     else:
         await update.message.reply_text(
             "*Admin Commands:*\n"
@@ -2939,6 +3112,7 @@ async def _webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif action == "complete_quest":
         if GAME_OK:
             complete_daily_quest(db_execute, db_commit, uid)
+            deal_raid_damage(db_execute, db_commit, uid, 1, "quest_complete")
             # Referral verification on action
             inviter = verify_referral_by_action(uid)
             if inviter:
@@ -3019,6 +3193,8 @@ def main():
     app.add_handler(CommandHandler("mystats", _mystats))
     app.add_handler(CommandHandler("guild", _guild_cmd))
     app.add_handler(CommandHandler("access", _access_cmd))
+    app.add_handler(CommandHandler("challenge", _challenge_cmd))
+    app.add_handler(CommandHandler("raid", _raid_cmd))
 
     # File upload (admin-only enforced in handler)
     app.add_handler(MessageHandler(filters.Document.ALL, _handle_file))

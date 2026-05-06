@@ -61,7 +61,8 @@ CREATE TABLE IF NOT EXISTS mocks (
     timer_minutes  INTEGER DEFAULT 10,
     file_hash    TEXT,                     -- SHA256 of the HTML content
     created_at   TEXT NOT NULL DEFAULT (datetime('now')),
-    total_attempts INTEGER DEFAULT 0
+    total_attempts INTEGER DEFAULT 0,
+    benchmark_score INTEGER                -- AIR 209 target score
 );
 
 CREATE TABLE IF NOT EXISTS questions (
@@ -229,6 +230,23 @@ CREATE TABLE IF NOT EXISTS user_mock_group_stats (
     trend_json    TEXT,                     -- last N scores as JSON
     last_attempted_at TEXT,
     PRIMARY KEY (user_id, group_id)
+);
+
+-- ═══ PvP Challenges ═══
+CREATE TABLE IF NOT EXISTS challenges (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    match_id      TEXT UNIQUE NOT NULL,       -- random 8-char ID
+    challenger_id INTEGER NOT NULL REFERENCES users(telegram_id),
+    rival_id      INTEGER REFERENCES users(telegram_id),
+    mock_id       TEXT NOT NULL REFERENCES mocks(mock_id),
+    challenger_score INTEGER,
+    challenger_attempt_id TEXT,
+    rival_score   INTEGER,
+    rival_attempt_id TEXT,
+    status        TEXT DEFAULT 'pending',     -- pending / accepted / completed
+    winner_id     INTEGER REFERENCES users(telegram_id),
+    created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+    completed_at  TEXT
 );
 """
 
@@ -1220,6 +1238,64 @@ def log_admin_action(admin_id: int, action: str, target_id: Optional[int] = None
         db_commit()
     except Exception:
         pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PvP CHALLENGES
+# ═══════════════════════════════════════════════════════════════════════════
+
+def create_challenge(challenger_id: int, mock_id: str) -> str:
+    """Create a PvP challenge. Returns match_id for deep link."""
+    import secrets
+    match_id = secrets.token_hex(4)
+    db_execute(
+        "INSERT INTO challenges (match_id, challenger_id, mock_id) VALUES (?, ?, ?)",
+        (match_id, challenger_id, mock_id),
+    )
+    db_commit()
+    return match_id
+
+
+def accept_challenge(match_id: str, rival_id: int) -> Optional[Dict]:
+    """Rival accepts a challenge. Returns challenge dict or None."""
+    ch = db_fetchone("SELECT * FROM challenges WHERE match_id = ? AND status = 'pending'", (match_id,))
+    if not ch:
+        return None
+    db_execute(
+        "UPDATE challenges SET rival_id = ?, status = 'accepted' WHERE match_id = ?",
+        (rival_id, match_id),
+    )
+    db_commit()
+    return dict(ch)
+
+
+def complete_challenge(match_id: str, user_id: int, score: int, attempt_id: str) -> Optional[Dict]:
+    """Record a player's score. If both done, determine winner and mark completed."""
+    ch = db_fetchone("SELECT * FROM challenges WHERE match_id = ?", (match_id,))
+    if not ch:
+        return None
+    if user_id == ch["challenger_id"] and not ch["challenger_score"]:
+        db_execute("UPDATE challenges SET challenger_score = ?, challenger_attempt_id = ? WHERE match_id = ?",
+                   (score, attempt_id, match_id))
+    elif user_id == ch["rival_id"] and not ch["rival_score"]:
+        db_execute("UPDATE challenges SET rival_score = ?, rival_attempt_id = ? WHERE match_id = ?",
+                   (score, attempt_id, match_id))
+    else:
+        return dict(ch)
+    db_commit()
+
+    # Re-read after update
+    ch = db_fetchone("SELECT * FROM challenges WHERE match_id = ?", (match_id,))
+    # Check if both have scored
+    if ch["challenger_score"] is not None and ch["rival_score"] is not None:
+        winner = ch["challenger_id"] if (ch["challenger_score"] or 0) >= (ch["rival_score"] or 0) else ch["rival_id"]
+        db_execute(
+            "UPDATE challenges SET status = 'completed', winner_id = ?, completed_at = ? WHERE match_id = ?",
+            (winner, _now(), match_id),
+        )
+        db_commit()
+        ch = db_fetchone("SELECT * FROM challenges WHERE match_id = ?", (match_id,))
+    return dict(ch) if ch else None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
