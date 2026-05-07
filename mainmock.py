@@ -2373,6 +2373,141 @@ async def _raid_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Use /raid to check status.\nAdmins: /raid create <name> <hp> <reward>")
 
 
+def inject_editorial_tracker(html: str, editorial_id: str) -> str:
+    """Inject results tracker + mobile-friendly CSS into editorial HTML.
+    Keeps original structure intact. Adds:
+      - Floating bottom bar with live score counter
+      - Required viewport meta for mini-app
+      - Telegram WebApp script for sendData
+      - Submit button that reports cloze + jumble results to bot
+    """
+    tracker_css = """
+    /* A2Z Results Tracker — injected */
+    :root{--tracker-bg:#1a1a2e;--tracker-accent:#9d8fff;--tracker-green:#22c55e;--tracker-gold:#fbbf24;--tracker-text:#fff}
+    .a2z-tracker{position:fixed;bottom:0;left:0;right:0;background:var(--tracker-bg);
+      padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+      z-index:9999;box-shadow:0 -2px 12px rgba(0,0,0,.4);font-family:Inter,sans-serif;
+      padding-bottom:max(10px,env(safe-area-inset-bottom));}
+    .a2z-tracker .a2z-score{display:flex;gap:10px;font-size:.72rem;color:#94a3b8;}
+    .a2z-tracker .a2z-score span{color:var(--tracker-gold);font-weight:700;}
+    .a2z-tracker .a2z-btn{background:var(--tracker-accent);color:#fff;border:none;
+      padding:8px 20px;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer;}
+    .a2z-tracker .a2z-btn.done{background:var(--tracker-green);}
+    .a2z-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;
+      color:#fff;padding:16px 24px;border-radius:12px;z-index:9999;font-family:Inter,sans-serif;
+      text-align:center;display:none;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+    body.a2z-mode{padding-bottom:80px !important;}
+    @media(max-width:600px){
+      .a2z-tracker .a2z-score{font-size:.68rem;gap:6px;}
+      .a2z-tracker .a2z-btn{font-size:.75rem;padding:8px 14px;}
+    }
+    """
+    tracker_js = """
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+    (function(){
+      var tg = window.Telegram?.WebApp;
+      var scores = {clozeTotal:0,clozeCorrect:0,jumbleTotal:0,jumbleCorrect:0,submitted:false};
+      var editorialId = 'EDITORIAL_ID_PLACEHOLDER';
+
+      // Count total questions on page load
+      scores.clozeTotal = document.querySelectorAll('.mcq-opts').length;
+      scores.jumbleTotal = document.querySelectorAll('.pj-opts').length;
+
+      // Override clozeAns to track correct answers
+      var origCloze = window.clozeAns;
+      window.clozeAns = function(btn) {
+        var parent = btn.closest('.mcq-opts');
+        if (parent && parent.querySelector('.correct,.wrong')) return;
+        var correct = btn.dataset.ans;
+        if (btn.textContent.trim() === correct) scores.clozeCorrect++;
+        origCloze(btn);
+        updateTracker();
+      };
+
+      // Override pjAns to track correct answers
+      var origPj = window.pjAns;
+      window.pjAns = function(btn) {
+        var correctIdx = parseInt(btn.dataset.ans);
+        var myIdx = parseInt(btn.dataset.idx);
+        if (myIdx === correctIdx) scores.jumbleCorrect++;
+        origPj(btn);
+        updateTracker();
+      };
+
+      function updateTracker() {
+        var el = document.getElementById('a2z-score-display');
+        if (!el) return;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        el.innerHTML = '<span>Cloze:'+scores.clozeCorrect+'/'+scores.clozeTotal+'</span>'+
+                       '<span>Jumble:'+scores.jumbleCorrect+'/'+scores.jumbleTotal+'</span>'+
+                       '<span>Total: <b style="color:var(--tracker-gold)">'+correct+'/'+total+'</b></span>';
+      }
+
+      function submitResults() {
+        if (scores.submitted) return;
+        scores.submitted = true;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        var acc = total > 0 ? Math.round(correct/total*100) : 0;
+        document.getElementById('a2z-submit-btn').textContent = 'Submitted';
+        document.getElementById('a2z-submit-btn').classList.add('done');
+        document.getElementById('a2z-toast').style.display='block';
+        document.getElementById('a2z-toast').innerHTML =
+          '<div style="font-size:2rem;">'+(acc>=70?'🎉':acc>=40?'✅':'📚')+'</div>'+
+          '<div style="font-weight:700;margin:8px 0;">'+correct+'/'+total+' correct ('+acc+'%)</div>'+
+          '<div style="font-size:.75rem;color:#94a3b8;">Results saved! Check Analytics tab.</div>';
+        setTimeout(function(){document.getElementById('a2z-toast').style.display='none';},3000);
+
+        if (tg) {
+          tg.sendData(JSON.stringify({action:'editorial_result',editorial_id:editorialId,
+            cloze_correct:scores.clozeCorrect,cloze_total:scores.clozeTotal,
+            jumble_correct:scores.jumbleCorrect,jumble_total:scores.jumbleTotal}));
+        }
+      }
+
+      // Build tracker UI
+      var tracker = document.createElement('div');
+      tracker.className = 'a2z-tracker';
+      tracker.id = 'a2z-tracker';
+      tracker.innerHTML = '<div class="a2z-score" id="a2z-score-display">'+
+        '<span>Cloze:0/'+scores.clozeTotal+'</span>'+
+        '<span>Jumble:0/'+scores.jumbleTotal+'</span>'+
+        '<span>Total: <b style="color:var(--tracker-gold)">0/'+(scores.clozeTotal+scores.jumbleTotal)+'</b></span>'+
+        '</div>'+
+        '<button class="a2z-btn" id="a2z-submit-btn" onclick="submitResults()">Submit</button>';
+      document.body.appendChild(tracker);
+
+      // Toast
+      var toast = document.createElement('div');
+      toast.className = 'a2z-toast';
+      toast.id = 'a2z-toast';
+      document.body.appendChild(toast);
+
+      // Add bottom padding for tracker
+      document.body.classList.add('a2z-mode');
+    })();
+    </script>
+    """
+    # Inject CSS into <head> before </style>
+    if '</style>' in html:
+        html = html.replace('</style>', tracker_css + '\n</style>')
+    else:
+        html = html.replace('<head>', '<head>\n<style>' + tracker_css + '</style>')
+
+    # Replace placeholder with actual editorial ID
+    tracker_js = tracker_js.replace('EDITORIAL_ID_PLACEHOLDER', editorial_id)
+
+    # Inject JS before </body>
+    if '</body>' in html:
+        html = html.replace('</body>', tracker_js + '\n</body>')
+    else:
+        html += tracker_js
+
+    return html
+
+
 async def _editorial_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """View or upload editorials. Admins can generate vocab quiz from editorial."""
     if not DB_OK:
@@ -2381,36 +2516,39 @@ async def _editorial_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     args = context.args
     if args and args[0] == "upload":
-        await update.message.reply_text(
-            "Send me the editorial .html file and I'll extract and store it.\n"
-            "Use /editorial generate to create a vocab quiz from an editorial."
-        )
+        await update.message.reply_text("Send me the editorial .html file.")
         return
-    if args and args[0] == "generate" and is_admin(uid):
-        # Get last uploaded editorial and generate quiz via Gemini
-        editorials = list_editorials(1)
-        if not editorials:
-            await update.message.reply_text("No editorials available. Upload one first.")
+    if args and len(args[0]) > 3:
+        # Treat as editorial ID — send the file
+        ed_id = args[0]
+        ed = db_fetchone("SELECT * FROM editorials WHERE editorial_id = ?", (ed_id,))
+        if not ed:
+            await update.message.reply_text("Editorial not found.")
             return
-        ed = editorials[0]
-        await update.message.reply_text("⚙️ Generating quiz from editorial...")
-        quiz = await _generate_editorial_quiz(uid, ed)
-        if quiz:
-            await update.message.reply_text(
-                f"✅ Quiz generated!\nMock ID: `{quiz}`\n\n"
-                f"Users can take it via the mini app. +{QUIZ_XP} XP on completion.",
-                parse_mode=ParseMode.MARKDOWN,
-            )
-        else:
-            await update.message.reply_text("❌ Quiz generation failed.")
-        return
+        store_path = Path(__file__).parent / "mocks_storage" / f"{ed_id}.html"
+        orig_path = Path(__file__).parent / (ed.get("filename") or "")
+        src = store_path if store_path.exists() else orig_path
+        if src and src.exists():
+            html = src.read_text(encoding="utf-8")
+            if 'a2z-tracker' not in html:
+                html = inject_editorial_tracker(html, ed_id)
+                store_path.write_text(html, encoding="utf-8")
+            import tempfile as t2
+            tf = t2.NamedTemporaryFile(suffix=".html", mode="w", encoding="utf-8", delete=False)
+            tf.write(html); tpath = tf.name; tf.close()
+            with open(tpath, "rb") as f:
+                await update.message.reply_document(f, filename=f"Editorial_{ed['title'][:30]}.html",
+                    caption=f"📰 *{ed['title'][:60]}*\n\nOpen to study. Submit results via the tracker!",
+                    parse_mode=ParseMode.MARKDOWN)
+            os.unlink(tpath)
+            return
     editorials = list_editorials(10)
     if not editorials:
-        await update.message.reply_text("No editorials yet.\nAdmins: /editorial upload | /editorial generate")
+        await update.message.reply_text("No editorials yet. Admins can upload .html files.")
         return
     lines = ["📰 *Recent Editorials*", ""]
     for e in editorials:
-        lines.append(f"• *{e['title'][:50]}* ({e.get('source','N/A')}) — {e.get('article_date','')[:10]}")
+        lines.append(f"• *{e['title'][:50]}* — {e.get('article_date','')[:10]}")
     await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.MARKDOWN)
 
 
@@ -2724,6 +2862,34 @@ async def _handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         with open(tpath, "r", encoding="utf-8") as f:
             html = f.read()
         os.unlink(tpath)
+
+        # Detect editorial files by filename or content keywords
+        is_editorial = ('editorial' in fname.lower() or
+                       'editorial' in html[:2000].lower() or
+                       'vocab' in fname.lower() or
+                       'cloze' in html[:3000].lower())
+
+        if is_editorial and not is_admin(uid):
+            await status.edit_text("Only admins can upload editorials.")
+            return
+
+        if is_editorial:
+            # Editorial flow: inject tracker, store as editorial
+            editorial_id = register_editorial(uid, title=fname.replace('.html','')[:80],
+                                              source_file=fname)
+            # Inject tracker into HTML
+            tracked_html = inject_editorial_tracker(html, editorial_id)
+            # Save to mocks_storage for serving
+            store_path = Path(__file__).parent / "mocks_storage" / f"{editorial_id}.html"
+            store_path.write_text(tracked_html, encoding="utf-8")
+            await status.edit_text(
+                f"📰 *Editorial uploaded!*\n"
+                f"ID: `{editorial_id}`\n"
+                f"Tracker injected — users can submit results.\n\n"
+                f"_Use /editorial to list all._",
+                parse_mode=ParseMode.MARKDOWN,
+            )
+            return
 
         content, changes = universal_rebrand(html)
         questions, ttype = extract_questions(content)
@@ -3088,6 +3254,79 @@ async def _webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"_Keep it private._",
             parse_mode=ParseMode.MARKDOWN,
         )
+
+    elif action == "editorial_result":
+        # User submitted editorial quiz results from tracker
+        editorial_id = data.get("editorial_id", "")
+        cloze_c = data.get("cloze_correct", 0)
+        cloze_t = data.get("cloze_total", 0)
+        jumble_c = data.get("jumble_correct", 0)
+        jumble_t = data.get("jumble_total", 0)
+        total_c = cloze_c + jumble_c
+        total_t = cloze_t + jumble_t
+        acc = round(total_c / total_t * 100, 1) if total_t > 0 else 0
+        db_execute(
+            "CREATE TABLE IF NOT EXISTS editorial_results (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, editorial_id TEXT, cloze_correct INTEGER, cloze_total INTEGER, jumble_correct INTEGER, jumble_total INTEGER, accuracy REAL, created_at TEXT DEFAULT (datetime('now')))"
+        )
+        db_commit()
+        db_execute(
+            "INSERT INTO editorial_results (user_id, editorial_id, cloze_correct, cloze_total, jumble_correct, jumble_total, accuracy) VALUES (?,?,?,?,?,?,?)",
+            (uid, editorial_id, cloze_c, cloze_t, jumble_c, jumble_t, acc),
+        )
+        db_commit()
+        if GAME_OK and acc >= 50:
+            award_xp(db_execute, db_commit, uid, QUIZ_XP, f"Editorial quiz — {editorial_id}", f"editorial_{editorial_id}")
+        log.info("Editorial result: user=%d id=%s score=%d/%d acc=%.1f%%", uid, editorial_id, total_c, total_t, acc)
+
+    elif action == "get_editorials":
+        editorials = list_editorials(20)
+        if not editorials:
+            await update.message.reply_text("No editorials available.")
+            return
+        lines = ["📰 *Editorial Study*", ""]
+        for e in editorials:
+            lines.append(f"• *{e['title'][:55]}* — {e.get('article_date','')[:10]}")
+        lines.append("")
+        lines.append("_Tap an editorial below to open it:_")
+        await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.MARKDOWN)
+        # Send each editorial as a document
+        for e in editorials[:5]:
+            store_path = Path(__file__).parent / "mocks_storage" / f"{e['editorial_id']}.html"
+            if store_path.exists():
+                with open(store_path, "rb") as f:
+                    await update.message.reply_document(
+                        f, filename=f"{e['title'][:40]}.html",
+                        caption=f"📰 {e['title'][:60]}",
+                    )
+
+    elif action == "get_editorial":
+        ed_id = data.get("editorial_id", "")
+        ed = db_fetchone("SELECT * FROM editorials WHERE editorial_id = ?", (ed_id,))
+        if not ed:
+            await update.message.reply_text("Editorial not found.")
+            return
+        # Try mocks_storage first, then original file
+        store_path = Path(__file__).parent / "mocks_storage" / f"{ed_id}.html"
+        orig_path = Path(__file__).parent / (ed.get("filename") or "")
+        if store_path.exists():
+            src = store_path
+        elif orig_path and orig_path.exists():
+            src = orig_path
+        else:
+            await update.message.reply_text("Editorial file not found.")
+            return
+        html = src.read_text(encoding="utf-8")
+        # Inject tracker if not already injected
+        if 'a2z-tracker' not in html:
+            html = inject_editorial_tracker(html, ed_id)
+            store_path.write_text(html, encoding="utf-8")
+        import tempfile
+        tf = tempfile.NamedTemporaryFile(suffix=".html", mode="w", encoding="utf-8", delete=False)
+        tf.write(html); tpath = tf.name; tf.close()
+        with open(tpath, "rb") as f:
+            await update.message.reply_document(f, filename=f"Editorial_{ed['title'][:30]}.html",
+                caption="📰 Open to study. Track answers & submit results!")
+        os.unlink(tpath)
 
     elif action == "get_my_analytics":
         # Return full analytics: subject summary, topic breakdown, weak areas, trends

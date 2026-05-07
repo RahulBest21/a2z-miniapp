@@ -225,12 +225,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:
   </div>
 </div>
 
+<!-- LEARN TAB (Editorials) -->
+<div id="tab-learn" class="tab-content">
+  <div id="learn-content">
+    <div class="section-title">📰 Editorial Study</div>
+    <div class="empty-state"><i class="fas fa-newspaper"></i>
+      <p style="margin:12px 0;">No editorials loaded</p>
+      <button class="btn btn-primary btn-sm" onclick="loadEditorials()">🔄 Load Editorials</button>
+    </div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottom-nav">
   <button class="nav-item active" onclick="switchTab('home')"><i class="fas fa-home"></i> Home</button>
   <button class="nav-item" onclick="switchTab('mocks')"><i class="fas fa-file-alt"></i> Mocks</button>
-  <button class="nav-item" onclick="switchTab('analytics')"><i class="fas fa-chart-bar"></i> Analytics</button>
-  <button class="nav-item" onclick="switchTab('leaderboard')"><i class="fas fa-trophy"></i> LBoard</button>
+  <button class="nav-item" onclick="switchTab('learn')"><i class="fas fa-newspaper"></i> Learn</button>
+  <button class="nav-item" onclick="switchTab('analytics')"><i class="fas fa-chart-bar"></i> Stats</button>
   <button class="nav-item" onclick="switchTab('guild')"><i class="fas fa-users"></i> Guild</button>
 </div>
 
@@ -439,6 +450,7 @@ function switchTab(tab) {
   if (navBtns[navIcons[tab]]) navBtns[navIcons[tab]].classList.add('active');
 
   if (tab === 'mocks') { renderMockBrowser(); if (tg) fetchMocks(); }
+  if (tab === 'learn') { loadEditorials(); }
   if (tab === 'analytics') { loadAnalytics(); }
   if (tab === 'leaderboard') { renderLeaderboard(); if (tg && state.lbMockId) sendToBot('get_leaderboard', {mock_id: state.lbMockId}); }
   if (tab === 'guild') { renderGuild(); if (tg) fetchGuild(); }
@@ -814,6 +826,16 @@ function renderAnalyticsUI(data) {
 
   html += '<button class="btn btn-primary btn-sm" onclick="sendToBot(\'get_ai_insights\')" style="width:100%;margin-top:12px;">🤖 Get AI Insights</button>';
   el.innerHTML = html;
+}
+
+function loadEditorials() {
+  let el = document.getElementById('learn-content');
+  el.innerHTML = '<div class="empty-state"><i class="fas fa-spinner"></i><p>Loading editorials...</p></div>';
+  if (tg) sendToBot('get_editorials');
+}
+
+function requestEditorial(editorialId) {
+  if (tg) sendToBot('get_editorial', {editorial_id: editorialId});
 }
 
 function guildCreateAction() {
