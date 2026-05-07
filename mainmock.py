@@ -2374,26 +2374,78 @@ async def _raid_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def _editorial_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """View or upload editorials."""
+    """View or upload editorials. Admins can generate vocab quiz from editorial."""
     if not DB_OK:
         await update.message.reply_text("Database not available.")
         return
+    uid = update.effective_user.id
     args = context.args
     if args and args[0] == "upload":
         await update.message.reply_text(
             "Send me the editorial .html file and I'll extract and store it.\n"
-            "File should contain highlighted vocabulary, cloze test, idioms etc."
+            "Use /editorial generate to create a vocab quiz from an editorial."
         )
         return
-    # List recent editorials
+    if args and args[0] == "generate" and is_admin(uid):
+        # Get last uploaded editorial and generate quiz via Gemini
+        editorials = list_editorials(1)
+        if not editorials:
+            await update.message.reply_text("No editorials available. Upload one first.")
+            return
+        ed = editorials[0]
+        await update.message.reply_text("⚙️ Generating quiz from editorial...")
+        quiz = await _generate_editorial_quiz(uid, ed)
+        if quiz:
+            await update.message.reply_text(
+                f"✅ Quiz generated!\nMock ID: `{quiz}`\n\n"
+                f"Users can take it via the mini app. +{QUIZ_XP} XP on completion.",
+                parse_mode=ParseMode.MARKDOWN,
+            )
+        else:
+            await update.message.reply_text("❌ Quiz generation failed.")
+        return
     editorials = list_editorials(10)
     if not editorials:
-        await update.message.reply_text("No editorials yet. Admins can upload with /editorial upload")
+        await update.message.reply_text("No editorials yet.\nAdmins: /editorial upload | /editorial generate")
         return
     lines = ["📰 *Recent Editorials*", ""]
     for e in editorials:
         lines.append(f"• *{e['title'][:50]}* ({e.get('source','N/A')}) — {e.get('article_date','')[:10]}")
     await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.MARKDOWN)
+
+
+async def _generate_editorial_quiz(admin_id: int, editorial: dict) -> Optional[str]:
+    """Use Gemini to generate a 5-question vocab/cloze quiz from editorial content."""
+    # Load editorial HTML and extract text
+    store_path = Path(__file__).parent / "mocks_storage" / f"{editorial['editorial_id']}.html"
+    if not store_path.exists():
+        return None
+    try:
+        html = store_path.read_text(encoding="utf-8")[:8000]
+        prompt = (
+            "From this editorial content, extract the 5 most important vocabulary words. "
+            "For each word, create a multiple-choice question asking its meaning, with 4 options each. "
+            "Return ONLY valid JSON: {\"title\": \"Editorial Vocab Quiz\", \"questions\": [ "
+            "{\"text\": \"Meaning of 'WORD'?\", \"text_hi\": \"'WORD' का अर्थ?\", "
+            "\"options\": [\"A\", \"B\", \"C\", \"D\"], \"options_hi\": [\"A\", \"B\", \"C\", \"D\"], "
+            "\"correctIndex\": 0, \"explanation\": \"Meaning in English\", \"explanation_hi\": \"Hindi meaning\"}, ...]}"
+            f"\n\nEditorial content:\n{html}"
+        )
+        result = await _gemini_call(prompt, GEMINI_MODEL, max_retries=2)
+        data = json.loads(result)
+        questions = data.get("questions", [])
+        if len(questions) < 3:
+            return None
+        # Register as a mock
+        title = data.get("title", "Editorial Vocab Quiz")[:60]
+        mock_id = register_mock(admin_id, title, topic="Vocabulary", section="Editorial",
+                                source_file=f"editorial_quiz_{editorial['editorial_id']}",
+                                question_count=len(questions), timer_minutes=5)
+        register_questions(mock_id, questions)
+        return mock_id
+    except Exception as e:
+        log.warning("Editorial quiz generation failed: %s", e)
+        return None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
