@@ -50,6 +50,7 @@ try:
         get_user_weak_areas, get_user_silly_mistakes,
         create_challenge, accept_challenge, complete_challenge,
         create_trio, join_trio, check_trio_completion,
+        _get_setting, set_setting,
         close_db,
     )
     DB_OK = True
@@ -2671,6 +2672,25 @@ async def _admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
             db_commit()
             await update.message.reply_text(f"📅 {mock['title'][:30]} scheduled for {sdate}")
             log_admin_action(uid, "admin:schedule", detail=f"{smock_id}={sdate}")
+    elif sub == "ab_test" and len(args) >= 2:
+        key = args[1]
+        if key == "status":
+            inv = _get_setting('invites_required','3')
+            d1 = _get_setting('access_days_tier1','15')
+            d2 = _get_setting('access_days_tier2','30')
+            await update.message.reply_text(f"*A/B Test Settings*\nInvites required: {inv}\nTier 1 days: {d1}\nTier 2 days: {d2}", parse_mode=ParseMode.MARKDOWN)
+        elif key == "invites" and len(args) >= 3:
+            set_setting('invites_required', args[2])
+            await update.message.reply_text(f"✅ Invites required set to {args[2]}")
+            log_admin_action(uid, "admin:ab_test", detail=f"invites={args[2]}")
+        elif key == "days_t1" and len(args) >= 3:
+            set_setting('access_days_tier1', args[2])
+            await update.message.reply_text(f"✅ Tier 1 days set to {args[2]}")
+        elif key == "days_t2" and len(args) >= 3:
+            set_setting('access_days_tier2', args[2])
+            await update.message.reply_text(f"✅ Tier 2 days set to {args[2]}")
+        else:
+            await update.message.reply_text("/admin ab_test status|invites <N>|days_t1 <N>|days_t2 <N>")
     else:
         await update.message.reply_text(
             "*Admin Commands:*\n"
@@ -2874,21 +2894,22 @@ async def _handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         if is_editorial:
-            # Editorial flow: inject tracker, store as editorial
             editorial_id = register_editorial(uid, title=fname.replace('.html','')[:80],
                                               source_file=fname)
-            # Inject tracker into HTML
             tracked_html = inject_editorial_tracker(html, editorial_id)
-            # Save to mocks_storage for serving
             store_path = Path(__file__).parent / "mocks_storage" / f"{editorial_id}.html"
             store_path.write_text(tracked_html, encoding="utf-8")
             await status.edit_text(
                 f"📰 *Editorial uploaded!*\n"
                 f"ID: `{editorial_id}`\n"
-                f"Tracker injected — users can submit results.\n\n"
-                f"_Use /editorial to list all._",
+                f"Tracker injected — users can submit results.\n",
                 parse_mode=ParseMode.MARKDOWN,
             )
+            # Offer quiz generation
+            ed = db_fetchone("SELECT * FROM editorials WHERE editorial_id = ?", (editorial_id,))
+            kb2 = [[InlineKeyboardButton("🤖 Generate Vocab Quiz via Gemini", callback_data=f"act:genquiz_{editorial_id}")]]
+            await update.message.reply_text("Generate a 5-question vocab quiz from this editorial?", reply_markup=InlineKeyboardMarkup(kb2))
+            return
             return
 
         content, changes = universal_rebrand(html)
@@ -2956,6 +2977,22 @@ async def _callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.args = [mock_id]
         await query.message.delete()
         await _leaderboard(update, context)
+        return
+
+    if data.startswith("act:genquiz_"):
+        editorial_id = data.replace("act:genquiz_", "")
+        await query.edit_message_text("⚙️ Generating vocab quiz via Gemini...")
+        ed = db_fetchone("SELECT * FROM editorials WHERE editorial_id = ?", (editorial_id,))
+        if not ed:
+            await query.edit_message_text("Editorial not found.")
+            return
+        quiz = await _generate_editorial_quiz(uid, dict(ed))
+        if quiz:
+            await query.edit_message_text(
+                f"✅ Quiz generated!\nMock ID: `{quiz}`\n\nUsers can take it from the mini app.",
+                parse_mode=ParseMode.MARKDOWN)
+        else:
+            await query.edit_message_text("❌ Quiz generation failed. Try again.")
         return
 
     # ── Mock processing callbacks ──

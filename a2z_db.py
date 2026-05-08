@@ -272,6 +272,17 @@ CREATE TABLE IF NOT EXISTS web_users (
     telegram_id   INTEGER REFERENCES users(telegram_id),
     created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- ═══ Settings / A/B Testing ═══
+CREATE TABLE IF NOT EXISTS settings (
+    key           TEXT PRIMARY KEY,
+    value         TEXT NOT NULL,
+    updated_at    TEXT DEFAULT (datetime('now'))
+);
+INSERT OR IGNORE INTO settings (key, value) VALUES ('invites_required', '3');
+INSERT OR IGNORE INTO settings (key, value) VALUES ('access_days_tier1', '15');
+INSERT OR IGNORE INTO settings (key, value) VALUES ('access_days_tier2', '30');
+INSERT OR IGNORE INTO settings (key, value) VALUES ('ab_test_group', 'default');
 """
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -561,9 +572,10 @@ def get_monthly_action_verified_count(inviter_id: int) -> int:
 
 
 def check_and_grant_access(user_id: int, channel_id: str, bot_token: str) -> Tuple[bool, str]:
-    """Verify invites and grant tiered access.
-    Tier 1: 3 verified = 15 days free access
-    Tier 2: 5 verified = 30 days premium access"""
+    """Verify invites and grant tiered access. Thresholds from settings table."""
+    invites_required = int(_get_setting('invites_required', '3'))
+    days_t1 = int(_get_setting('access_days_tier1', '15'))
+    days_t2 = int(_get_setting('access_days_tier2', '30'))
     invites = db_fetchall(
         "SELECT * FROM invites WHERE inviter_id = ? AND month_key = ?",
         (user_id, _month_key()),
@@ -580,15 +592,26 @@ def check_and_grant_access(user_id: int, channel_id: str, bot_token: str) -> Tup
                     verified += 1
 
     if verified >= 5:
-        grant_premium_access(user_id, 30, "tier2")
-        return True, f"✅ {verified}/5 verified — 30 days PREMIUM access granted! (Tier 2)"
-    elif verified >= 3:
-        grant_free_access(user_id, 15)
-        return True, f"✅ {verified}/3 verified — 15 days free access granted! (Tier 1)"
+        grant_premium_access(user_id, days_t2, "tier2")
+        return True, f"✅ {verified}/5 verified — {days_t2} days PREMIUM access granted! (Tier 2)"
+    elif verified >= invites_required:
+        grant_free_access(user_id, days_t1)
+        return True, f"✅ {verified}/{invites_required} verified — {days_t1} days free access granted! (Tier 1)"
     elif verified >= 1:
         grant_free_access(user_id, 7)
         return True, f"✅ {verified} verified — 7 days trial access granted!"
-    return False, f"⏳ {verified} verified — need {INVITES_REQUIRED - verified} more invites."
+    return False, f"⏳ {verified} verified — need {invites_required - verified} more invites."
+
+
+def _get_setting(key: str, default: str = '') -> str:
+    row = db_fetchone("SELECT value FROM settings WHERE key = ?", (key,))
+    return row["value"] if row else default
+
+
+def set_setting(key: str, value: str):
+    db_execute("INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, ?)",
+               (key, value, _now()))
+    db_commit()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
