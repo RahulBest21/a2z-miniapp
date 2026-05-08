@@ -195,6 +195,24 @@ async def web_me_api(request: web.Request):
     return web.json_response({"ok":True,"username":payload.get("username"),"telegram_id":payload.get("telegram_id")}, headers=_cors_headers())
 
 
+async def admin_stats_api(request: web.Request):
+    """Admin-only stats dashboard."""
+    user_id = await _verify_token(request)
+    if not user_id:
+        return web.json_response({"error":"unauthorized"}, status=403, headers=_cors_headers())
+    from a2z_db import is_admin, get_admin_overview, get_admin_users_list, get_admin_mocks_list
+    if not is_admin(user_id):
+        return web.json_response({"error":"forbidden"}, status=403, headers=_cors_headers())
+    overview = get_admin_overview()
+    recent_users = get_admin_users_list(10) or []
+    recent_mocks = get_admin_mocks_list(10) or []
+    return web.json_response({
+        "overview": overview,
+        "recent_users": [dict(u) for u in recent_users],
+        "recent_mocks": [dict(m) for m in recent_mocks],
+    }, headers=_cors_headers())
+
+
 async def options_handler(request: web.Request):
     """CORS preflight."""
     return web.Response(status=200, headers=_cors_headers())
@@ -222,6 +240,7 @@ class APIServer:
         app.router.add_post(f"{_API_BASE}/web/register", web_register_api)
         app.router.add_post(f"{_API_BASE}/web/login", web_login_api)
         app.router.add_get(f"{_API_BASE}/web/me", web_me_api)
+        app.router.add_get(f"{_API_BASE}/admin/stats", admin_stats_api)
         app.router.add_route("OPTIONS", f"{_API_BASE}/{{tail:.*}}", options_handler)
         return app
 

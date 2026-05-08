@@ -825,6 +825,25 @@ function renderAnalyticsUI(data) {
   }
 
   html += '<button class="btn btn-primary btn-sm" onclick="sendToBot(\'get_ai_insights\')" style="width:100%;margin-top:12px;">🤖 Get AI Insights</button>';
+
+  // Admin stats (only shows if API returns admin data)
+  if (API_BASE_URL) {
+    fetchFromAPI('admin/stats').then(function(d){
+      if (d && d.overview) {
+        html += '<div class="card" style="margin-top:12px;"><div style="font-weight:700;margin-bottom:8px;color:var(--gold);">🔐 Admin Dashboard</div>';
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.75rem;">';
+        html += '<div>Users: <b>'+d.overview.total_users+'</b></div>';
+        html += '<div>Active today: <b>'+d.overview.active_today+'</b></div>';
+        html += '<div>Mocks: <b>'+d.overview.total_mocks+'</b></div>';
+        html += '<div>Attempts: <b>'+d.overview.total_attempts+'</b></div>';
+        html += '<div>Invites: <b>'+d.overview.total_invites+'</b></div>';
+        html += '<div>Paid: <b>'+d.overview.paid_users+'</b></div>';
+        html += '</div></div>';
+        document.getElementById('analytics-content').innerHTML = html;
+      }
+    });
+  }
+
   el.innerHTML = html;
 }
 
