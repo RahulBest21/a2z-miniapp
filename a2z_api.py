@@ -137,6 +137,64 @@ async def get_taxonomy_api(request: web.Request):
     return web.json_response({"taxonomy": tree}, headers=_cors_headers())
 
 
+# ═══════════════════════════════════════════════════════════════
+# WEB AUTH
+# ═══════════════════════════════════════════════════════════════
+
+def _create_jwt(user_data: dict) -> str:
+    """Create a simple JWT for web auth."""
+    import hashlib, base64, time
+    header = base64.urlsafe_b64encode(json.dumps({"alg":"HS256","typ":"JWT"}).encode()).decode().rstrip("=")
+    payload = base64.urlsafe_b64encode(json.dumps({**user_data,"exp":int(time.time())+86400*7}).encode()).decode().rstrip("=")
+    secret = "a2z-web-secret-key-change-in-production"
+    sig = base64.urlsafe_b64encode(hashlib.sha256(f"{header}.{payload}.{secret}".encode()).digest()).decode().rstrip("=")
+    return f"{header}.{payload}.{sig}"
+
+
+def _verify_jwt(token: str) -> Optional[dict]:
+    """Verify JWT token. Returns payload or None."""
+    import hashlib, base64, json as j, time
+    try:
+        parts = token.replace("Bearer ","").split(".")
+        if len(parts) != 3: return None
+        payload = j.loads(base64.urlsafe_b64decode(parts[1] + "=="))
+        if payload.get("exp",0) < time.time(): return None
+        return payload
+    except Exception:
+        return None
+
+
+async def web_register_api(request: web.Request):
+    data = await request.json()
+    username = (data.get("username") or "").strip().lower()
+    password = data.get("password","")
+    tg_id = data.get("telegram_id")
+    if not username or len(password) < 6:
+        return web.json_response({"ok":False,"error":"Username required, password min 6 chars"}, headers=_cors_headers())
+    from a2z_db import web_register
+    ok, msg = web_register(username, password, int(tg_id) if tg_id else None)
+    return web.json_response({"ok":ok,"message":msg}, headers=_cors_headers())
+
+
+async def web_login_api(request: web.Request):
+    data = await request.json()
+    username = (data.get("username") or "").strip().lower()
+    from a2z_db import web_login
+    user = web_login(username, data.get("password",""))
+    if not user:
+        return web.json_response({"ok":False,"error":"Invalid credentials"}, headers=_cors_headers())
+    token = _create_jwt(user)
+    return web.json_response({"ok":True,"token":token,"username":user["username"]}, headers=_cors_headers())
+
+
+async def web_me_api(request: web.Request):
+    auth = request.headers.get("Authorization","")
+    payload = _verify_jwt(auth)
+    if not payload:
+        return web.json_response({"error":"unauthorized"}, status=403, headers=_cors_headers())
+    return web.json_response({"ok":True,"username":payload.get("username"),"telegram_id":payload.get("telegram_id")}, headers=_cors_headers())
+
+
 async def options_handler(request: web.Request):
     """CORS preflight."""
     return web.Response(status=200, headers=_cors_headers())
@@ -161,6 +219,9 @@ class APIServer:
         app.router.add_get(f"{_API_BASE}/leaderboard", get_leaderboard_api)
         app.router.add_get(f"{_API_BASE}/analytics", get_analytics_api)
         app.router.add_get(f"{_API_BASE}/taxonomy", get_taxonomy_api)
+        app.router.add_post(f"{_API_BASE}/web/register", web_register_api)
+        app.router.add_post(f"{_API_BASE}/web/login", web_login_api)
+        app.router.add_get(f"{_API_BASE}/web/me", web_me_api)
         app.router.add_route("OPTIONS", f"{_API_BASE}/{{tail:.*}}", options_handler)
         return app
 

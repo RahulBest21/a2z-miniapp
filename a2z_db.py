@@ -255,12 +255,21 @@ CREATE TABLE IF NOT EXISTS challenges (
 -- ═══ Study Trio ═══
 CREATE TABLE IF NOT EXISTS trios (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    trio_code     TEXT UNIQUE NOT NULL,      -- invite code
+    trio_code     TEXT UNIQUE NOT NULL,
     leader_id     INTEGER NOT NULL REFERENCES users(telegram_id),
     member_2      INTEGER REFERENCES users(telegram_id),
     member_3      INTEGER REFERENCES users(telegram_id),
-    target_mock   TEXT,                     -- specific mock or NULL for any
+    target_mock   TEXT,
     completed_at  TEXT,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ═══ Web Users (website login) ═══
+CREATE TABLE IF NOT EXISTS web_users (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    username      TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    telegram_id   INTEGER REFERENCES users(telegram_id),
     created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 """
@@ -1365,6 +1374,42 @@ def check_trio_completion(user_id: int, mock_id: str, context_bot=None) -> Optio
                 except Exception:
                     pass
         return trio["trio_code"]
+    return None
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# WEB AUTH
+# ═══════════════════════════════════════════════════════════════════════════
+
+def web_register(username: str, password: str, telegram_id: int = None) -> Tuple[bool, str]:
+    """Register a web user. Returns (ok, message)."""
+    import hashlib, secrets
+    salt = secrets.token_hex(8)
+    pw_hash = hashlib.sha256(f"{salt}:{password}".encode()).hexdigest()
+    try:
+        db_execute(
+            "INSERT INTO web_users (username, password_hash, telegram_id) VALUES (?, ?, ?)",
+            (username, f"{salt}:{pw_hash}", telegram_id),
+        )
+        db_commit()
+        return True, "Registered"
+    except Exception:
+        return False, "Username already taken"
+
+
+def web_login(username: str, password: str) -> Optional[Dict]:
+    """Verify web login. Returns user dict or None."""
+    import hashlib
+    user = db_fetchone("SELECT * FROM web_users WHERE username = ?", (username,))
+    if not user:
+        return None
+    try:
+        salt, stored = user["password_hash"].split(":", 1)
+        computed = hashlib.sha256(f"{salt}:{password}".encode()).hexdigest()
+        if computed == stored:
+            return {"id": user["id"], "username": user["username"], "telegram_id": user.get("telegram_id")}
+    except Exception:
+        pass
     return None
 
 

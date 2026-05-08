@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A2Z Updates — Login</title>
+<style>
+:root{--bg:#0a0f1a;--panel:#141c2d;--text:#e2e8f0;--sub:#94a3b8;--primary:#9d8fff;--gold:#fbbf24;--green:#22c55e;--red:#ef4444;--border:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:var(--panel);border-radius:16px;padding:32px;width:100%;max-width:400px;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.logo{text-align:center;margin-bottom:24px}
+.logo .icon{background:linear-gradient(135deg,#e94560,#0f3460);width:48px;height:48px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff}
+.logo h1{font-size:1.2rem;margin-top:10px;color:#fff}
+.tabs{display:flex;gap:4px;margin-bottom:20px}
+.tab{flex:1;padding:10px;text-align:center;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--sub);transition:all .2s}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+input{width:100%;padding:12px;margin-bottom:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;outline:none;transition:border .2s}
+input:focus{border-color:var(--primary)}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;margin-top:8px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-gold{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000}
+.msg{text-align:center;margin-top:12px;font-size:.8rem;padding:8px;border-radius:8px;display:none}
+.msg.success{background:rgba(34,197,94,.1);color:var(--green);display:block}
+.msg.error{background:rgba(239,68,68,.1);color:var(--red);display:block}
+.user-card{display:none;text-align:center}
+.user-card.active{display:block}
+</style>
+</head>
+<body>
+<div class="card" id="login-card">
+  <div class="logo">
+    <div class="icon">A</div>
+    <h1>A2Z Updates</h1>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('login')">Login</div>
+    <div class="tab" onclick="switchTab('register')">Register</div>
+  </div>
+  <form id="login-form" onsubmit="handleLogin(event)">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <input type="text" id="tg-link" placeholder="Telegram User ID (optional — link account)" style="font-size:.8rem">
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+  <form id="register-form" onsubmit="handleRegister(event)" style="display:none">
+    <input type="text" id="reg-username" placeholder="Choose username" required>
+    <input type="password" id="reg-password" placeholder="Password (min 6 chars)" required minlength="6">
+    <input type="text" id="reg-tg-id" placeholder="Telegram User ID (to link account)" style="font-size:.8rem">
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+  <div class="msg" id="msg"></div>
+</div>
+
+<div class="card user-card" id="user-card">
+  <div class="logo">
+    <div class="icon" id="user-avatar">?</div>
+    <h1 id="user-name">User</h1>
+  </div>
+  <div style="text-align:center;color:var(--sub);margin-bottom:16px;">
+    <p>Welcome to A2Z Updates Web Dashboard</p>
+    <p style="font-size:.75rem">Your analytics and settings sync across web and Telegram.</p>
+  </div>
+  <button class="btn btn-gold" onclick="openMiniApp()">📝 Open Mini App</button>
+  <button class="btn btn-primary" onclick="logout()" style="background:var(--red);margin-top:8px;">Logout</button>
+</div>
+
+<script>
+var API = (function(){
+  var base = window.API_URL || '';
+  var token = localStorage.getItem('a2z_web_token');
+  return {
+    base:base, token:token,
+    call:async function(path,method,body){
+      var url = base + '/api/web/' + path;
+      var opts = {method:method||'GET',headers:{'Content-Type':'application/json'}};
+      if (body) opts.body = JSON.stringify(body);
+      if (this.token) opts.headers['Authorization'] = 'Bearer ' + this.token;
+      var r = await fetch(url, opts);
+      return await r.json();
+    }
+  };
+})();
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',t.textContent.toLowerCase().startsWith(tab));});
+  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('register-form').style.display = tab==='register'?'block':'none';
+  document.getElementById('msg').className = 'msg';
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  var msg = document.getElementById('msg');
+  try{
+    var r = await API.call('login','POST',{
+      username:document.getElementById('username').value,
+      password:document.getElementById('password').value
+    });
+    if (r.ok){
+      API.token = r.token;
+      localStorage.setItem('a2z_web_token',r.token);
+      document.getElementById('user-name').textContent = r.username;
+      document.getElementById('user-avatar').textContent = r.username[0].toUpperCase();
+      document.getElementById('login-card').style.display = 'none';
+      document.getElementById('user-card').classList.add('active');
+    } else {
+      msg.textContent = r.error||'Login failed';
+      msg.className = 'msg error';
+    }
+  } catch(ex){ msg.textContent='Server not reachable'; msg.className='msg error'; }
+}
+
+async function handleRegister(e){
+  e.preventDefault();
+  var msg = document.getElementById('msg');
+  try{
+    var r = await API.call('register','POST',{
+      username:document.getElementById('reg-username').value,
+      password:document.getElementById('reg-password').value,
+      telegram_id:document.getElementById('reg-tg-id').value||null
+    });
+    if (r.ok){
+      msg.textContent = 'Registered! Now login.';
+      msg.className = 'msg success';
+      switchTab('login');
+    } else {
+      msg.textContent = r.error||'Registration failed';
+      msg.className = 'msg error';
+    }
+  } catch(ex){ msg.textContent='Server not reachable'; msg.className='msg error'; }
+}
+
+function logout(){
+  localStorage.removeItem('a2z_web_token');
+  location.reload();
+}
+
+function openMiniApp(){
+  window.open('a2z_miniapp.html','_blank');
+}
+</script>
+</body>
+</html>
