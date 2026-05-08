@@ -19,6 +19,7 @@ Usage:
 from aiohttp import web
 import json
 import logging
+from typing import Optional
 
 log = logging.getLogger("a2z.api")
 _API_PORT = 8765

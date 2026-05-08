@@ -3245,6 +3245,75 @@ async def _webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_document(f, filename="Hunter_License.html")
             os.unlink(tpath)
 
+    elif action == "get_state":
+        user = db_fetchone("SELECT * FROM users WHERE telegram_id = ?", (uid,))
+        if user:
+            has_access, days_left, free_left = has_free_access(uid)
+            invites = get_monthly_invite_count(uid)
+            stats = get_user_stats(uid) or {}
+            state_data = {
+                "xp": user["xp"] or 0, "rank": user["rank"] or "E",
+                "streak": user["streak_days"] or 0,
+                "mocksDone": stats.get("total_mocks", 0),
+                "accuracy": round(stats.get("avg_accuracy", 0), 1),
+                "bestScore": stats.get("best_score", 0),
+                "hasAccess": has_access, "accessDays": days_left,
+                "freeMocksLeft": free_left,
+                "invites": invites,
+            }
+            mocks = db_fetchall("SELECT * FROM mocks ORDER BY created_at DESC LIMIT 50") or []
+            mock_list = [{
+                "mock_id": m["mock_id"], "title": m["title"], "topic": m["topic"],
+                "question_count": m["question_count"], "timer_minutes": m["timer_minutes"],
+                "total_attempts": m["total_attempts"], "created_at": m["created_at"][:10],
+                "section": m["section"],
+                "scheduled_at": m.get("scheduled_at",""), "active_at": m.get("active_at",""),
+                "expires_at": m.get("expires_at",""), "benchmark": m.get("benchmark_score"),
+            } for m in mocks]
+            guild_info = None
+            if GAME_OK and user.get("guild_id"):
+                guild_info = get_guild_info(db_execute, uid)
+            leaderboard_data = None
+            prev = get_stored_state(uid)
+            if prev:
+                try:
+                    prev_data = json.loads(prev)
+                    leaderboard_data = prev_data.get("leaderboard")
+                except Exception: pass
+            combined = json.dumps({
+                "state": state_data, "mocks": mock_list,
+                "guild": guild_info, "leaderboard": leaderboard_data,
+                "timestamp": int(time.time()),
+            })
+            store_state(uid, combined)
+            await update.message.reply_text(
+                f"📊 State updated: {state_data['xp']} XP | Rank {state_data['rank']} | {len(mock_list)} mocks",
+                parse_mode=ParseMode.MARKDOWN)
+            log.info("Mini app state stored for user %d — %d mocks", uid, len(mock_list))
+
+    elif action == "get_updates":
+        stored = get_stored_state(uid)
+        if stored:
+            try:
+                data = json.loads(stored)
+                st = data.get("state", {})
+                mocks = data.get("mocks", [])
+                guild = data.get("guild")
+                lines = [
+                    "🔄 *Synced Data*", "",
+                    f"👤 XP: {st.get('xp',0)} | Rank: {st.get('rank','E')} | Streak: {st.get('streak',0)}",
+                    f"📊 Accuracy: {st.get('accuracy',0)}% | Mocks: {st.get('mocksDone',0)} | Best: {st.get('bestScore',0)}",
+                    f"🔑 Access: {'Active' if st.get('hasAccess') else 'Free'} | {st.get('freeMocksLeft',0)} mocks left",
+                    f"📋 {len(mocks)} mocks available",
+                ]
+                if guild:
+                    lines.append(f"⚔️ Guild: {guild.get('name','N/A')}")
+                await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.MARKDOWN)
+            except Exception:
+                await update.message.reply_text(stored[:4000])
+        else:
+            await update.message.reply_text("No stored data. Use /start first.")
+
     elif action == "get_auth_token":
         from a2z_db import get_user_auth_token
         token = get_user_auth_token(uid)
