@@ -1,14 +1,15 @@
 """
-Comprehensive Gemini API Key Tester
-Tests each key for: validity, rate-limits, shadowbans, and model-specific bans.
+Comprehensive Gemini API Key Tester v2
+Tests each key against ALL available models to detect validity, rate-limits, shadowbans, bans.
 """
 import asyncio
 import time
 import json
 import sys
+import aiohttp
 from typing import Optional
 
-# 40 Gemini API keys from mainmock.py
+# 40 Gemini API keys
 GEMINI_KEYS = [
     "AIzaSyBFbY-3a4KPgvI9bsSfQ7urgG2hSv7HDM0",
     "AIzaSyDgeY0Uy-e-55TiBhLCRbgIzPJ9oGKgpl8",
@@ -52,178 +53,138 @@ GEMINI_KEYS = [
     "AIzaSyCocaQ_GkS1tEEpe7VwQo2u4qSuhhu7NaQ",
 ]
 
-PRIMARY_MODEL = "models/gemini-2.5-flash-preview-05-20-2025"
-FALLBACK_MODELS = [
-    "models/gemini-2.0-flash",
-    "models/gemini-2.0-flash-lite",
-    "models/gemini-1.5-flash",
+# ALL text-out models from the user's quota list (model IDs for the API)
+# These are the generateContent-capable models
+ALL_MODELS = [
+    # Gemini 2.5 Flash variant models
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash-preview-05-20-2025",
+    "gemini-2.5-pro",
+    # Gemini 2.0 Flash variants
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-2.0-flash-001",
+    # Gemini 1.5 Flash (broadly available)
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-002",
+    # Gemini 3 Flash / Lite / Pro (newer models)
+    "gemini-3-flash-preview",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-3.1-pro-preview",
+    # Gemma 3 models
+    "gemma-3-27b-it",
+    "gemma-3-12b-it",
+    "gemma-3-4b-it",
+    "gemma-3-1b-it",
+    # Gemma 4 models
+    "gemma-4-26b-a4b-it",
+    "gemma-4-31b-it",
 ]
 
-TEST_PROMPT = "Reply with exactly the word: OK"
+TEST_PROMPT = "Reply with exactly one word: OK"
+TIMEOUT = 25  # seconds
+CONCURRENT = 5
 
-# ============================
-
-try:
-    import google.generativeai as genai
-    GENA_AVAILABLE = True
-except ImportError:
-    GENA_AVAILABLE = False
-
-import aiohttp
-
-
-class KeyResult:
-    __slots__ = ("index", "key_snippet", "status", "model_results", "error_detail")
-
-    def __init__(self, index: int, key: str):
-        self.index = index
-        self.key_snippet = f"{key[:12]}...{key[-4:]}"
-        self.status = "UNKNOWN"
-        self.model_results = {}
-        self.error_detail = ""
+STATUS_ICONS = {
+    "OK": "+",
+    "RATE_LIMITED": "R",
+    "SHADOWBANNED": "S",
+    "BANNED": "X",
+    "INVALID_KEY": "X",
+    "MODEL_NOT_FOUND": "-",
+    "SERVER_ERROR": "E",
+    "TIMEOUT": "T",
+    "UNAVAILABLE": "U",
+    "ERROR": "?",
+}
 
 
-async def test_key_sdk(session, index: int, key: str, model_name: str, sem: asyncio.Semaphore) -> dict:
-    """Test a key with google-generativeai SDK."""
+async def test_key_model(session: aiohttp.ClientSession, key: str, model_id: str, sem: asyncio.Semaphore) -> dict:
+    """Test a single key+model combination via REST API."""
     async with sem:
-        result = {"model": model_name, "status": "UNKNOWN", "error": "", "latency_ms": 0}
-        t0 = time.time()
-        try:
-            genai.configure(api_key=key, transport="rest")
-            model = genai.GenerativeModel(model_name)
-            response = await asyncio.wait_for(
-                model.generate_content_async(TEST_PROMPT),
-                timeout=30,
-            )
-            latency = (time.time() - t0) * 1000
-            result["latency_ms"] = round(latency, 1)
-
-            # Check for safety blocks / shadowban
-            if response.candidates and response.candidates[0].finish_reason:
-                fr = str(response.candidates[0].finish_reason)
-                if "SAFETY" in fr:
-                    result["status"] = "SHADOWBANNED"
-                    result["error"] = f"Safety block: {fr}"
-                elif "RECITATION" in fr:
-                    result["status"] = "SHADOWBANNED"
-                    result["error"] = f"Recitation block: {fr}"
-                elif "STOP" in fr:
-                    text = response.text.strip() if response.text else ""
-                    if text.upper() == "OK":
-                        result["status"] = "OK"
-                    elif "I cannot" in text.lower() or "I'm unable" in text.lower() or "safety" in text.lower():
-                        result["status"] = "SHADOWBANNED"
-                        result["error"] = f"Refused response: {text[:120]}"
-                    else:
-                        result["status"] = "OK"
-                elif "MAX_TOKENS" in fr:
-                    result["status"] = "OK"
-                else:
-                    result["status"] = "WARN"
-                    result["error"] = f"Finish reason: {fr}"
-            elif response.text:
-                result["status"] = "OK"
-            else:
-                result["status"] = "OK"
-        except asyncio.TimeoutError:
-            result["status"] = "TIMEOUT"
-            result["error"] = "Request timed out after 30s"
-        except Exception as e:
-            err_str = str(e)
-            latency = (time.time() - t0) * 1000
-            result["latency_ms"] = round(latency, 1)
-
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
-                result["status"] = "RATE_LIMITED"
-                result["error"] = err_str[:200]
-            elif "403" in err_str or "PERMISSION_DENIED" in err_str:
-                result["status"] = "BANNED"
-                result["error"] = err_str[:200]
-            elif "400" in err_str and ("API_KEY_INVALID" in err_str or "API key not valid" in err_str.lower()):
-                result["status"] = "INVALID_KEY"
-                result["error"] = err_str[:200]
-            elif "404" in err_str:
-                result["status"] = "MODEL_NOT_FOUND"
-                result["error"] = err_str[:200]
-            elif "503" in err_str or "UNAVAILABLE" in err_str:
-                result["status"] = "UNAVAILABLE"
-                result["error"] = err_str[:200]
-            elif "500" in err_str or "INTERNAL" in err_str:
-                result["status"] = "SERVER_ERROR"
-                result["error"] = err_str[:200]
-            elif "SAFETY" in err_str:
-                result["status"] = "SHADOWBANNED"
-                result["error"] = err_str[:200]
-            elif "blocked" in err_str.lower():
-                result["status"] = "SHADOWBANNED"
-                result["error"] = err_str[:200]
-            else:
-                result["status"] = "ERROR"
-                result["error"] = err_str[:200]
-
-        return result
-
-
-async def test_key_rest(session: aiohttp.ClientSession, index: int, key: str, model_name: str, sem: asyncio.Semaphore) -> dict:
-    """Test a key via REST API directly (fallback if SDK not available or as double-check)."""
-    async with sem:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={key}"
         payload = {
             "contents": [{"parts": [{"text": TEST_PROMPT}]}],
-            "generationConfig": {"maxOutputTokens": 50},
+            "generationConfig": {"maxOutputTokens": 20},
         }
-        result = {"model": model_name, "status": "UNKNOWN", "error": "", "latency_ms": 0}
+        result = {"model": model_id, "status": "UNKNOWN", "error": "", "latency_ms": 0}
         t0 = time.time()
         try:
-            async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+            async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=TIMEOUT)) as resp:
                 latency = (time.time() - t0) * 1000
                 result["latency_ms"] = round(latency, 1)
-                data = await resp.json()
+                resp_text = await resp.text()
+
+                try:
+                    data = json.loads(resp_text)
+                except json.JSONDecodeError:
+                    result["status"] = "ERROR"
+                    result["error"] = f"Non-JSON response (status={resp.status}): {resp_text[:200]}"
+                    return result
 
                 if resp.status == 200:
-                    if "candidates" in data:
+                    if "candidates" in data and data["candidates"]:
                         cand = data["candidates"][0]
                         finish_reason = cand.get("finishReason", "UNKNOWN")
                         if finish_reason == "SAFETY":
                             result["status"] = "SHADOWBANNED"
-                            result["error"] = f"Safety filter triggered"
+                            result["error"] = "Safety filter triggered"
+                        elif finish_reason == "RECITATION":
+                            result["status"] = "SHADOWBANNED"
+                            result["error"] = "Recitation filter triggered"
                         else:
                             text = cand.get("content", {}).get("parts", [{}])[0].get("text", "")
                             if text.strip().upper() == "OK":
                                 result["status"] = "OK"
-                            elif "I cannot" in text or "I'm unable" in text:
+                            elif any(r in text.lower() for r in ["i cannot", "i'm unable", "i apologize", "i am not able"]):
                                 result["status"] = "SHADOWBANNED"
                                 result["error"] = f"Refused: {text[:120]}"
                             else:
-                                result["status"] = "OK"
+                                result["status"] = "OK"  # Got response, might not match exactly but works
+                    elif "candidates" in data and not data["candidates"]:
+                        result["status"] = "SHADOWBANNED"
+                        result["error"] = "Empty candidates - likely blocked"
                     else:
                         result["status"] = "OK"
                 elif resp.status == 429:
                     result["status"] = "RATE_LIMITED"
-                    result["error"] = data.get("error", {}).get("message", "")[:200]
+                    result["error"] = data.get("error", {}).get("message", "429 Too Many Requests")[:200]
                 elif resp.status == 403:
-                    result["status"] = "BANNED"
-                    result["error"] = data.get("error", {}).get("message", "")[:200]
-                elif resp.status == 400:
                     msg = data.get("error", {}).get("message", "")
-                    if "API_KEY_INVALID" in msg:
-                        result["status"] = "INVALID_KEY"
+                    if "billing" in msg.lower() or "project" in msg.lower():
+                        result["status"] = "BANNED"
                     else:
                         result["status"] = "BANNED"
                     result["error"] = msg[:200]
+                elif resp.status == 400:
+                    msg = data.get("error", {}).get("message", "")
+                    status_lower = data.get("error", {}).get("status", "")
+                    if "API_KEY_INVALID" in msg or "API_KEY_INVALID" in status_lower:
+                        result["status"] = "INVALID_KEY"
+                    elif "INVALID_ARGUMENT" in status_lower or "invalid" in msg.lower():
+                        result["status"] = "MODEL_NOT_FOUND"
+                    elif "billing" in msg.lower():
+                        result["status"] = "BANNED"
+                    else:
+                        result["status"] = "ERROR"
+                    result["error"] = msg[:200]
                 elif resp.status == 404:
                     result["status"] = "MODEL_NOT_FOUND"
-                    result["error"] = data.get("error", {}).get("message", "")[:200]
+                    result["error"] = data.get("error", {}).get("message", "Model not found")[:200]
                 elif resp.status in (500, 502, 503):
                     result["status"] = "SERVER_ERROR"
-                    result["error"] = data.get("error", {}).get("message", "")[:200]
+                    result["error"] = data.get("error", {}).get("message", f"HTTP {resp.status}")[:200]
                 else:
                     result["status"] = "ERROR"
-                    result["error"] = data.get("error", {}).get("message", str(data))[:200]
+                    result["error"] = data.get("error", {}).get("message", f"HTTP {resp.status}")[:200]
 
         except asyncio.TimeoutError:
             result["status"] = "TIMEOUT"
-            result["error"] = "Request timed out after 30s"
+            result["error"] = "Request timed out"
+        except aiohttp.ClientError as e:
+            result["status"] = "ERROR"
+            result["error"] = str(e)[:200]
         except Exception as e:
             result["status"] = "ERROR"
             result["error"] = str(e)[:200]
@@ -231,180 +192,241 @@ async def test_key_rest(session: aiohttp.ClientSession, index: int, key: str, mo
         return result
 
 
-def determine_overall_status(model_results: dict) -> tuple:
-    """Determine overall status from per-model results."""
-    statuses = [r["status"] for r in model_results.values() if r]
-    if not statuses:
-        return "UNKNOWN", ""
-    if all(s == "OK" for s in statuses):
-        return "OK", ""
-    if all(s == "INVALID_KEY" for s in statuses):
-        return "INVALID_KEY", model_results[next(iter(model_results))]["error"]
-    if all(s == "BANNED" for s in statuses):
-        return "BANNED", model_results[next(iter(model_results))]["error"]
-    if all(s == "RATE_LIMITED" for s in statuses):
-        return "RATE_LIMITED_ALL", "All models rate-limited for this key"
-    if "OK" in statuses:
-        if "RATE_LIMITED" in statuses:
-            rl_models = [m for m, r in model_results.items() if r and r["status"] == "RATE_LIMITED"]
-            return "PARTIAL_OK", f"OK on some models, rate-limited on: {', '.join(rl_models)}"
-        if "SHADOWBANNED" in statuses:
-            sb_models = [m for m, r in model_results.items() if r and r["status"] == "SHADOWBANNED"]
-            return "PARTIAL_OK", f"OK on some models, shadowbanned on: {', '.join(sb_models)}"
-        return "OK", ""
-    if all(s == "SHADOWBANNED" for s in statuses):
-        return "SHADOWBANNED", "All models safety-filtered — likely shadowbanned"
-    if any(s == "SHADOWBANNED" for s in statuses):
-        return "SHADOWBANNED", "Some models shadowbanned"
-    if any(s == "RATE_LIMITED" for s in statuses):
-        return "RATE_LIMITED", "Some models rate-limited"
-    if any(s == "BANNED" for s in statuses):
-        return "BANNED", "Key banned on some models"
-    if any(s == "INVALID_KEY" for s in statuses):
-        return "INVALID_KEY", "Key invalid on some models"
-    return "MIXED", f"Mixed statuses: {set(statuses)}"
+def summarize_key(key_results: list[dict]) -> dict:
+    """Summarize a key's results across all models."""
+    ok_models = []
+    rl_models = []
+    sb_models = []
+    banned = False
+    invalid = False
+    nf_models = []
+    err_models = []
+
+    for r in key_results:
+        m = r["model"]
+        s = r["status"]
+        if s == "OK":
+            ok_models.append(m)
+        elif s == "RATE_LIMITED":
+            rl_models.append(m)
+        elif s == "SHADOWBANNED":
+            sb_models.append(m)
+        elif s == "BANNED":
+            banned = True
+            break
+        elif s == "INVALID_KEY":
+            invalid = True
+            break
+        elif s == "MODEL_NOT_FOUND":
+            nf_models.append(m)
+        else:
+            err_models.append(m)
+
+    # Determine overall
+    if invalid:
+        return {"overall": "INVALID_KEY", "detail": "Key is invalid", "ok": [], "rl": [], "sb": []}
+    if banned:
+        return {"overall": "BANNED", "detail": "Key is banned", "ok": [], "rl": [], "sb": []}
+
+    if not ok_models and not rl_models and not sb_models and nf_models and len(nf_models) == len(key_results):
+        return {"overall": "ALL_NOT_FOUND", "detail": "All models returned 404 - may indicate invalid key or region block", "ok": [], "rl": [], "sb": []}
+
+    if ok_models:
+        if sb_models:
+            return {"overall": "OK_SHADOWBAN_SOME", "detail": f"OK on {len(ok_models)} models, shadowbanned on {len(sb_models)}", "ok": ok_models, "rl": rl_models, "sb": sb_models}
+        if rl_models:
+            return {"overall": "OK_RATE_LIMITED_SOME", "detail": f"OK on {len(ok_models)} models, rate-limited on {len(rl_models)}", "ok": ok_models, "rl": rl_models, "sb": sb_models}
+        return {"overall": "OK", "detail": f"OK on {len(ok_models)} models", "ok": ok_models, "rl": [], "sb": []}
+
+    if sb_models and not ok_models:
+        return {"overall": "SHADOWBANNED_ALL", "detail": f"Shadowbanned on {len(sb_models)} models, 0 OK", "ok": [], "rl": rl_models, "sb": sb_models}
+
+    if rl_models and not ok_models:
+        return {"overall": "RATE_LIMITED_ALL", "detail": f"Rate-limited on {len(rl_models)} models, 0 OK", "ok": [], "rl": rl_models, "sb": sb_models}
+
+    return {"overall": "MIXED_ERRORS", "detail": f"OK={len(ok_models)} RL={len(rl_models)} SB={len(sb_models)} NF={len(nf_models)} ERR={len(err_models)}", "ok": ok_models, "rl": rl_models, "sb": sb_models}
 
 
 async def main():
     print("=" * 80)
-    print("  GEMINI API KEY TEST SUITE")
+    print("  GEMINI API KEY COMPREHENSIVE TEST SUITE v2")
     print("=" * 80)
-    print(f"  Keys to test: {len(GEMINI_KEYS)}")
-    print(f"  Primary model: {PRIMARY_MODEL}")
-    print(f"  Fallback models: {FALLBACK_MODELS}")
-    print(f"  SDK available: {GENA_AVAILABLE}")
+    print(f"  Keys: {len(GEMINI_KEYS)}")
+    print(f"  Models to test per key: {len(ALL_MODELS)}")
+    print(f"  Total requests: {len(GEMINI_KEYS) * len(ALL_MODELS)}")
+    print(f"  Concurrency: {CONCURRENT}")
+    print(f"  Timeout: {TIMEOUT}s")
     print("=" * 80)
+    print()
 
-    results = []
-    sem = asyncio.Semaphore(5)  # Max 5 concurrent requests
+    sem = asyncio.Semaphore(CONCURRENT)
 
-    # Phase 1: Test primary model on all keys first (fast pre-scan)
-    print("\n--- PHASE 1: Quick pre-scan with primary model ---")
+    # Phase 1: Quick pre-scan - test each key against just 2 reliable models
+    # to quickly identify dead keys
+    PRE_SCAN_MODELS = ["gemini-2.0-flash", "gemini-1.5-flash"]
+    print("--- PHASE 1: Quick pre-scan (2 models x 40 keys = 80 requests) ---\n")
+
     async with aiohttp.ClientSession() as session:
-        tasks = [test_key_rest(session, i, key, PRIMARY_MODEL, sem) for i, key in enumerate(GEMINI_KEYS)]
-        phase1_results = await asyncio.gather(*tasks)
+        pre_tasks = []
+        for i, key in enumerate(GEMINI_KEYS):
+            for model in PRE_SCAN_MODELS:
+                pre_tasks.append((i, key, model, test_key_model(session, key, model, sem)))
+        
+        pre_results = {}
+        gathered = await asyncio.gather(*[t[3] for t in pre_tasks])
+        for (idx, key, model, _), res in zip(pre_tasks, gathered):
+            if idx not in pre_results:
+                pre_results[idx] = []
+            pre_results[idx].append(res)
 
-    # Categorize
-    valid_keys = []
-    maybe_keys = []
-    dead_keys = []
-    for i, r in enumerate(phase1_results):
-        key = GEMINI_KEYS[i]
-        snippet = f"{key[:12]}...{key[-4:]}"
-        if r["status"] == "OK":
-            valid_keys.append((i, key, snippet, r))
-            print(f"  [{i+1:02d}] {snippet} -> OK ({r['latency_ms']:.0f}ms)")
-        elif r["status"] in ("INVALID_KEY", "BANNED"):
-            dead_keys.append((i, key, snippet, r))
-            print(f"  [{i+1:02d}] {snippet} -> {r['status']}: {r['error'][:100]}")
+    # Categorize keys from pre-scan
+    dead_indices = set()
+    live_indices = set()
+    uncertain_indices = set()
+
+    for idx in range(len(GEMINI_KEYS)):
+        results = pre_results.get(idx, [])
+        statuses = [r["status"] for r in results]
+        snippet = f"{GEMINI_KEYS[idx][:12]}...{GEMINI_KEYS[idx][-4:]}"
+        
+        if any(s == "INVALID_KEY" for s in statuses):
+            dead_indices.add(idx)
+            print(f"  [DEAD]  [{idx+1:02d}] {snippet} -> INVALID_KEY")
+        elif any(s == "BANNED" for s in statuses):
+            dead_indices.add(idx)
+            print(f"  [DEAD]  [{idx+1:02d}] {snippet} -> BANNED")
+        elif any(s == "OK" for s in statuses):
+            live_indices.add(idx)
+            ok_models = [r["model"] for r in results if r["status"] == "OK"]
+            oks = ",".join(m.split("-")[-1] for m in ok_models)
+            print(f"  [LIVE]  [{idx+1:02d}] {snippet} -> OK on {oks}")
         else:
-            maybe_keys.append((i, key, snippet, r))
-            print(f"  [{i+1:02d}] {snippet} -> {r['status']}: {r['error'][:100]}")
+            uncertain_indices.add(idx)
+            status_summary = {r["status"]: r["model"] for r in results}
+            print(f"  [????]  [{idx+1:02d}] {snippet} -> {status_summary}")
 
-    print(f"\n  Pre-scan summary: {len(valid_keys)} OK, {len(maybe_keys)} uncertain, {len(dead_keys)} dead")
+    print(f"\n  Pre-scan: {len(live_indices)} LIVE, {len(uncertain_indices)} uncertain, {len(dead_indices)} DEAD")
 
-    # Phase 2: Deep test — test all models on keys that weren't clearly dead
-    print("\n--- PHASE 2: Deep test with all models ---")
-    deep_keys = valid_keys + maybe_keys
+    if dead_indices:
+        print(f"  Dead indices: {sorted(dead_indices)}")
 
-    if not deep_keys:
-        print("  No keys to deep-test.")
-    else:
-        all_models = [PRIMARY_MODEL] + FALLBACK_MODELS
-        results = []
-        async with aiohttp.ClientSession() as session:
-            for idx, key, snippet, pre_result in deep_keys:
-                kr = KeyResult(idx, key)
-                kr.status = pre_result["status"]  # Start with pre-scan result
+    # Phase 2: Deep test live + uncertain keys against ALL models
+    deep_indices = live_indices | uncertain_indices
+    print(f"\n--- PHASE 2: Deep test {len(deep_indices)} keys x {len(ALL_MODELS)} models ---\n")
 
-                tasks = [test_key_rest(session, idx, key, model, sem) for model in all_models]
-                model_results_list = await asyncio.gather(*tasks)
-                for mname, mres in zip(all_models, model_results_list):
-                    kr.model_results[mname] = mres
-
-                # Skip model_not_found for outdated model IDs and retry alternatives
-                for mname, mres in list(kr.model_results.items()):
-                    if mres["status"] == "MODEL_NOT_FOUND":
-                        alt_model = None
-                        if "2.5-flash-preview" in mname:
-                            alt_model = "models/gemini-2.5-flash"
-                        elif "2.0-flash" == mname.split("/")[-1]:
-                            alt_model = "models/gemini-2.0-flash-001"
-                        if alt_model and alt_model not in kr.model_results:
-                            print(f"  [{idx+1:02d}] Retrying {mname} -> {alt_model}")
-                            retry_res = await test_key_rest(session, idx, key, alt_model, sem)
-                            kr.model_results[alt_model] = retry_res
-
-                overall, detail = determine_overall_status(kr.model_results)
-                kr.status = overall
-                kr.error_detail = detail
-                results.append(kr)
-
-                # Print per-key summary
-                status_icon = {"OK": "[+]", "PARTIAL_OK": "[~]", "RATE_LIMITED": "[R]", "RATE_LIMITED_ALL": "[R]",
-                               "SHADOWBANNED": "[S]", "BANNED": "[X]", "INVALID_KEY": "[X]",
-                               "ERROR": "[?]", "MIXED": "[?]"}.get(overall, "[?]")
-                print(f"  {status_icon} [{idx+1:02d}] {snippet} -> {overall}: {detail[:120]}")
-                for mname, mres in kr.model_results.items():
-                    micon = {"OK": "  OK", "RATE_LIMITED": "  RL", "SHADOWBANNED": "  SB",
-                             "BANNED": "  XX", "INVALID_KEY": "  XX", "ERROR": "  ??",
-                             "MODEL_NOT_FOUND": "  NF", "SERVER_ERROR": "  SE",
-                             "TIMEOUT": "  TO", "UNAVAILABLE": "  NA"}.get(mres["status"], "  --")
-                    print(f"         {micon} {mname} ({mres['latency_ms']:.0f}ms)")
-
-        # Phase 2 summary
+    if not deep_indices:
+        print("  No keys to deep test. All keys are dead.")
         print("\n" + "=" * 80)
-        print("  DEEP TEST SUMMARY")
+        print("  FINAL REPORT")
         print("=" * 80)
+        print(f"\n  Total keys: {len(GEMINI_KEYS)}")
+        print(f"  INVALID_KEY: {len(dead_indices)}")
+        print(f"  ALL KEYS ARE DEAD - none usable")
+        return
 
-        counts = {}
-        for kr in results:
-            counts[kr.status] = counts.get(kr.status, 0) + 1
-
-        print(f"\n  Total keys tested: {len(results) + len(dead_keys)}")
-        print(f"  Fully OK:          {counts.get('OK', 0)}")
-        print(f"  Partially OK:      {counts.get('PARTIAL_OK', 0)}")
-        print(f"  Rate Limited:      {counts.get('RATE_LIMITED', 0)}")
-        print(f"  Rate Limited All:  {counts.get('RATE_LIMITED_ALL', 0)}")
-        print(f"  Shadowbanned:      {counts.get('SHADOWBANNED', 0)}")
-        print(f"  Banned:            {counts.get('BANNED', 0) + len(dead_keys)}")
-        print(f"  Invalid Key:       {counts.get('INVALID_KEY', 0)}")
-        print(f"  Errors/Other:      {counts.get('ERROR', 0) + counts.get('MIXED', 0)}")
-
-        # Detailed breakdown
-        print("\n--- Details ---")
-        for kr in results:
-            print(f"\n  Key {kr.key_snippet}: {kr.status}")
-            if kr.error_detail:
-                print(f"    Detail: {kr.error_detail}")
-            for mname, mres in kr.model_results.items():
-                if mres["status"] != "OK":
-                    print(f"    {mname}: {mres['status']} — {mres['error'][:150]}")
-
-        # Final recommendations
-        print("\n" + "=" * 80)
-        print("  RECOMMENDATIONS")
-        print("=" * 80)
-        good_keys = [kr for kr in results if kr.status in ("OK", "PARTIAL_OK")]
-        if good_keys:
-            print(f"\n  {len(good_keys)} usable keys found.")
-            print("  Usable key indices (0-based):", [kr.index for kr in good_keys])
-        else:
-            print("\n  WARNING: No fully usable keys found!")
-
-        dead_indices = [kr.index for kr in results if kr.status in ("BANNED", "INVALID_KEY")]
-        dead_indices.extend(i for i, k, s, r in dead_keys)
-        dead_indices.sort()
+    all_summaries = {}
+    async with aiohttp.ClientSession() as session:
+        for idx in sorted(deep_indices):
+            key = GEMINI_KEYS[idx]
+            snippet = f"{key[:12]}...{key[-4:]}"
+            
+            tasks = [test_key_model(session, key, model, sem) for model in ALL_MODELS]
+            model_results = await asyncio.gather(*tasks)
+            
+            summary = summarize_key(model_results)
+            all_summaries[idx] = summary
+            
+            icon = {"OK": "[+]", "OK_SHADOWBAN_SOME": "[~S]", "OK_RATE_LIMITED_SOME": "[~R]",
+                    "SHADOWBANNED_ALL": "[S!]", "RATE_LIMITED_ALL": "[R!]", "BANNED": "[XX]",
+                    "INVALID_KEY": "[XX]", "ALL_NOT_FOUND": "[??]", "MIXED_ERRORS": "[??]"}.get(summary["overall"], "[??]")
+            
+            print(f"  {icon} [{idx+1:02d}] {snippet} -> {summary['overall']}: {summary['detail']}")
+            
+            # Show model-level details for non-OK results
+            if summary["overall"] != "OK":
+                for r in model_results:
+                    if r["status"] != "OK":
+                        icon_m = STATUS_ICONS.get(r["status"], "?")
+                        print(f"       [{icon_m}] {r['model']}: {r['status']}")
+                        if r["error"]:
+                            print(f"           {r['error'][:150]}")
+        
+        # Also test dead keys against ALL models to confirm
         if dead_indices:
-            print(f"  Dead key indices (remove these): {dead_indices}")
+            print(f"\n--- PHASE 3: Confirm dead keys against all models ---\n")
+            for idx in sorted(dead_indices):
+                key = GEMINI_KEYS[idx]
+                snippet = f"{key[:12]}...{key[-4:]}"
+                tasks = [test_key_model(session, key, model, sem) for model in ALL_MODELS]
+                model_results = await asyncio.gather(*tasks)
+                summary = summarize_key(model_results)
+                all_summaries[idx] = summary
+                print(f"  [XX] [{idx+1:02d}] {snippet} -> {summary['overall']}: {summary['detail']}")
 
-        rl_indices = [kr.index for kr in results if kr.status in ("RATE_LIMITED", "RATE_LIMITED_ALL")]
-        if rl_indices:
-            print(f"  Rate-limited key indices: {rl_indices}")
+    # Final Report
+    print("\n" + "=" * 80)
+    print("  FINAL REPORT")
+    print("=" * 80)
 
-        sb_indices = [kr.index for kr in results if kr.status == "SHADOWBANNED"]
-        if sb_indices:
-            print(f"  Shadowbanned key indices: {sb_indices}")
+    status_counts = {}
+    for idx, summary in all_summaries.items():
+        ov = summary["overall"]
+        status_counts[ov] = status_counts.get(ov, 0) + 1
+
+    print(f"\n  Total keys tested: {len(GEMINI_KEYS)}")
+    for status, count in sorted(status_counts.items()):
+        print(f"  {status:25s}: {count}")
+
+    # Detailed breakdown
+    print("\n" + "-" * 40)
+    print("  USABLE KEYS (OK or partial OK):")
+    print("-" * 40)
+    usable = {idx: s for idx, s in all_summaries.items() if s["overall"] in ("OK", "OK_SHADOWBAN_SOME", "OK_RATE_LIMITED_SOME")}
+    if usable:
+        for idx, summary in sorted(usable.items()):
+            snippet = f"{GEMINI_KEYS[idx][:12]}...{GEMINI_KEYS[idx][-4:]}"
+            print(f"  [{idx+1:02d}] {snippet}: {summary['overall']}")
+            print(f"       OK models: {summary['ok']}")
+            if summary.get("rl"):
+                print(f"       Rate-limited models: {summary['rl']}")
+            if summary.get("sb"):
+                print(f"       Shadowbanned models: {summary['sb']}")
+    else:
+        print("  NONE")
+
+    print("\n" + "-" * 40)
+    print("  DEAD KEYS (remove from pool):")
+    print("-" * 40)
+    dead = {idx: s for idx, s in all_summaries.items() if s["overall"] in ("INVALID_KEY", "BANNED")}
+    if dead:
+        for idx, summary in sorted(dead.items()):
+            snippet = f"{GEMINI_KEYS[idx][:12]}...{GEMINI_KEYS[idx][-4:]}"
+            print(f"  [{idx+1:02d}] {snippet}: {summary['overall']} - {summary['detail']}")
+    else:
+        print("  NONE")
+
+    print("\n" + "-" * 40)
+    print("  PROBLEM KEYS (shadowbanned or rate-limited):")
+    print("-" * 40)
+    problem = {idx: s for idx, s in all_summaries.items() if s["overall"] in ("SHADOWBANNED_ALL", "RATE_LIMITED_ALL", "ALL_NOT_FOUND", "MIXED_ERRORS")}
+    if problem:
+        for idx, summary in sorted(problem.items()):
+            snippet = f"{GEMINI_KEYS[idx][:12]}...{GEMINI_KEYS[idx][-4:]}"
+            print(f"  [{idx+1:02d}] {snippet}: {summary['overall']} - {summary['detail']}")
+    else:
+        print("  NONE")
+
+    # Model-level summary
+    print("\n" + "-" * 40)
+    print("  PER-MODEL SUCCESS RATE:")
+    print("-" * 40)
+    model_success = {}
+    for idx, summary in all_summaries.items():
+        for m in summary.get("ok", []):
+            model_success[m] = model_success.get(m, 0) + 1
+    for m in sorted(model_success, key=model_success.get, reverse=True):
+        pct = model_success[m] / len(GEMINI_KEYS) * 100
+        print(f"  {m:45s}: {model_success[m]:2d}/{len(GEMINI_KEYS)} ({pct:.0f}%)")
 
     print("\n" + "=" * 80)
     print("  TEST COMPLETE")

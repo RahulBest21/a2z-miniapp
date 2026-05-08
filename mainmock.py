@@ -92,51 +92,36 @@ CHANNEL_ID = os.environ.get("A2Z_CHANNEL_ID", "@A2Zupdates4U")  # for membership
 CTA = "\n---\n📢 Join A2Z Updates for more mocks: https://t.me/A2Zupdates4U"
 
 # ── Bot credentials (override via env vars) ──
-BOT_TOKEN = os.environ.get("A2Z_BOT_TOKEN", "8781772186:AAExbgKmoPt1ILIyGfjScdmMqQOBxIMjR9k")
+BOT_TOKEN = os.environ.get("A2Z_BOT_TOKEN", "")
 
-# ── 40 Gemini API keys (hardcoded pool) ──
-GEMINI_KEYS = [
-    "AIzaSyBFbY-3a4KPgvI9bsSfQ7urgG2hSv7HDM0",
-    "AIzaSyDgeY0Uy-e-55TiBhLCRbgIzPJ9oGKgpl8",
-    "AIzaSyC79QxcQBal_g9K3g7G0d6cy_VYJtmoArg",
-    "AIzaSyCWZxS27wHPVeDrxHIl3Kwa7sxDUZ4bjmY",
-    "AIzaSyBSJi9vU-S-FKnpx4PX7SUkLtyJT9UzyDI",
-    "AIzaSyBJ6bj5--_tBO6fnGaIi9s6xrPp4OqLZ9Y",
-    "AIzaSyAOqCOaj6hspmbrFm28eC45neC6LHFyqx0",
-    "AIzaSyDuhVcT43sxynCqc0JcnOt8ghQ7iq5SbJo",
-    "AIzaSyD3dNxlNRMizDxunTCOu3GkMR3ajq9dq28",
-    "AIzaSyADxqrrSmShByiSXZYP6iJvzK2sosJhX5c",
-    "AIzaSyCU6ag2TGqQ3NaLRWsqMaSLTa_jGsBv9fo",
-    "AIzaSyBV50t36PQNqPBy7Vnv7FyfIZw_J1z41Ws",
-    "AIzaSyC5b5EzbV3qMWT8RB7emxian1njyckvWbQ",
-    "AIzaSyBe9M-KY8N2wJ8R0CspmHqWxrE0FV2FSnc",
-    "AIzaSyAvwKpXEhX8ml670tj5XDDG75Aim6Socuw",
-    "AIzaSyCXmNT_rlGaJ46w1Tqakbqi3rYcWnuyXXM",
-    "AIzaSyB9sgjw-gI3eElIjN3Vs2iTSmhfF7w_wcE",
-    "AIzaSyDAKk7b_iJVAsoQV4aNv5QAOicrW6bm2PU",
-    "AIzaSyC2VN1nU4RTB6NGpUUoDvZ1BG36uAiXt0A",
-    "AIzaSyCLS2s9u3PRfMT85Fl9oKIfHp2M4_QFgIo",
-    "AIzaSyCc9eUkDKkjieboi2W-7xVXyiITKD_e0Qs",
-    "AIzaSyCutj31DFdnrTAllubwlY2FdpNXZZrFqBQ",
-    "AIzaSyDoju2sv99sFzOI6v0zfvC6kL0EyqE_MHo",
-    "AIzaSyBnay1JboMO2faE5KEahRseEppxahvq0bE",
-    "AIzaSyB5Kuvk0MZJspBlUb0valYCz1qiQy5dPzk",
-    "AIzaSyBgAqEtMjKHCLHKLODQwhipyWn4l-poHJc",
-    "AIzaSyDR80rYYnH6b30fS17tE-63_5vFcI6NF1w",
-    "AIzaSyAHF3Sve3-vK2ecRX0SonUZdpWM5Vb3Jf8",
-    "AIzaSyD5LyJEn6Qt0nQsCImAkyJnd8nCIuQLk20",
-    "AIzaSyDsLEnLtkiQCXabNpUDhw7e6wXI0lpx7_k",
-    "AIzaSyDsgeiIBlJT4CL6j9Bejcj9Wpx3S53dNxo",
-    "AIzaSyB3JD-Aayqmd4m6FIdniOvqDEw9jt8yNFA",
-    "AIzaSyAvTFb2E4TOlPTZjhKrUSNm4DW3ebtDN8M",
-    "AIzaSyCykAV-jhIktKdhzq8TAgty6wXGAlECXsE",
-    "AIzaSyDA2zNTjO3GHub2y44RfWe7a6JwwMJNSBc",
-    "AIzaSyD_fE1Cua2oEL1Roi_M2AnUGxewkjO9XDA",
-    "AIzaSyAhrQwyMlQYgPy89V4IQ0GCnPwcvz-9hHg",
-    "AIzaSyDWEFPmdHzkqzEY3hbvfi27Hx8KWtTCKIQ",
-    "AIzaSyCmGtxuzRPqXvkRwWgwemA9E1uCftcqxmk",
-    "AIzaSyCocaQ_GkS1tEEpe7VwQo2u4qSuhhu7NaQ",
-]
+# ── Gemini API keys (LOAD FROM .env FILE — never commit keys!) ──
+def _load_env_file():
+    """Load .env file into environment if it exists."""
+    env_path = Path(__file__).parent / ".env"
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+_load_env_file()
+
+# Load keys from GEMINI_KEY_1, GEMINI_KEY_2, ... or comma-separated GEMINI_KEYS
+_gemini_keys_raw = []
+_env_keys = os.environ.get("GEMINI_KEYS", "")
+if _env_keys:
+    _gemini_keys_raw = [k.strip() for k in _env_keys.split(",") if k.strip()]
+else:
+    for i in range(1, 51):
+        k = os.environ.get(f"GEMINI_KEY_{i}", "")
+        if k:
+            _gemini_keys_raw.append(k)
+        else:
+            break
+
+GEMINI_KEYS = _gemini_keys_raw
 
 GEMINI_MODEL = "models/gemini-3.1-flash-lite-preview"
 
