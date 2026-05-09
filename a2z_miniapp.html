@@ -269,6 +269,15 @@ if (tg) {
     document.getElementById('profile-name').textContent = userData.first_name || userData.username || 'Aspirant';
     document.getElementById('profile-avatar').textContent = (userData.first_name || 'A')[0].toUpperCase();
   }
+  // Test communication: send ping on load
+  tg.onEvent('mainButtonClicked', function() {
+    sendToBot('ping');
+  });
+  tg.MainButton.setText('📊 Sync Data').show().onClick(function() {
+    sendToBot('get_state');
+    sendToBot('get_editorials');
+    tg.showPopup({title:'Synced',message:'Data requested. Check chat for updates.'});
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
