@@ -1,0 +1,141 @@
+{
+  "mocks": [
+    {
+      "mock_id": "MOCK-cbeedb0d",
+      "uploader_id": 888869676,
+      "title": "A2Z Updates",
+      "topic": "General",
+      "section": "General",
+      "source_file": "A2Z_mocks_wallah_94b80bf1 (3).html",
+      "question_count": 60,
+      "timer_minutes": 30,
+      "file_hash": "",
+      "created_at": "2026-05-09 14:58:32",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
+      "active_at": null,
+      "expires_at": null
+    },
+    {
+      "mock_id": "MOCK-e59d22f0",
+      "uploader_id": 888869676,
+      "title": "A2Z Updates",
+      "topic": "General",
+      "section": "General",
+      "source_file": "A2Z_mocks_wallah_94b80bf1 (3).html",
+      "question_count": 60,
+      "timer_minutes": 30,
+      "file_hash": "",
+      "created_at": "2026-05-09 14:50:47",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
+      "active_at": null,
+      "expires_at": null
+    },
+    {
+      "mock_id": "MOCK-e6ad51da",
+      "uploader_id": 0,
+      "title": "FIVE YEAR PLAN \u2014 A2Z Mocks",
+      "topic": "General",
+      "section": "General",
+      "source_file": "cli_upload",
+      "question_count": 50,
+      "timer_minutes": 25,
+      "file_hash": "",
+      "created_at": "2026-05-03 14:29:37",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
+      "active_at": null,
+      "expires_at": null
+    },
+    {
+      "mock_id": "MOCK-ed3eb2e1",
+      "uploader_id": 123456789,
+      "title": "FIVE YEAR PLAN",
+      "topic": "Economics",
+      "section": "General",
+      "source_file": "test.html",
+      "question_count": 30,
+      "timer_minutes": 15,
+      "file_hash": "",
+      "created_at": "2026-05-03 14:15:28",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
+      "active_at": null,
+      "expires_at": null
+    }
+  ],
+  "editorials": [
+    {
+      "editorial_id": "1096df02-ece",
+      "title": "Editorial_The_BJPs_priority_must_be_to_end_th_20260509_1053",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "11e58898-dc4",
+      "title": "Editorial_More_from_less_20260509_1046",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "c0a3fd27-98c",
+      "title": "Editorial_Lok_Bhavan_needs_to_respect_loks_ma_20260509_1056",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "dd84c67e-31f",
+      "title": "Editorial_The_BJPs_priority_must_be_to_end_th_20260509_1053",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "afd8b444-c45",
+      "title": "Editorial_More_from_less_20260509_1046",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "82a9dc10-a0f",
+      "title": "Editorial_Lok_Bhavan_needs_to_respect_loks_ma_20260509_1056",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "6c5c7e03-a8e",
+      "title": "Editorial_The_BJPs_priority_must_be_to_end_th_20260509_1053",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "eefd924d-0ef",
+      "title": "Editorial_More_from_less_20260509_1046",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "8d6eb88e-e83",
+      "title": "Editorial_Lok_Bhavan_needs_to_respect_loks_ma_20260509_1056",
+      "source": "Uploaded",
+      "article_date": ""
+    },
+    {
+      "editorial_id": "ed_bridges",
+      "title": "Building bridges - Editorial Study",
+      "source": "The Hindu",
+      "article_date": "2026-05-06"
+    },
+    {
+      "editorial_id": "ed_health",
+      "title": "Learning outcomes and child health",
+      "source": "Indian Express",
+      "article_date": "2026-05-02"
+    }
+  ],
+  "updated": "2026-05-09T20:31:29.901932"
+}
