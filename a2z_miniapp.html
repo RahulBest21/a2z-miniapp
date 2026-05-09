@@ -1024,6 +1024,10 @@ function loadFromDataJson() {
         document.getElementById('sync-status').style.color = 'var(--green)';
       }
       updateUI();
+      // Re-render mocks if tab is active
+      if (document.getElementById('tab-mocks').classList.contains('active')) {
+        renderMockBrowser();
+      }
     })
     .catch(function() {
       document.getElementById('sync-status').textContent = '⚠️ Data unavailable';
