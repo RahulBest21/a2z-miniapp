@@ -138,9 +138,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:
     <span>A2Z Updates4U</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
+    <span id="sync-status" style="font-size:.6rem;opacity:.7;"></span>
     <button class="btn btn-primary" onclick="syncAll()" style="font-size:.65rem;padding:4px 8px;" title="Sync data from bot">🔄</button>
     <div class="xp-badge" id="header-xp">0 XP</div>
   </div>
+</div>
+<div id="fomo-banner-status" style="text-align:center;padding:4px;font-size:.65rem;color:var(--sub);display:none;background:rgba(251,191,36,.1);">
+  📢 New content available! Tap 🔄 to sync or reopen the app.
 </div>
 
 <!-- HOME TAB -->
@@ -250,7 +254,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;background:
 // TELEGRAM WEBAPP INIT
 // ═══════════════════════════════════════════════════════════════════════════
 const tg = window.Telegram?.WebApp;
+const APP_VERSION = 'v2.3';  // bump on every push
 let userData = null;
+
+console.log('[A2Z] App loaded', APP_VERSION, 'tg:', !!tg);
 
 if (tg) {
   tg.ready();
@@ -739,7 +746,14 @@ function guildJoin() { guildJoinAction(); }
 
 function sendToBot(action, extra = {}) {
   if (!tg) { alert('Open via Telegram Mini App'); return; }
-  tg.sendData(JSON.stringify({action, ...extra}));
+  var payload = JSON.stringify({action, ...extra});
+  tg.sendData(payload);
+  // Show feedback in header
+  var xpEl = document.getElementById('header-xp');
+  var orig = xpEl.textContent;
+  xpEl.textContent = '...';
+  xpEl.style.opacity = '0.6';
+  setTimeout(function(){ xpEl.textContent = orig; xpEl.style.opacity = '1'; }, 1500);
 }
 
 // Fetch user state from bot
@@ -996,9 +1010,26 @@ function loadFromDataJson() {
       if (data.editorials && data.editorials.length) {
         state.editorials = data.editorials;
       }
+      if (data.updated) {
+        document.getElementById('sync-status').textContent = '🔄 Updated: ' + data.updated.slice(0,16).replace('T',' ');
+        document.getElementById('sync-status').style.color = 'var(--green)';
+      }
       updateUI();
     })
-    .catch(function() { updateUI(); });
+    .catch(function() {
+      document.getElementById('sync-status').textContent = '⚠️ Data unavailable';
+      document.getElementById('sync-status').style.color = 'var(--red)';
+      updateUI();
+    });
+}
+
+// Check bot connection
+if (tg) {
+  document.getElementById('sync-status').textContent = '🔗 Connected to bot';
+  document.getElementById('sync-status').style.color = 'var(--green)';
+} else {
+  document.getElementById('sync-status').textContent = '⚠️ Open via Telegram';
+  document.getElementById('sync-status').style.color = 'var(--red)';
 }
 
 function updateUI() {

@@ -2,63 +2,88 @@
   "mocks": [
     {
       "mock_id": "MOCK-741e5adb",
+      "uploader_id": 888869676,
       "title": "A2Z Updates",
       "topic": "General",
+      "section": "General",
+      "source_file": "A2Z_mocks_wallah_94b80bf1 (3).html",
       "question_count": 60,
       "timer_minutes": 30,
-      "total_attempts": 0,
+      "file_hash": "",
       "created_at": "2026-05-09 15:05:17",
-      "section": "General",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
       "active_at": null,
-      "scheduled_at": null
+      "expires_at": null
     },
     {
       "mock_id": "MOCK-cbeedb0d",
+      "uploader_id": 888869676,
       "title": "A2Z Updates",
       "topic": "General",
+      "section": "General",
+      "source_file": "A2Z_mocks_wallah_94b80bf1 (3).html",
       "question_count": 60,
       "timer_minutes": 30,
-      "total_attempts": 0,
+      "file_hash": "",
       "created_at": "2026-05-09 14:58:32",
-      "section": "General",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
       "active_at": null,
-      "scheduled_at": null
+      "expires_at": null
     },
     {
       "mock_id": "MOCK-e59d22f0",
+      "uploader_id": 888869676,
       "title": "A2Z Updates",
       "topic": "General",
+      "section": "General",
+      "source_file": "A2Z_mocks_wallah_94b80bf1 (3).html",
       "question_count": 60,
       "timer_minutes": 30,
-      "total_attempts": 0,
+      "file_hash": "",
       "created_at": "2026-05-09 14:50:47",
-      "section": "General",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
       "active_at": null,
-      "scheduled_at": null
+      "expires_at": null
     },
     {
       "mock_id": "MOCK-e6ad51da",
+      "uploader_id": 0,
       "title": "FIVE YEAR PLAN \u2014 A2Z Mocks",
       "topic": "General",
+      "section": "General",
+      "source_file": "cli_upload",
       "question_count": 50,
       "timer_minutes": 25,
-      "total_attempts": 0,
+      "file_hash": "",
       "created_at": "2026-05-03 14:29:37",
-      "section": "General",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
       "active_at": null,
-      "scheduled_at": null
+      "expires_at": null
     },
     {
       "mock_id": "MOCK-ed3eb2e1",
+      "uploader_id": 123456789,
       "title": "FIVE YEAR PLAN",
       "topic": "Economics",
+      "section": "General",
+      "source_file": "test.html",
       "question_count": 30,
       "timer_minutes": 15,
-      "total_attempts": 0,
+      "file_hash": "",
       "created_at": "2026-05-03 14:15:28",
-      "section": "General",
+      "total_attempts": 0,
+      "benchmark_score": null,
+      "scheduled_at": null,
       "active_at": null,
-      "scheduled_at": null
+      "expires_at": null
     }
   ],
   "editorials": [
@@ -147,5 +172,5 @@
       "article_date": "2026-05-02"
     }
   ],
-  "updated": "2026-05-09T20:35:43.221510"
+  "updated": "2026-05-09T20:42:52.157483"
 }
