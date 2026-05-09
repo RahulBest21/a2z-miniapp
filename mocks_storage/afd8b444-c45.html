@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>More from less — Editorial Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--parchment:#f5eedc;--parchment2:#ede0c4;--dark:#3b2a1a;--ink:#2c1a0e;
+  --accent:#8b1a1a;--gold:#c9922a;--card:#fdf6e3;--border:#d4b896;
+  --shadow:rgba(60,30,10,.15);--red:#c0392b;--red-bg:rgba(192,57,43,.1);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--parchment);color:var(--ink);font-family:'Lora',Georgia,serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:
+  repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(139,90,43,.05) 28px,rgba(139,90,43,.05) 29px),
+  radial-gradient(ellipse at 10% 0%,rgba(139,90,43,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{max-width:860px;margin:0 auto;padding:20px;position:relative;z-index:1}
+/* Source selector */
+.src-selector{display:flex;justify-content:center;gap:12px;padding:20px 0;}
+.src-btn{padding:12px 28px;border:3px solid var(--border);border-radius:10px;background:var(--card);
+  font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;}
+.src-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow);}
+.src-btn.hindu{border-color:#c0392b;color:#c0392b;}
+.src-btn.ie{border-color:#1a3a6e;color:#1a3a6e;}
+.src-btn.hindu:hover,.src-btn.hindu.sel{background:#c0392b;color:#fff;}
+.src-btn.ie:hover,.src-btn.ie.sel{background:#1a3a6e;color:#fff;}
+.src-header{text-align:center;padding:8px 20px 24px;border-bottom:3px double var(--border);margin-bottom:24px;display:none;}
+.src-badge{display:inline-block;padding:4px 14px;border-radius:20px;color:#fff;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:10px;background:#c0392b;}
+.src-header h1{font-size:1.9rem;color:var(--dark);line-height:1.3;}
+.src-header .meta{color:var(--gold);font-size:.88rem;margin-top:6px;font-style:italic;}
+/* Nav */
+.topnav{background:var(--parchment2);border-bottom:2px solid var(--border);display:flex;flex-wrap:wrap;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px var(--shadow);display:none;}
+.topnav button{flex:1;min-width:100px;padding:12px 6px;background:none;border:none;
+  color:var(--dark);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .2s;}
+.topnav button.active,.topnav button:hover{color:var(--accent);border-bottom-color:var(--accent);background:rgba(139,26,26,.06);}
+.tab-section{display:none;animation:fadeIn .3s ease;}
+.tab-section.active{display:block;}
+
+/* Para Jumble */
+.pj-sentences{margin:10px 0;}
+.pj-sent{padding:6px 10px;margin:4px 0;background:rgba(201,146,42,.08);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.92rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;font-family:'Inter',sans-serif;
+  font-weight:700;font-size:.78rem;padding:1px 7px;border-radius:4px;margin-right:8px;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;color:var(--accent);
+  margin-right:6px;}
+.opts-hint{font-size:.85rem;color:#888;margin-bottom:4px;}
+
+
+/* Para Jumble MCQ */
+.pj-sentences{margin:10px 0 14px;}
+.pj-sent{padding:7px 10px;margin:4px 0;background:rgba(201,146,42,.09);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.93rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;
+  font-family:'Inter',sans-serif;font-weight:700;font-size:.78rem;
+  padding:1px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;font-size:.9rem;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;
+  color:var(--accent);margin-right:6px;}
+.opts-hint{font-size:.84rem;color:#888;margin:-4px 0 8px;font-style:italic;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent);
+  border-bottom:2px solid var(--border);padding-bottom:8px;margin:24px 0 14px;display:flex;align-items:center;gap:8px;}
+/* Para */
+.para-block{margin-bottom:18px;}
+.para-text{line-height:1.9;font-size:1.03rem;text-align:justify;}
+.tw{color:var(--red);font-weight:600;background:var(--red-bg);border-radius:3px;padding:0 2px;
+  text-decoration:underline dotted var(--red);cursor:help;}
+.hi-exp{display:none;margin-top:8px;padding:10px 14px;background:rgba(201,146,42,.12);
+  border-left:4px solid var(--gold);border-radius:4px;font-size:.93rem;line-height:1.7;color:var(--dark);}
+/* Buttons */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px;}
+.explain-btn,.tts-btn,.reveal-btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:.85rem;transition:opacity .2s;}
+.explain-btn{background:var(--gold);color:#fff;}
+.tts-btn{background:var(--parchment2);color:var(--dark);border:1px solid var(--border);margin-top:6px;font-size:.8rem;}
+.tts-btn:hover,.explain-btn:hover,.reveal-btn:hover{opacity:.82;}
+.reveal-btn{background:var(--accent);color:#fff;}
+/* Tables */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;box-shadow:0 4px 14px var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:.91rem;}
+th{background:var(--parchment2);color:var(--dark);padding:10px;text-align:left;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-weight:700;}
+td{padding:9px 10px;border-bottom:1px solid rgba(180,130,70,.2);vertical-align:top;line-height:1.5;}
+tr:nth-child(even) td{background:rgba(230,210,170,.16);}
+.tw-word{font-weight:700;color:var(--red);} .idm-phrase{color:var(--accent);font-weight:600;}
+.empty-msg{text-align:center;color:#999;padding:20px;}
+/* Questions */
+.q-block{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px var(--shadow);}
+.q-block p{line-height:1.7;margin-bottom:8px;}
+.mcq-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.opt-btn{padding:8px 14px;border:2px solid var(--border);border-radius:8px;background:var(--parchment2);
+  color:var(--ink);font-family:'Lora',serif;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.opt-btn:hover{border-color:var(--accent);}
+.opt-btn.correct{background:rgba(39,174,96,.15);border-color:#27ae60;color:#1a5e35;font-weight:700;}
+.opt-btn.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);font-weight:700;}
+.ans-reveal{margin-top:10px;padding:10px 14px;background:rgba(139,90,43,.1);border-left:4px solid var(--accent);border-radius:4px;font-size:.91rem;}
+.jumble-list{padding-left:20px;line-height:1.9;}
+/* Misc */
+.tts-bar{background:var(--parchment2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:.85rem;}
+.tts-bar select{border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--card);}
+@media(max-width:600px){.src-header h1{font-size:1.3rem;}.container{padding:10px;}table{font-size:.8rem;}}
+
+    /* A2Z Results Tracker — injected */
+    :root{--tracker-bg:#1a1a2e;--tracker-accent:#9d8fff;--tracker-green:#22c55e;--tracker-gold:#fbbf24;--tracker-text:#fff}
+    .a2z-tracker{position:fixed;bottom:0;left:0;right:0;background:var(--tracker-bg);
+      padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+      z-index:9999;box-shadow:0 -2px 12px rgba(0,0,0,.4);font-family:Inter,sans-serif;
+      padding-bottom:max(10px,env(safe-area-inset-bottom));}
+    .a2z-tracker .a2z-score{display:flex;gap:10px;font-size:.72rem;color:#94a3b8;}
+    .a2z-tracker .a2z-score span{color:var(--tracker-gold);font-weight:700;}
+    .a2z-tracker .a2z-btn{background:var(--tracker-accent);color:#fff;border:none;
+      padding:8px 20px;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer;}
+    .a2z-tracker .a2z-btn.done{background:var(--tracker-green);}
+    .a2z-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;
+      color:#fff;padding:16px 24px;border-radius:12px;z-index:9999;font-family:Inter,sans-serif;
+      text-align:center;display:none;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+    body.a2z-mode{padding-bottom:80px !important;}
+    @media(max-width:600px){
+      .a2z-tracker .a2z-score{font-size:.68rem;gap:6px;}
+      .a2z-tracker .a2z-btn{font-size:.75rem;padding:8px 14px;}
+    }
+    
+</style>
+</head>
+<body>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+<!-- A2Z BRANDING BAR -->
+<div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="background:linear-gradient(135deg,#e94560,#0f3460);
+      width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+      justify-content:center;font-size:18px;font-weight:900;color:#fff;font-family:Inter,sans-serif;">A</div>
+    <div>
+      <div style="color:#fff;font-family:Inter,sans-serif;font-weight:800;font-size:.95rem;
+        letter-spacing:.5px;">A2Z Updates4U</div>
+      <div style="color:rgba(255,255,255,.6);font-size:.72rem;font-family:Inter,sans-serif;">
+        Editorial Study Series</div>
+    </div>
+  </div>
+  <a href="https://t.me/A2ZUpdates4U" target="_blank"
+    style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+    text-decoration:none;padding:7px 16px;border-radius:20px;font-family:Inter,sans-serif;
+    font-weight:700;font-size:.8rem;display:flex;align-items:center;gap:6px;">
+    📢 Join Channel
+  </a>
+</div>
+<nav class="topnav" id="topnav" style="display:flex;">
+  <button class="active" onclick="showTab('editorial',this)">📰 Editorial</button>
+  <button onclick="showTab('vocabulary',this)">📚 Vocabulary</button>
+  <button onclick="showTab('idioms',this)">💬 Idioms</button>
+  <button onclick="showTab('cloze',this)">✏️ Cloze Test</button>
+  <button onclick="showTab('vocabtest',this)">🧪 Vocab MCQ</button>
+  <button onclick="showTab('jumble',this)">🔀 Para Jumble</button>
+  <button onclick="showTab('about',this)">ℹ️ About</button>
+</nav>
+<div class="container">
+
+<header class="src-header" id="srcHeader" style="display:block;">
+  <div class="src-badge" id="srcBadge">The Hindu</div>
+  <h1 id="editTitle">More from less</h1>
+  <div class="meta">09 May 2026</div>
+</header>
+
+<!-- TTS control bar -->
+<div class="tts-bar" id="ttsBar">
+  🔊 <b>Text-to-Speech:</b>
+  <select id="ttsRate"><option value="0.8">Slow</option><option value="1" selected>Normal</option><option value="1.3">Fast</option></select>
+  <button class="reveal-btn" onclick="speakAll()" style="padding:5px 12px;">▶ Read All</button>
+  <button class="reveal-btn" onclick="stopSpeech()" style="padding:5px 12px;background:#666;">■ Stop</button>
+</div>
+
+<!-- EDITORIAL TAB -->
+<div id="editorial" class="tab-section active">
+  <div class="section-title">📝 Editorial</div>
+  <div class="btn-row">
+    <button class="explain-btn" id="hindiBtn" onclick="toggleAllHindi()">🇮🇳 Hindi Explanation</button>
+  </div>
+  
+        <div class="para-block">
+          <p class="para-text">The AINRC won comfortably with a reduced vote share
+The people of the Union Territory of Puducherry, no strangers to <span class="tw" title="fractured">fractured</span> <span class="tw" title="electoral">electoral</span> <span class="tw" title="verdicts">verdicts</span>, have <span class="tw" title="decisively">decisively</span> handed another term to the All India N.R. Congress-led National Democratic <span class="tw" title="Alliance">Alliance</span>, favouring <span class="tw" title="continuity">continuity</span> and the status quo. Despite an <span class="tw" title="unremarkable">unremarkable</span> <span class="tw" title="governance">governance</span> record, the NDA <span class="tw" title="retained">retained</span> power largely due to the first-past-the-post system, which <span class="tw" title="disproportionately">disproportionately</span> <span class="tw" title="rewards">rewards</span> parties with the highest vote share. This is what has been <span class="tw" title="reflected">reflected</span> in the <span class="tw" title="results">results</span> of the 2026 Assembly poll.</p>
+          <div class="hi-exp" id="hi_0">पुडुचेरी केंद्र शासित प्रदेश के लोग, जो खंडित चुनावी फैसलों से अनजान नहीं हैं, ने निर्णायक रूप से एनडीए को एक और कार्यकाल सौंपा है, निरंतरता और यथास्थिति का समर्थन किया है। साधारण शासन रिकॉर्ड के बावजूद, एनडीए ने &#x27;फर्स्ट-पास्ट-द-पोस्ट&#x27; प्रणाली के कारण सत्ता बरकरार रखी, जो सबसे अधिक वोट शेयर वाली पार्टियों को असंतुलित रूप से पुरस्कृत करती है। यही 2026 के विधानसभा चुनाव परिणामों में परिलक्षित हुआ है।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="The AINRC won comfortably with a reduced vote share
+The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo. Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share. This is what has been reflected in the results of the 2026 Assembly poll.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">On the face of it, the NDA&#x27;s victory appears <span class="tw" title="convincing">convincing</span>, but a closer look at the vote-share <span class="tw" title="data">data</span> tells a different story. By winning 18 of the 30 Assembly seats, the ruling <span class="tw" title="alliance">alliance</span> gained two more seats than in 2021, even as its vote share fell to about 38% – nearly five percentage points lower than five years ago. On the other hand, the Congress-led INDIA bloc, with about 32% of votes, lost two seats and its <span class="tw" title="tally">tally</span> stood at six. It also <span class="tw" title="suffered">suffered</span> <span class="tw" title="erosion">erosion</span> of its vote base by around 3%. The <span class="tw" title="presence">presence</span> of the TVK has caused vote share loss to the two <span class="tw" title="formations">formations</span>, though the NDA <span class="tw" title="ultimately">ultimately</span> emerged <span class="tw" title="victorious">victorious</span>. The TVK, along with its ally, won three seats with a vote share of around 18%.</p>
+          <div class="hi-exp" id="hi_1">ऊपरी तौर पर, एनडीए की जीत विश्वसनीय लगती है, लेकिन वोट-शेयर डेटा पर करीब से नज़र डालने पर एक अलग कहानी सामने आती है। 30 में से 18 सीटें जीतकर, सत्तारूढ़ गठबंधन ने 2021 की तुलना में दो सीटें अधिक हासिल कीं, भले ही उसका वोट शेयर लगभग 38% तक गिर गया - जो पांच साल पहले की तुलना में पांच प्रतिशत कम है। दूसरी ओर, कांग्रेस के नेतृत्व वाले इंडिया ब्लॉक ने लगभग 32% वोटों के साथ दो सीटें खो दीं और उसकी संख्या छह रह गई। इसने अपने वोट आधार में लगभग 3% का क्षरण भी झेला है। टीवीके की उपस्थिति ने दोनों गठबंधनों के वोट शेयर को नुकसान पहुँचाया है, हालाँकि अंततः एनडीए विजयी रहा। टीवीके ने अपने सहयोगी के साथ लगभग 18% वोट शेयर के साथ तीन सीटें जीतीं।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story. By winning 18 of the 30 Assembly seats, the ruling alliance gained two more seats than in 2021, even as its vote share fell to about 38% – nearly five percentage points lower than five years ago. On the other hand, the Congress-led INDIA bloc, with about 32% of votes, lost two seats and its tally stood at six. It also suffered erosion of its vote base by around 3%. The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious. The TVK, along with its ally, won three seats with a vote share of around 18%.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">Apart from the <span class="tw" title="charismatic">charismatic</span> appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged <span class="tw" title="wrangling">wrangling</span> over seat-sharing within the INDIA bloc hurt the <span class="tw" title="alliance">alliance</span>&#x27;s <span class="tw" title="prospects">prospects</span>, despite its <span class="tw" title="emphatic">emphatic</span> Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes. Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for <span class="tw" title="shielding">shielding</span> his <span class="tw" title="alliance">alliance</span> from the TVK&#x27;s challenge, despite <span class="tw" title="speculation">speculation</span> before the polls that the All India N.R. Congress might leave the NDA to join the <span class="tw" title="fledgling">fledgling</span> party.</p>
+          <div class="hi-exp" id="hi_2">टीवीके के संस्थापक सी. जोसेफ विजय के करिश्माई आकर्षण के अलावा, इंडिया ब्लॉक के भीतर सीट-बंटवारे को लेकर लंबे समय तक चले विवाद ने गठबंधन की संभावनाओं को नुकसान पहुंचाया, भले ही दो साल पहले पुडुचेरी लोकसभा चुनाव में उसने 1.3 लाख से अधिक वोटों से जोरदार जीत हासिल की थी। मुख्यमंत्री एन. रंगासामी, जो अपना पांचवां कार्यकाल शुरू करने के लिए तैयार हैं, को अपने गठबंधन को टीवीके की चुनौती से बचाने का श्रेय मिलना चाहिए, हालांकि चुनाव से पहले ऐसी अटकलें थीं कि ऑल इंडिया एन.आर. कांग्रेस एनडीए छोड़कर नई पार्टी में शामिल हो सकती है।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes. Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for shielding his alliance from the TVK&#x27;s challenge, despite speculation before the polls that the All India N.R. Congress might leave the NDA to join the fledgling party.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">Instead of taking steps for the <span class="tw" title="implementation">implementation</span> of his <span class="tw" title="electoral">electoral</span> promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better <span class="tw" title="governance">governance</span>. The functioning of the <span class="tw" title="outgoing">outgoing</span> <span class="tw" title="regime">regime</span> came in for sharp <span class="tw" title="criticism">criticism</span> from the office of the C&amp;AG which, in its report for 2023-24, had <span class="tw" title="rapped">rapped</span> the AINRC-headed <span class="tw" title="regime">regime</span> for spending beyond its means. Apart from ensuring <span class="tw" title="administrative">administrative</span> <span class="tw" title="continuity">continuity</span> and closer <span class="tw" title="alignment">alignment</span> with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving <span class="tw" title="infrastructure">infrastructure</span> and public services. Also, with changing <span class="tw" title="demographics">demographics</span>, renewed focus should be on youth employment, <span class="tw" title="sustainable">sustainable</span> housing, and <span class="tw" title="environmental">environmental</span> <span class="tw" title="conservation">conservation</span> to maintain a high quality of life. His administration should make lasting efforts to reduce the damage that <span class="tw" title="frequent">frequent</span> cyclones and floods cause to the people and their <span class="tw" title="livelihoods">livelihoods</span>. Such an approach would be the perfect way of expression of <span class="tw" title="gratitude">gratitude</span> on his part to those who have voted for him and the NDA.</p>
+          <div class="hi-exp" id="hi_3">पुडुचेरी के लिए राज्य का दर्जा सुरक्षित करने के अपने चुनावी वादे को लागू करने के लिए कदम उठाने के बजाय, श्री रंगासामी को बेहतर शासन देने पर ध्यान देना चाहिए। निवर्तमान शासन के कामकाज की सी एंड एजी के कार्यालय से तीखी आलोचना हुई, जिसने 2023-24 की अपनी रिपोर्ट में एआईएनआरसी के नेतृत्व वाले शासन को अपनी आय से अधिक खर्च करने के लिए फटकार लगाई थी। प्रशासनिक निरंतरता और केंद्र के साथ बेहतर तालमेल सुनिश्चित करने के अलावा, मुख्यमंत्री को संतुलित शहरी और ग्रामीण विकास, और बुनियादी ढांचे और सार्वजनिक सेवाओं में सुधार पर ध्यान देना चाहिए। साथ ही, बदलती जनसांख्यिकी के साथ, युवा रोजगार, टिकाऊ आवास और पर्यावरणीय संरक्षण पर नए सिरे से ध्यान दिया जाना चाहिए ताकि जीवन की उच्च गुणवत्ता बनी रहे। उनके प्रशासन को उन नुकसानों को कम करने के लिए स्थायी प्रयास करने चाहिए जो अक्सर चक्रवात और बाढ़ लोगों और उनकी आजीविका को पहुंचाते हैं। ऐसा दृष्टिकोण उन लोगों के प्रति आभार व्यक्त करने का सही तरीका होगा जिन्होंने उन्हें और एनडीए को वोट दिया है।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="Instead of taking steps for the implementation of his electoral promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better governance. The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means. Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services. Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life. His administration should make lasting efforts to reduce the damage that frequent cyclones and floods cause to the people and their livelihoods. Such an approach would be the perfect way of expression of gratitude on his part to those who have voted for him and the NDA.">🔊 Listen</button>
+        </div>
+  <div class="section-title">🔴 Tough Words</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">fractured</td><td>divided or split into separate parts</td><td>विभाजित</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">verdicts</td><td>official decisions made by a jury</td><td>फैसले</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">continuity</td><td>the state of remaining consistent throughout</td><td>निरंतरता</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">unremarkable</td><td>not particularly interesting or impressive</td><td>साधारण</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">disproportionately</td><td>to an extent that is too large</td><td>असंतुलित रूप से</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">convincing</td><td>capable of causing someone to believe</td><td>विश्वसनीय</td><td><em>On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story.</em></td></tr><tr><td class="tw-word">erosion</td><td>the process of gradually wearing away</td><td>क्षरण</td><td><em>It also suffered erosion of its vote base by around 3%.</em></td></tr><tr><td class="tw-word">formations</td><td>groups of people or political entities</td><td>गठबंधन</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">decisively</td><td>in a manner that settles an issue</td><td>निर्णायक रूप से</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">retained</td><td>continued to have or keep possession</td><td>बनाए रखा</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">tally</td><td>a current score or amount</td><td>कुल संख्या</td><td><em>On the other hand, the Congress-led INDIA bloc, with about 32% of votes, lost two seats and its tally stood at six.</em></td></tr><tr><td class="tw-word">ultimately</td><td>at the end of a process</td><td>अंततः</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">governance</td><td>the action or manner of governing</td><td>शासन</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">electoral</td><td>relating to elections or electors</td><td>चुनावी</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">presence</td><td>the state of being somewhere</td><td>उपस्थिति</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">victorious</td><td>having won a victory</td><td>विजयी</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">reflected</td><td>showed or expressed something</td><td>दर्शाया गया</td><td><em>This is what has been reflected in the results of the 2026 Assembly poll.</em></td></tr><tr><td class="tw-word">suffered</td><td>experienced something bad or unpleasant</td><td>भुगता</td><td><em>It also suffered erosion of its vote base by around 3%.</em></td></tr><tr><td class="tw-word">favoured</td><td>preferred or supported something</td><td>पक्ष में</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">rewards</td><td>gives something in recognition of service</td><td>पुरस्कृत करना</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">appeared</td><td>seemed to be a certain way</td><td>प्रतीत हुआ</td><td><em>On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story.</em></td></tr><tr><td class="tw-word">formation</td><td>the action of forming something</td><td>गठन</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">results</td><td>consequences or outcomes of actions</td><td>परिणाम</td><td><em>This is what has been reflected in the results of the 2026 Assembly poll.</em></td></tr><tr><td class="tw-word">data</td><td>facts and statistics collected together</td><td>आंकड़े</td><td><em>On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story.</em></td></tr><tr><td class="tw-word">alliance</td><td>a union or association formed for benefit</td><td>गठबंधन</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">charismatic</td><td>possessing compelling charm that inspires devotion</td><td>आकर्षक</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">wrangling</td><td>long and complicated dispute or argument</td><td>विवाद</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">emphatic</td><td>showing or giving emphasis; forceful and clear</td><td>जोरदार</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">shielding</td><td>protecting from danger, risk, or unpleasantness</td><td>बचाव करना</td><td><em>Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for shielding his alliance from the TVK&#x27;s challenge, despite speculation before the polls that the All India N.R. Congress might leave the NDA to join the fledgling party.</em></td></tr><tr><td class="tw-word">speculation</td><td>forming a theory without firm evidence</td><td>अनुमान</td><td><em>Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for shielding his alliance from the TVK&#x27;s challenge, despite speculation before the polls that the All India N.R. Congress might leave the NDA to join the fledgling party.</em></td></tr><tr><td class="tw-word">fledgling</td><td>a person or organization that is immature</td><td>नया या अनुभवहीन</td><td><em>Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for shielding his alliance from the TVK&#x27;s challenge, despite speculation before the polls that the All India N.R. Congress might leave the NDA to join the fledgling party.</em></td></tr><tr><td class="tw-word">implementation</td><td>the process of putting a decision into effect</td><td>कार्यान्वयन</td><td><em>Instead of taking steps for the implementation of his electoral promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better governance.</em></td></tr><tr><td class="tw-word">outgoing</td><td>leaving a position or office soon</td><td>निवर्तमान</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">regime</td><td>a government, especially an authoritarian one</td><td>शासन</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">rapped</td><td>criticized or reprimanded someone severely</td><td>फटकार लगाना</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">continuity</td><td>the unbroken and consistent existence of something</td><td>निरंतरता</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">alignment</td><td>arrangement in a straight line or agreement</td><td>तालमेल</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">demographics</td><td>statistical data relating to the population</td><td>जनसांख्यिकी</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr><tr><td class="tw-word">sustainable</td><td>able to be maintained at a level</td><td>टिकाऊ</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr><tr><td class="tw-word">conservation</td><td>prevention of wasteful use of a resource</td><td>संरक्षण</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr><tr><td class="tw-word">livelihoods</td><td>means of securing the necessities of life</td><td>आजीविका</td><td><em>His administration should make lasting efforts to reduce the damage that frequent cyclones and floods cause to the people and their livelihoods.</em></td></tr><tr><td class="tw-word">prospects</td><td>the possibility or likelihood of some future event</td><td>संभावनाएं</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">frequent</td><td>occurring or done on many occasions</td><td>बार-बार होने वाला</td><td><em>His administration should make lasting efforts to reduce the damage that frequent cyclones and floods cause to the people and their livelihoods.</em></td></tr><tr><td class="tw-word">gratitude</td><td>the quality of being thankful</td><td>आभार</td><td><em>Such an approach would be the perfect way of expression of gratitude on his part to those who have voted for him and the NDA.</em></td></tr><tr><td class="tw-word">infrastructure</td><td>basic physical and organizational structures</td><td>बुनियादी ढांचा</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">administrative</td><td>relating to the running of a business</td><td>प्रशासनिक</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">electoral</td><td>relating to elections or electors</td><td>चुनावी</td><td><em>Instead of taking steps for the implementation of his electoral promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better governance.</em></td></tr><tr><td class="tw-word">governance</td><td>the action or manner of governing</td><td>शासन</td><td><em>Instead of taking steps for the implementation of his electoral promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better governance.</em></td></tr><tr><td class="tw-word">criticism</td><td>the expression of disapproval of someone</td><td>आलोचना</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">environmental</td><td>relating to the natural world</td><td>पर्यावरणीय</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- VOCABULARY TAB -->
+<div id="vocabulary" class="tab-section">
+  <div class="section-title">📚 Vocabulary</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">fractured</td><td>divided or split into separate parts</td><td>विभाजित</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">verdicts</td><td>official decisions made by a jury</td><td>फैसले</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">continuity</td><td>the state of remaining consistent throughout</td><td>निरंतरता</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">unremarkable</td><td>not particularly interesting or impressive</td><td>साधारण</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">disproportionately</td><td>to an extent that is too large</td><td>असंतुलित रूप से</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">convincing</td><td>capable of causing someone to believe</td><td>विश्वसनीय</td><td><em>On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story.</em></td></tr><tr><td class="tw-word">erosion</td><td>the process of gradually wearing away</td><td>क्षरण</td><td><em>It also suffered erosion of its vote base by around 3%.</em></td></tr><tr><td class="tw-word">formations</td><td>groups of people or political entities</td><td>गठबंधन</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">decisively</td><td>in a manner that settles an issue</td><td>निर्णायक रूप से</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">retained</td><td>continued to have or keep possession</td><td>बनाए रखा</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">tally</td><td>a current score or amount</td><td>कुल संख्या</td><td><em>On the other hand, the Congress-led INDIA bloc, with about 32% of votes, lost two seats and its tally stood at six.</em></td></tr><tr><td class="tw-word">ultimately</td><td>at the end of a process</td><td>अंततः</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">governance</td><td>the action or manner of governing</td><td>शासन</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">electoral</td><td>relating to elections or electors</td><td>चुनावी</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">presence</td><td>the state of being somewhere</td><td>उपस्थिति</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">victorious</td><td>having won a victory</td><td>विजयी</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">reflected</td><td>showed or expressed something</td><td>दर्शाया गया</td><td><em>This is what has been reflected in the results of the 2026 Assembly poll.</em></td></tr><tr><td class="tw-word">suffered</td><td>experienced something bad or unpleasant</td><td>भुगता</td><td><em>It also suffered erosion of its vote base by around 3%.</em></td></tr><tr><td class="tw-word">favoured</td><td>preferred or supported something</td><td>पक्ष में</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">rewards</td><td>gives something in recognition of service</td><td>पुरस्कृत करना</td><td><em>Despite an unremarkable governance record, the NDA retained power largely due to the first-past-the-post system, which disproportionately rewards parties with the highest vote share.</em></td></tr><tr><td class="tw-word">appeared</td><td>seemed to be a certain way</td><td>प्रतीत हुआ</td><td><em>On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story.</em></td></tr><tr><td class="tw-word">formation</td><td>the action of forming something</td><td>गठन</td><td><em>The presence of the TVK has caused vote share loss to the two formations, though the NDA ultimately emerged victorious.</em></td></tr><tr><td class="tw-word">results</td><td>consequences or outcomes of actions</td><td>परिणाम</td><td><em>This is what has been reflected in the results of the 2026 Assembly poll.</em></td></tr><tr><td class="tw-word">data</td><td>facts and statistics collected together</td><td>आंकड़े</td><td><em>On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story.</em></td></tr><tr><td class="tw-word">alliance</td><td>a union or association formed for benefit</td><td>गठबंधन</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="tw-word">charismatic</td><td>possessing compelling charm that inspires devotion</td><td>आकर्षक</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">wrangling</td><td>long and complicated dispute or argument</td><td>विवाद</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">emphatic</td><td>showing or giving emphasis; forceful and clear</td><td>जोरदार</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">shielding</td><td>protecting from danger, risk, or unpleasantness</td><td>बचाव करना</td><td><em>Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for shielding his alliance from the TVK&#x27;s challenge, despite speculation before the polls that the All India N.R. Congress might leave the NDA to join the fledgling party.</em></td></tr><tr><td class="tw-word">speculation</td><td>forming a theory without firm evidence</td><td>अनुमान</td><td><em>Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for shielding his alliance from the TVK&#x27;s challenge, despite speculation before the polls that the All India N.R. Congress might leave the NDA to join the fledgling party.</em></td></tr><tr><td class="tw-word">fledgling</td><td>a person or organization that is immature</td><td>नया या अनुभवहीन</td><td><em>Chief Minister N. Rangasamy, set to begin his fifth term, deserves credit for shielding his alliance from the TVK&#x27;s challenge, despite speculation before the polls that the All India N.R. Congress might leave the NDA to join the fledgling party.</em></td></tr><tr><td class="tw-word">implementation</td><td>the process of putting a decision into effect</td><td>कार्यान्वयन</td><td><em>Instead of taking steps for the implementation of his electoral promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better governance.</em></td></tr><tr><td class="tw-word">outgoing</td><td>leaving a position or office soon</td><td>निवर्तमान</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">regime</td><td>a government, especially an authoritarian one</td><td>शासन</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">rapped</td><td>criticized or reprimanded someone severely</td><td>फटकार लगाना</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">continuity</td><td>the unbroken and consistent existence of something</td><td>निरंतरता</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">alignment</td><td>arrangement in a straight line or agreement</td><td>तालमेल</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">demographics</td><td>statistical data relating to the population</td><td>जनसांख्यिकी</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr><tr><td class="tw-word">sustainable</td><td>able to be maintained at a level</td><td>टिकाऊ</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr><tr><td class="tw-word">conservation</td><td>prevention of wasteful use of a resource</td><td>संरक्षण</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr><tr><td class="tw-word">livelihoods</td><td>means of securing the necessities of life</td><td>आजीविका</td><td><em>His administration should make lasting efforts to reduce the damage that frequent cyclones and floods cause to the people and their livelihoods.</em></td></tr><tr><td class="tw-word">prospects</td><td>the possibility or likelihood of some future event</td><td>संभावनाएं</td><td><em>Apart from the charismatic appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects, despite its emphatic Puducherry Lok Sabha victory two years ago by over 1.3 lakh votes.</em></td></tr><tr><td class="tw-word">frequent</td><td>occurring or done on many occasions</td><td>बार-बार होने वाला</td><td><em>His administration should make lasting efforts to reduce the damage that frequent cyclones and floods cause to the people and their livelihoods.</em></td></tr><tr><td class="tw-word">gratitude</td><td>the quality of being thankful</td><td>आभार</td><td><em>Such an approach would be the perfect way of expression of gratitude on his part to those who have voted for him and the NDA.</em></td></tr><tr><td class="tw-word">infrastructure</td><td>basic physical and organizational structures</td><td>बुनियादी ढांचा</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">administrative</td><td>relating to the running of a business</td><td>प्रशासनिक</td><td><em>Apart from ensuring administrative continuity and closer alignment with the Centre, the Chief Minister should focus on balanced urban and rural development, and improving infrastructure and public services.</em></td></tr><tr><td class="tw-word">electoral</td><td>relating to elections or electors</td><td>चुनावी</td><td><em>Instead of taking steps for the implementation of his electoral promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better governance.</em></td></tr><tr><td class="tw-word">governance</td><td>the action or manner of governing</td><td>शासन</td><td><em>Instead of taking steps for the implementation of his electoral promise of securing Statehood for Puducherry, Mr. Rangasamy should focus on delivering better governance.</em></td></tr><tr><td class="tw-word">criticism</td><td>the expression of disapproval of someone</td><td>आलोचना</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="tw-word">environmental</td><td>relating to the natural world</td><td>पर्यावरणीय</td><td><em>Also, with changing demographics, renewed focus should be on youth employment, sustainable housing, and environmental conservation to maintain a high quality of life.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- IDIOMS TAB -->
+<div id="idioms" class="tab-section">
+  <div class="section-title">💬 Idioms &amp; Phrases</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phrase</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="idm-phrase">no strangers to</td><td>familiar with something</td><td>परिचित होना</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="idm-phrase">status quo</td><td>the existing state of affairs</td><td>यथास्थिति</td><td><em>The people of the Union Territory of Puducherry, no strangers to fractured electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance, favouring continuity and the status quo.</em></td></tr><tr><td class="idm-phrase">on the face of it</td><td>judging by how things appear</td><td>ऊपरी तौर पर</td><td><em>On the face of it, the NDA&#x27;s victory appears convincing, but a closer look at the vote-share data tells a different story.</em></td></tr><tr><td class="idm-phrase">come in for</td><td>to receive something unpleasant</td><td>प्राप्त करना (अप्रिय)</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr><tr><td class="idm-phrase">beyond its means</td><td>spending more money than one earns</td><td>अपनी आय से अधिक खर्च करना</td><td><em>The functioning of the outgoing regime came in for sharp criticism from the office of the C&amp;AG which, in its report for 2023-24, had rapped the AINRC-headed regime for spending beyond its means.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- CLOZE TEST TAB -->
+<div id="cloze" class="tab-section">
+  <div class="section-title">✏️ Cloze Test</div>
+  <div class="q-block"><p><b>Q1.</b> The people of the Union Territory of Puducherry, no strangers to ___ electoral verdicts, have decisively handed another term to the All India N.R. Congress-led National Democratic Alliance.</p><div class="mcq-opts"><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)">fractured</button><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)">unremarkable</button><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)">convincing</button><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)">fledgling</button></div></div><div class="q-block"><p><b>Q2.</b> Despite an ___ governance record, the NDA retained power largely due to the first-past-the-post system.</p><div class="mcq-opts"><button class="opt-btn" data-ans="unremarkable" onclick="clozeAns(this)">unremarkable</button><button class="opt-btn" data-ans="unremarkable" onclick="clozeAns(this)">charismatic</button><button class="opt-btn" data-ans="unremarkable" onclick="clozeAns(this)">emphatic</button><button class="opt-btn" data-ans="unremarkable" onclick="clozeAns(this)">sustainable</button></div></div><div class="q-block"><p><b>Q3.</b> The presence of the TVK has caused vote share loss to the two ___, though the NDA ultimately emerged victorious.</p><div class="mcq-opts"><button class="opt-btn" data-ans="formations" onclick="clozeAns(this)">formations</button><button class="opt-btn" data-ans="formations" onclick="clozeAns(this)">prospects</button><button class="opt-btn" data-ans="formations" onclick="clozeAns(this)">livelihoods</button><button class="opt-btn" data-ans="formations" onclick="clozeAns(this)">demographics</button></div></div><div class="q-block"><p><b>Q4.</b> Apart from the ___ appeal of the TVK&#x27;s founder, C. Joseph Vijay, the prolonged wrangling over seat-sharing within the INDIA bloc hurt the alliance&#x27;s prospects.</p><div class="mcq-opts"><button class="opt-btn" data-ans="charismatic" onclick="clozeAns(this)">charismatic</button><button class="opt-btn" data-ans="charismatic" onclick="clozeAns(this)">fledgling</button><button class="opt-btn" data-ans="charismatic" onclick="clozeAns(this)">outgoing</button><button class="opt-btn" data-ans="charismatic" onclick="clozeAns(this)">frequent</button></div></div><div class="q-block"><p><b>Q5.</b> The functioning of the ___ regime came in for sharp criticism from the office of the C&amp;AG.</p><div class="mcq-opts"><button class="opt-btn" data-ans="outgoing" onclick="clozeAns(this)">outgoing</button><button class="opt-btn" data-ans="outgoing" onclick="clozeAns(this)">fledgling</button><button class="opt-btn" data-ans="outgoing" onclick="clozeAns(this)">sustainable</button><button class="opt-btn" data-ans="outgoing" onclick="clozeAns(this)">administrative</button></div></div>
+</div>
+
+<!-- VOCAB MCQ TAB -->
+<div id="vocabtest" class="tab-section">
+  <div class="section-title">🧪 Vocabulary MCQ</div>
+  <div class="q-block"><p><b>Q1.</b> Which word means &#x27;broken or divided&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)"><b>fractured</b></button><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)"><b>unremarkable</b></button><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)"><b>convincing</b></button><button class="opt-btn" data-ans="fractured" onclick="clozeAns(this)"><b>fledgling</b></button></div></div><div class="q-block"><p><b>Q2.</b> Which word means &#x27;to a degree that is out of proportion&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="disproportionately" onclick="clozeAns(this)"><b>disproportionately</b></button><button class="opt-btn" data-ans="disproportionately" onclick="clozeAns(this)"><b>emphatic</b></button><button class="opt-btn" data-ans="disproportionately" onclick="clozeAns(this)"><b>charismatic</b></button><button class="opt-btn" data-ans="disproportionately" onclick="clozeAns(this)"><b>sustainable</b></button></div></div><div class="q-block"><p><b>Q3.</b> Which word means &#x27;the process of putting a decision or plan into effect&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="implementation" onclick="clozeAns(this)"><b>implementation</b></button><button class="opt-btn" data-ans="implementation" onclick="clozeAns(this)"><b>governance</b></button><button class="opt-btn" data-ans="implementation" onclick="clozeAns(this)"><b>alignment</b></button><button class="opt-btn" data-ans="implementation" onclick="clozeAns(this)"><b>conservation</b></button></div></div><div class="q-block"><p><b>Q4.</b> Which word means &#x27;the way in which a country or organization is managed&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="governance" onclick="clozeAns(this)"><b>governance</b></button><button class="opt-btn" data-ans="governance" onclick="clozeAns(this)"><b>regime</b></button><button class="opt-btn" data-ans="governance" onclick="clozeAns(this)"><b>infrastructure</b></button><button class="opt-btn" data-ans="governance" onclick="clozeAns(this)"><b>demographics</b></button></div></div><div class="q-block"><p><b>Q5.</b> Which word means &#x27;the state of being kept or maintained&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="continuity" onclick="clozeAns(this)"><b>continuity</b></button><button class="opt-btn" data-ans="continuity" onclick="clozeAns(this)"><b>alignment</b></button><button class="opt-btn" data-ans="continuity" onclick="clozeAns(this)"><b>gratitude</b></button><button class="opt-btn" data-ans="continuity" onclick="clozeAns(this)"><b>prospects</b></button></div></div>
+</div>
+
+<!-- PARA JUMBLE TAB -->
+<div id="jumble" class="tab-section">
+  <div class="section-title">🔀 Para Jumble</div>
+  <div class="q-block"><p><b>Para Jumble 1:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The NDA secured a victory despite a drop in their total vote percentage.</div><div class="pj-sent"><span class="pj-label">S2</span> This outcome was largely driven by the mechanics of the first-past-the-post electoral system.</div><div class="pj-sent"><span class="pj-label">S3</span> The ruling alliance managed to win 18 out of 30 seats in the assembly.</div><div class="pj-sent"><span class="pj-label">S4</span> However, their overall vote share declined by five percentage points compared to the previous election.</div></div><div class="mcq-opts pj-opts" id="pjopts_1"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S4→S3→S1→S2</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S2→S1→S4→S3</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S4→S1→S3→S2</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S3→S4→S1→S2</button></div><div class="ans-reveal" id="pj_1" style="display:none">✅ Correct order: <b>S3→S4→S1→S2</b></div></div><div class="q-block"><p><b>Para Jumble 2:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The INDIA bloc faced internal difficulties regarding the distribution of seats.</div><div class="pj-sent"><span class="pj-label">S2</span> These internal conflicts negatively impacted their performance at the polls.</div><div class="pj-sent"><span class="pj-label">S3</span> Despite a strong showing in the Lok Sabha elections, they lost two assembly seats.</div><div class="pj-sent"><span class="pj-label">S4</span> Their total vote share also saw a decline of approximately three percent.</div></div><div class="mcq-opts pj-opts" id="pjopts_2"><button class="opt-btn pj-opt" data-ans="1" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S4→S3→S1→S2</button><button class="opt-btn pj-opt" data-ans="1" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="1" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S1→S4→S3→S2</button><button class="opt-btn pj-opt" data-ans="1" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S2→S3→S1→S4</button></div><div class="ans-reveal" id="pj_2" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 3:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The TVK party made a significant impact on the electoral landscape.</div><div class="pj-sent"><span class="pj-label">S2</span> They successfully captured 18 percent of the total votes cast.</div><div class="pj-sent"><span class="pj-label">S3</span> This new political force managed to secure three seats in the assembly.</div><div class="pj-sent"><span class="pj-label">S4</span> Their entry contributed to the reduction of vote shares for the established alliances.</div></div><div class="mcq-opts pj-opts" id="pjopts_3"><button class="opt-btn pj-opt" data-ans="0" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S4→S2→S3</button><button class="opt-btn pj-opt" data-ans="0" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S4→S3→S2</button><button class="opt-btn pj-opt" data-ans="0" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S4→S1→S2</button><button class="opt-btn pj-opt" data-ans="0" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S4→S2→S1→S3</button></div><div class="ans-reveal" id="pj_3" style="display:none">✅ Correct order: <b>S1→S4→S2→S3</b></div></div><div class="q-block"><p><b>Para Jumble 4:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The Chief Minister is now preparing to start his fifth term in office.</div><div class="pj-sent"><span class="pj-label">S2</span> He successfully navigated the political challenges posed by the TVK.</div><div class="pj-sent"><span class="pj-label">S3</span> There had been rumors that his party might abandon the NDA alliance.</div><div class="pj-sent"><span class="pj-label">S4</span> Ultimately, he maintained his coalition and secured a win.</div></div><div class="mcq-opts pj-opts" id="pjopts_4"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S4→S3→S2→S1</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S4→S3→S2</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S3→S4→S2</button></div><div class="ans-reveal" id="pj_4" style="display:none">✅ Correct order: <b>S1→S3→S4→S2</b></div></div><div class="q-block"><p><b>Para Jumble 5:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The administration must prioritize better governance over political promises.</div><div class="pj-sent"><span class="pj-label">S2</span> The C&amp;AG report highlighted concerns regarding excessive government spending.</div><div class="pj-sent"><span class="pj-label">S3</span> Future efforts should focus on infrastructure, employment, and environmental protection.</div><div class="pj-sent"><span class="pj-label">S4</span> Addressing these issues would be a meaningful way to thank the voters.</div></div><div class="mcq-opts pj-opts" id="pjopts_5"><button class="opt-btn pj-opt" data-ans="2" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S4→S3→S1→S2</button><button class="opt-btn pj-opt" data-ans="2" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S3→S4→S2→S1</button><button class="opt-btn pj-opt" data-ans="2" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="2" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S4→S2→S3</button></div><div class="ans-reveal" id="pj_5" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div>
+</div>
+
+
+<!-- SHARE FOOTER -->
+<div style="margin:40px 0 20px;padding:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border-radius:16px;text-align:center;border:1px solid rgba(233,69,96,.3);">
+  <div style="color:#fff;font-family:Inter,sans-serif;font-weight:700;font-size:1rem;
+    margin-bottom:6px;">Powered by A2Z Updates4U</div>
+  <div style="color:rgba(255,255,255,.6);font-size:.8rem;font-family:Inter,sans-serif;
+    margin-bottom:14px;">Daily Editorial · Vocab · Current Affairs</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <a href="https://t.me/A2ZUpdates4U" target="_blank"
+      style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;display:inline-flex;align-items:center;gap:7px;">
+      📢 A2Z Updates Channel
+    </a>
+    <a href="https://t.me/A2Zupdates4uLounge" target="_blank"
+      style="background:linear-gradient(135deg,#0f3460,#16213e);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;border:1px solid rgba(233,69,96,.4);
+      display:inline-flex;align-items:center;gap:7px;">
+      📚 Vocab Bot Lounge
+    </a>
+  </div>
+</div>
+
+
+<!-- ABOUT SECTION -->
+<div id="about" class="tab-section">
+  <div class="section-title">ℹ️ About A2Z Updates4U</div>
+    <!-- Founder Story -->
+    <div style="background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(217,70,239,.1));
+      border:1px solid rgba(201,146,42,.4);border-radius:16px;padding:26px;
+      margin-bottom:24px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.06;line-height:1;">🏆</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:54px;height:54px;border-radius:50%;
+          background:linear-gradient(135deg,#c9922a,#8b1a1a);
+          display:flex;align-items:center;justify-content:center;
+          font-size:22px;font-weight:900;color:var(--dark);font-family:Inter,sans-serif;
+          flex-shrink:0;box-shadow:0 4px 14px rgba(201,146,42,.4);">R</div>
+        <div>
+          <div style="color:var(--dark);font-family:Inter,sans-serif;font-weight:800;font-size:1.05rem;">
+            Rahul Best
+          </div>
+          <div style="color:#d4a843;font-size:.8rem;font-family:Inter,sans-serif;">
+            Founder &amp; Creator &nbsp;·&nbsp;
+            <span style="background:linear-gradient(135deg,#f59e0b,#ef4444);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">
+              SSC CGL AIR 209 🏆
+            </span>
+          </div>
+        </div>
+      </div>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        <strong style="color:#d4a843;">A2Z Updates4U</strong> was born from a single student's obsession
+        with cracking India's toughest competitive exams. <strong>Rahul Best</strong> spent years
+        grinding through newspaper editorials every single morning, building vocabulary flashcard by
+        flashcard, and decoding idioms that left most students stumped. His secret? He turned every
+        editorial into a structured study session — exactly what this tool does for you.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        That obsession paid off.
+        Rahul cleared <strong>SSC CGL with an All India Rank of 209</strong> — placing him among the
+        top exam toppers in the country. His English section score was near-perfect, powered entirely
+        by the vocabulary and editorial reading habits he had built over years.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;">
+        After his selection, Rahul decided he couldn't keep these battle-tested techniques to himself.
+        He built <strong>A2Z Updates4U</strong> so that every serious aspirant could access the same
+        powerful study system — completely free. If it got him to <strong>AIR 209</strong>,
+        imagine what it can do for you. 🚀
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <span style="background:rgba(245,158,11,.15);border:1px solid #f59e0b;color:#fbbf24;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          🏆 SSC CGL
+        </span>
+        <span style="background:rgba(201,146,42,.12);border:1px solid #8b5cf6;color:#d4a843;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📊 AIR 209
+        </span>
+        <span style="background:rgba(16,185,129,.15);border:1px solid #10b981;color:#6ee7b7;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📰 Daily Editorial Reader
+        </span>
+        <span style="background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#fca5a5;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📚 5000+ Vocab Words Mastered
+        </span>
+      </div>
+    </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:24px;">
+    <!-- Vocab Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📚</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Vocabulary Builder Bot
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Add any English word and instantly get its <strong>meaning in English &amp; Hindi</strong>,
+        synonyms, antonyms, phonetics, a <strong>root-based mnemonic</strong> to never forget it,
+        and an example sentence. Export your entire word list as a beautiful HTML flashcard set
+        with mock tests &amp; mind maps!
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔤 Word meaning in EN + HI</li>
+        <li>🧠 Memory mnemonic (root-based)</li>
+        <li>🃏 Flashcard practice</li>
+        <li>🧪 Mock vocabulary test</li>
+        <li>🗺️ Mind map of word tones</li>
+      </ul>
+    </div>
+    <!-- Editorial Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📰</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Daily Editorial Study
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Every day we post The Hindu &amp; Indian Express editorials transformed into a
+        <strong>complete study package</strong>. Difficult words are highlighted and explained,
+        idioms are listed, and you get full Hindi translation paragraph by paragraph.
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔴 Tough words highlighted in red</li>
+        <li>💬 Idioms &amp; fixed phrases</li>
+        <li>🇮🇳 Word-by-word Hindi translation</li>
+        <li>✏️ Cloze Test (fill in the blank)</li>
+        <li>🧪 Vocabulary MCQ</li>
+        <li>🔀 Para Jumble with ordering options</li>
+      </ul>
+    </div>
+  </div>
+  <!-- Share Button -->
+  <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#1a1a2e,#0f3460);
+    border-radius:16px;border:1px solid rgba(233,69,96,.3);">
+    <p style="color:rgba(255,255,255,.8);font-family:Inter,sans-serif;font-size:.92rem;
+      margin-bottom:16px;line-height:1.6;">
+      Found this helpful? Share it with your friends and study partners! 🎯
+    </p>
+    <a href="https://t.me/share/url?url=https://t.me/A2ZUpdates4U&text=Hey!%20👋%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20🚀%0A%0A📚%20VOCAB%20BUILDER%20BOT%0ALearn%20new%20English%20words%20daily%20with:%0A✔️%20English%20%2B%20Hindi%20meanings%0A✔️%20Memory%20mnemonics%20(root-based)%0A✔️%20Synonyms,%20antonyms%20%26%20phonetics%0A✔️%20Flashcard%20practice%0A✔️%20Mock%20vocabulary%20test%0A✔️%20Mind%20map%20by%20word%20tone%0A%0A📰%20DAILY%20EDITORIAL%20STUDY%0AEvery%20day%20we%20post%20The%20Hindu%20%26%20Indian%20Express%20editorials%20with:%0A✔️%20🔴%20Difficult%20words%20highlighted%20in%20red%0A✔️%20Word%20meanings%20in%20English%20%26%20Hindi%0A✔️%20Idioms%20%26%20fixed%20phrases%20explained%0A✔️%20Word-by-word%20Hindi%20translation%0A✔️%20✏️%20Cloze%20Test%20(fill%20in%20the%20blank)%0A✔️%20🧪%20Vocabulary%20MCQ%20(meaning%20→%20word)%0A✔️%20🔀%20Para%20Jumble%20with%204%20ordering%20options%0A✔️%20Read%20with%20browser%20Text-to-Speech!%0A%0A🎯%20Perfect%20for%20SSC%20CGL,%20UPSC,%20IBPS,%20CAT%20%26%20all%20competitive%20exams!%0A%0A🏆%20Founded%20by%20Rahul%20Best%20—%20SSC%20CGL%202022%20AIR%20209%0AHe%20used%20these%20exact%20techniques%20to%20crack%20the%20exam.%20Now%20it's%20your%20turn!%0A%0A👉%20Join%20us%20FREE:%20https://t.me/A2ZUpdates4U%0A%F0%9F%92%AC%20Vocab%20Lounge%3A%20https%3A%2F%2Ft.me%2FA2Zupdates4uLounge" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e94560,#c0392b);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(233,69,96,.4);transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      ✈️ Share on Telegram
+    </a>
+    <a href="https://wa.me/?text=Hey!%20%F0%9F%91%8B%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20%F0%9F%9A%80%0A%0A%F0%9F%93%9A%20VOCAB%20BUILDER%20BOT%0ALearn%20English%20words%20daily%20with%3A%0A%E2%9C%94%EF%B8%8F%20EN%20%2B%20HI%20meanings%0A%E2%9C%94%EF%B8%8F%20Mnemonics%2C%20Flashcards%2C%20Mock%20test%0A%0A%F0%9F%93%B0%20DAILY%20EDITORIAL%20STUDY%0AThe%20Hindu%20%26%20Indian%20Express%20with%3A%0A%E2%9C%94%EF%B8%8F%20Tough%20words%20highlighted%0A%E2%9C%94%EF%B8%8F%20Hindi%20translation%0A%E2%9C%94%EF%B8%8F%20Cloze%20Test%2C%20Vocab%20MCQ%2C%20Para%20Jumble%0A%0A%F0%9F%8F%86%20Founded%20by%20Rahul%20Best%20-%20SSC%20CGL%20AIR%20209%0A%0A%F0%9F%91%89%20Join%20FREE%3A%20https%3A%2F%2Ft.me%2FA2ZUpdates4U" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;
+      background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(37,211,102,.35);margin-top:10px;transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      📲 Share on WhatsApp
+    </a>
+    <p style="color:rgba(255,255,255,.4);font-size:.75rem;margin-top:10px;font-family:Inter,sans-serif;">
+      Opens Telegram with a pre-filled message to forward to friends
+    </p>
+  </div>
+</div>
+
+</div><!-- /container -->
+</div><!-- /mainContent -->
+
+<script>
+// ── Source selector ──────────────────────────────────────────────────────
+function selectSource(src) {
+  document.getElementById('selectorScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('topnav').style.display = 'flex';
+  document.getElementById('srcHeader').style.display = 'block';
+  document.getElementById('ttsBar').style.display = 'flex';
+  var badge = document.getElementById('srcBadge');
+  if (src === 'hindu') { badge.style.background = '#c0392b'; badge.textContent = 'The Hindu'; }
+  else { badge.style.background = '#1a3a6e'; badge.textContent = 'Indian Express'; }
+}
+
+// ── Tab navigation ───────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.topnav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Hindi explanation toggle ─────────────────────────────────────────────
+var hindiVisible = false;
+function toggleAllHindi() {
+  hindiVisible = !hindiVisible;
+  document.querySelectorAll('.hi-exp').forEach(function(el) {
+    el.style.display = hindiVisible ? 'block' : 'none';
+  });
+  document.getElementById('hindiBtn').textContent =
+    hindiVisible ? '🙈 Hide Hindi' : '🇮🇳 Hindi Explanation';
+}
+
+// ── MCQ answer check ─────────────────────────────────────────────────────
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx      = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) {
+    var rev = qblock.querySelector('.ans-reveal');
+    if (rev) rev.style.display = 'block';
+  }
+}
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) { var rev=qblock.querySelector('.ans-reveal'); if(rev) rev.style.display='block'; }
+}
+function clozeAns(btn) {
+  var parent = btn.closest('.mcq-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correct = btn.dataset.ans;
+  parent.querySelectorAll('.opt-btn').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (btn.textContent.trim() === correct) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.opt-btn').forEach(function(b) {
+      if (b.textContent.trim() === correct) b.classList.add('correct');
+    });
+  }
+}
+
+// ── Show/hide answer ─────────────────────────────────────────────────────
+function toggleEl(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── TTS (browser built-in SpeechSynthesis) ───────────────────────────────
+var ttsActive = null;
+function stopSpeech() {
+  if (typeof globalSpeechQueue !== 'undefined') globalSpeechQueue = [];
+  window.speechSynthesis.cancel();
+  ttsActive = null;
+  document.querySelectorAll('.tts-btn').forEach(function(b) { b.textContent = '🔊 Listen'; });
+}
+function speakText(text, btn) {
+  stopSpeech();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-IN';
+  utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  if (btn) {
+    btn.textContent = '⏹ Stop';
+    ttsActive = btn;
+    utt.onend = function() { btn.textContent = '🔊 Listen'; ttsActive = null; };
+  }
+  window.speechSynthesis.speak(utt);
+}
+function speakPara(btn) {
+  if (btn.textContent === '⏹ Stop') { stopSpeech(); return; }
+  var raw = btn.dataset.text || '';
+  // Decode HTML entities so TTS reads plain text
+  var tmp = document.createElement('textarea');
+  tmp.innerHTML = raw;
+  speakText(tmp.value, btn);
+}
+var globalSpeechQueue = [];
+function speakNextInQueue() {
+  if (!globalSpeechQueue.length) return;
+  var text = globalSpeechQueue.shift();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-IN';
+  utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  utt.onend = function() { speakNextInQueue(); };
+  window.speechSynthesis.speak(utt);
+}
+function speakAll() {
+  stopSpeech();
+  globalSpeechQueue = [];
+  document.querySelectorAll('.para-block .para-text').forEach(function(p) {
+    var text = p.innerText || p.textContent;
+    if (text.trim()) globalSpeechQueue.push(text);
+  });
+  speakNextInQueue();
+}
+</script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+    (function(){
+      var tg = window.Telegram?.WebApp;
+      var scores = {clozeTotal:0,clozeCorrect:0,jumbleTotal:0,jumbleCorrect:0,submitted:false};
+      var editorialId = 'afd8b444-c45';
+
+      // Count total questions on page load
+      scores.clozeTotal = document.querySelectorAll('.mcq-opts').length;
+      scores.jumbleTotal = document.querySelectorAll('.pj-opts').length;
+
+      // Override clozeAns to track correct answers
+      var origCloze = window.clozeAns;
+      window.clozeAns = function(btn) {
+        var parent = btn.closest('.mcq-opts');
+        if (parent && parent.querySelector('.correct,.wrong')) return;
+        var correct = btn.dataset.ans;
+        if (btn.textContent.trim() === correct) scores.clozeCorrect++;
+        origCloze(btn);
+        updateTracker();
+      };
+
+      // Override pjAns to track correct answers
+      var origPj = window.pjAns;
+      window.pjAns = function(btn) {
+        var correctIdx = parseInt(btn.dataset.ans);
+        var myIdx = parseInt(btn.dataset.idx);
+        if (myIdx === correctIdx) scores.jumbleCorrect++;
+        origPj(btn);
+        updateTracker();
+      };
+
+      function updateTracker() {
+        var el = document.getElementById('a2z-score-display');
+        if (!el) return;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        el.innerHTML = '<span>Cloze:'+scores.clozeCorrect+'/'+scores.clozeTotal+'</span>'+
+                       '<span>Jumble:'+scores.jumbleCorrect+'/'+scores.jumbleTotal+'</span>'+
+                       '<span>Total: <b style="color:var(--tracker-gold)">'+correct+'/'+total+'</b></span>';
+      }
+
+      function submitResults() {
+        if (scores.submitted) return;
+        scores.submitted = true;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        var acc = total > 0 ? Math.round(correct/total*100) : 0;
+        document.getElementById('a2z-submit-btn').textContent = 'Submitted';
+        document.getElementById('a2z-submit-btn').classList.add('done');
+        document.getElementById('a2z-toast').style.display='block';
+        document.getElementById('a2z-toast').innerHTML =
+          '<div style="font-size:2rem;">'+(acc>=70?'🎉':acc>=40?'✅':'📚')+'</div>'+
+          '<div style="font-weight:700;margin:8px 0;">'+correct+'/'+total+' correct ('+acc+'%)</div>'+
+          '<div style="font-size:.75rem;color:#94a3b8;">Results saved! Check Analytics tab.</div>';
+        setTimeout(function(){document.getElementById('a2z-toast').style.display='none';},3000);
+
+        if (tg) {
+          tg.sendData(JSON.stringify({action:'editorial_result',editorial_id:editorialId,
+            cloze_correct:scores.clozeCorrect,cloze_total:scores.clozeTotal,
+            jumble_correct:scores.jumbleCorrect,jumble_total:scores.jumbleTotal}));
+        }
+      }
+
+      // Build tracker UI
+      var tracker = document.createElement('div');
+      tracker.className = 'a2z-tracker';
+      tracker.id = 'a2z-tracker';
+      tracker.innerHTML = '<div class="a2z-score" id="a2z-score-display">'+
+        '<span>Cloze:0/'+scores.clozeTotal+'</span>'+
+        '<span>Jumble:0/'+scores.jumbleTotal+'</span>'+
+        '<span>Total: <b style="color:var(--tracker-gold)">0/'+(scores.clozeTotal+scores.jumbleTotal)+'</b></span>'+
+        '</div>'+
+        '<button class="a2z-btn" id="a2z-submit-btn" onclick="submitResults()">Submit</button>';
+      document.body.appendChild(tracker);
+
+      // Toast
+      var toast = document.createElement('div');
+      toast.className = 'a2z-toast';
+      toast.id = 'a2z-toast';
+      document.body.appendChild(toast);
+
+      // Add bottom padding for tracker
+      document.body.classList.add('a2z-mode');
+    })();
+    </script>
+    
+</body>
+</html>

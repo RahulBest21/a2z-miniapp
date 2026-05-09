@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Lok Bhavan needs to respect lok&#x27;s mandate — Editorial Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--parchment:#f5eedc;--parchment2:#ede0c4;--dark:#3b2a1a;--ink:#2c1a0e;
+  --accent:#8b1a1a;--gold:#c9922a;--card:#fdf6e3;--border:#d4b896;
+  --shadow:rgba(60,30,10,.15);--red:#c0392b;--red-bg:rgba(192,57,43,.1);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--parchment);color:var(--ink);font-family:'Lora',Georgia,serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:
+  repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(139,90,43,.05) 28px,rgba(139,90,43,.05) 29px),
+  radial-gradient(ellipse at 10% 0%,rgba(139,90,43,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{max-width:860px;margin:0 auto;padding:20px;position:relative;z-index:1}
+/* Source selector */
+.src-selector{display:flex;justify-content:center;gap:12px;padding:20px 0;}
+.src-btn{padding:12px 28px;border:3px solid var(--border);border-radius:10px;background:var(--card);
+  font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;}
+.src-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow);}
+.src-btn.hindu{border-color:#c0392b;color:#c0392b;}
+.src-btn.ie{border-color:#1a3a6e;color:#1a3a6e;}
+.src-btn.hindu:hover,.src-btn.hindu.sel{background:#c0392b;color:#fff;}
+.src-btn.ie:hover,.src-btn.ie.sel{background:#1a3a6e;color:#fff;}
+.src-header{text-align:center;padding:8px 20px 24px;border-bottom:3px double var(--border);margin-bottom:24px;display:none;}
+.src-badge{display:inline-block;padding:4px 14px;border-radius:20px;color:#fff;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:10px;background:#1a3a6e;}
+.src-header h1{font-size:1.9rem;color:var(--dark);line-height:1.3;}
+.src-header .meta{color:var(--gold);font-size:.88rem;margin-top:6px;font-style:italic;}
+/* Nav */
+.topnav{background:var(--parchment2);border-bottom:2px solid var(--border);display:flex;flex-wrap:wrap;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px var(--shadow);display:none;}
+.topnav button{flex:1;min-width:100px;padding:12px 6px;background:none;border:none;
+  color:var(--dark);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .2s;}
+.topnav button.active,.topnav button:hover{color:var(--accent);border-bottom-color:var(--accent);background:rgba(139,26,26,.06);}
+.tab-section{display:none;animation:fadeIn .3s ease;}
+.tab-section.active{display:block;}
+
+/* Para Jumble */
+.pj-sentences{margin:10px 0;}
+.pj-sent{padding:6px 10px;margin:4px 0;background:rgba(201,146,42,.08);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.92rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;font-family:'Inter',sans-serif;
+  font-weight:700;font-size:.78rem;padding:1px 7px;border-radius:4px;margin-right:8px;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;color:var(--accent);
+  margin-right:6px;}
+.opts-hint{font-size:.85rem;color:#888;margin-bottom:4px;}
+
+
+/* Para Jumble MCQ */
+.pj-sentences{margin:10px 0 14px;}
+.pj-sent{padding:7px 10px;margin:4px 0;background:rgba(201,146,42,.09);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.93rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;
+  font-family:'Inter',sans-serif;font-weight:700;font-size:.78rem;
+  padding:1px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;font-size:.9rem;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;
+  color:var(--accent);margin-right:6px;}
+.opts-hint{font-size:.84rem;color:#888;margin:-4px 0 8px;font-style:italic;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent);
+  border-bottom:2px solid var(--border);padding-bottom:8px;margin:24px 0 14px;display:flex;align-items:center;gap:8px;}
+/* Para */
+.para-block{margin-bottom:18px;}
+.para-text{line-height:1.9;font-size:1.03rem;text-align:justify;}
+.tw{color:var(--red);font-weight:600;background:var(--red-bg);border-radius:3px;padding:0 2px;
+  text-decoration:underline dotted var(--red);cursor:help;}
+.hi-exp{display:none;margin-top:8px;padding:10px 14px;background:rgba(201,146,42,.12);
+  border-left:4px solid var(--gold);border-radius:4px;font-size:.93rem;line-height:1.7;color:var(--dark);}
+/* Buttons */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px;}
+.explain-btn,.tts-btn,.reveal-btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:.85rem;transition:opacity .2s;}
+.explain-btn{background:var(--gold);color:#fff;}
+.tts-btn{background:var(--parchment2);color:var(--dark);border:1px solid var(--border);margin-top:6px;font-size:.8rem;}
+.tts-btn:hover,.explain-btn:hover,.reveal-btn:hover{opacity:.82;}
+.reveal-btn{background:var(--accent);color:#fff;}
+/* Tables */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;box-shadow:0 4px 14px var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:.91rem;}
+th{background:var(--parchment2);color:var(--dark);padding:10px;text-align:left;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-weight:700;}
+td{padding:9px 10px;border-bottom:1px solid rgba(180,130,70,.2);vertical-align:top;line-height:1.5;}
+tr:nth-child(even) td{background:rgba(230,210,170,.16);}
+.tw-word{font-weight:700;color:var(--red);} .idm-phrase{color:var(--accent);font-weight:600;}
+.empty-msg{text-align:center;color:#999;padding:20px;}
+/* Questions */
+.q-block{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px var(--shadow);}
+.q-block p{line-height:1.7;margin-bottom:8px;}
+.mcq-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.opt-btn{padding:8px 14px;border:2px solid var(--border);border-radius:8px;background:var(--parchment2);
+  color:var(--ink);font-family:'Lora',serif;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.opt-btn:hover{border-color:var(--accent);}
+.opt-btn.correct{background:rgba(39,174,96,.15);border-color:#27ae60;color:#1a5e35;font-weight:700;}
+.opt-btn.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);font-weight:700;}
+.ans-reveal{margin-top:10px;padding:10px 14px;background:rgba(139,90,43,.1);border-left:4px solid var(--accent);border-radius:4px;font-size:.91rem;}
+.jumble-list{padding-left:20px;line-height:1.9;}
+/* Misc */
+.tts-bar{background:var(--parchment2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:.85rem;}
+.tts-bar select{border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--card);}
+@media(max-width:600px){.src-header h1{font-size:1.3rem;}.container{padding:10px;}table{font-size:.8rem;}}
+
+    /* A2Z Results Tracker — injected */
+    :root{--tracker-bg:#1a1a2e;--tracker-accent:#9d8fff;--tracker-green:#22c55e;--tracker-gold:#fbbf24;--tracker-text:#fff}
+    .a2z-tracker{position:fixed;bottom:0;left:0;right:0;background:var(--tracker-bg);
+      padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+      z-index:9999;box-shadow:0 -2px 12px rgba(0,0,0,.4);font-family:Inter,sans-serif;
+      padding-bottom:max(10px,env(safe-area-inset-bottom));}
+    .a2z-tracker .a2z-score{display:flex;gap:10px;font-size:.72rem;color:#94a3b8;}
+    .a2z-tracker .a2z-score span{color:var(--tracker-gold);font-weight:700;}
+    .a2z-tracker .a2z-btn{background:var(--tracker-accent);color:#fff;border:none;
+      padding:8px 20px;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer;}
+    .a2z-tracker .a2z-btn.done{background:var(--tracker-green);}
+    .a2z-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;
+      color:#fff;padding:16px 24px;border-radius:12px;z-index:9999;font-family:Inter,sans-serif;
+      text-align:center;display:none;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+    body.a2z-mode{padding-bottom:80px !important;}
+    @media(max-width:600px){
+      .a2z-tracker .a2z-score{font-size:.68rem;gap:6px;}
+      .a2z-tracker .a2z-btn{font-size:.75rem;padding:8px 14px;}
+    }
+    
+</style>
+</head>
+<body>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+<!-- A2Z BRANDING BAR -->
+<div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="background:linear-gradient(135deg,#e94560,#0f3460);
+      width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+      justify-content:center;font-size:18px;font-weight:900;color:#fff;font-family:Inter,sans-serif;">A</div>
+    <div>
+      <div style="color:#fff;font-family:Inter,sans-serif;font-weight:800;font-size:.95rem;
+        letter-spacing:.5px;">A2Z Updates4U</div>
+      <div style="color:rgba(255,255,255,.6);font-size:.72rem;font-family:Inter,sans-serif;">
+        Editorial Study Series</div>
+    </div>
+  </div>
+  <a href="https://t.me/A2ZUpdates4U" target="_blank"
+    style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+    text-decoration:none;padding:7px 16px;border-radius:20px;font-family:Inter,sans-serif;
+    font-weight:700;font-size:.8rem;display:flex;align-items:center;gap:6px;">
+    📢 Join Channel
+  </a>
+</div>
+<nav class="topnav" id="topnav" style="display:flex;">
+  <button class="active" onclick="showTab('editorial',this)">📰 Editorial</button>
+  <button onclick="showTab('vocabulary',this)">📚 Vocabulary</button>
+  <button onclick="showTab('idioms',this)">💬 Idioms</button>
+  <button onclick="showTab('cloze',this)">✏️ Cloze Test</button>
+  <button onclick="showTab('vocabtest',this)">🧪 Vocab MCQ</button>
+  <button onclick="showTab('jumble',this)">🔀 Para Jumble</button>
+  <button onclick="showTab('about',this)">ℹ️ About</button>
+</nav>
+<div class="container">
+
+<header class="src-header" id="srcHeader" style="display:block;">
+  <div class="src-badge" id="srcBadge">The Indian Express</div>
+  <h1 id="editTitle">Lok Bhavan needs to respect lok&#x27;s mandate</h1>
+  <div class="meta">09 May 2026</div>
+</header>
+
+<!-- TTS control bar -->
+<div class="tts-bar" id="ttsBar">
+  🔊 <b>Text-to-Speech:</b>
+  <select id="ttsRate"><option value="0.8">Slow</option><option value="1" selected>Normal</option><option value="1.3">Fast</option></select>
+  <button class="reveal-btn" onclick="speakAll()" style="padding:5px 12px;">▶ Read All</button>
+  <button class="reveal-btn" onclick="stopSpeech()" style="padding:5px 12px;background:#666;">■ Stop</button>
+</div>
+
+<!-- EDITORIAL TAB -->
+<div id="editorial" class="tab-section active">
+  <div class="section-title">📝 Editorial</div>
+  <div class="btn-row">
+    <button class="explain-btn" id="hindiBtn" onclick="toggleAllHindi()">🇮🇳 Hindi Explanation</button>
+  </div>
+  
+        <div class="para-block">
+          <p class="para-text">O N MAY 4, in Tamil Nadu, in a <span class="tw" title="dramatic">dramatic</span> <span class="tw" title="verdict">verdict</span> that <span class="tw" title="overturned">overturned</span> pre-poll <span class="tw" title="predictions">predictions</span>, the <span class="tw" title="incumbent">incumbent</span> Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its <span class="tw" title="electoral">electoral</span> <span class="tw" title="debut">debut</span>, got <span class="tw" title="overwhelming">overwhelming</span> support. It stopped just short of a simple <span class="tw" title="majority">majority</span>, with no <span class="tw" title="rival">rival</span> party or pre-poll <span class="tw" title="coalition">coalition</span> coming close. In the <span class="tw" title="aftermath">aftermath</span>, both democratic <span class="tw" title="convention">convention</span> and judicial <span class="tw" title="precedent">precedent</span> <span class="tw" title="dictate">dictate</span> that the single-largest party has the strongest claim to form the government. Yet, Governor R V Arlekar’s <span class="tw" title="stalling">stalling</span>, his <span class="tw" title="insistence">insistence</span> on a list with signatures of MLAs, kept the doors open for <span class="tw" title="rumour">rumour</span> and <span class="tw" title="speculation">speculation</span>, and <span class="tw" title="untenable">untenable</span> claims. On Friday, <span class="tw" title="armed">armed</span> with the numbers, Vijay met the governor again, and is likely to form the government. The <span class="tw" title="episode">episode</span>, however, is a reminder of the importance, especially after a <span class="tw" title="verdict">verdict</span> in which the numbers are not entirely <span class="tw" title="unambiguous">unambiguous</span>, of the governor <span class="tw" title="abiding">abiding</span> by the <span class="tw" title="constitution">constitution</span> — not just in letter, but also in spirit.</p>
+          <div class="hi-exp" id="hi_0">4 मई को, तमिलनाडु में, एक नाटकीय फैसले में जिसने चुनाव-पूर्व भविष्यवाणियों को पलट दिया, मौजूदा द्रमुक हार गई, जबकि विजय की तमिलगा वेत्री कझगम ने, अपनी चुनावी शुरुआत में, भारी समर्थन प्राप्त किया। यह साधारण बहुमत से बस थोड़ा पीछे रह गई, जिसमें कोई प्रतिद्वंद्वी पार्टी या चुनाव-पूर्व गठबंधन करीब नहीं आया। इसके बाद, लोकतांत्रिक परंपरा और न्यायिक मिसाल दोनों यह आदेश देते हैं कि सबसे बड़ी पार्टी के पास सरकार बनाने का सबसे मजबूत दावा है। फिर भी, राज्यपाल आर वी अर्लेकर की टालमटोल, विधायकों के हस्ताक्षरों वाली सूची पर उनका आग्रह, अफवाहों और अटकलों, और असमर्थनीय दावों के लिए दरवाजे खुले रखे। शुक्रवार को, आंकड़ों के साथ लैस होकर, विजय ने राज्यपाल से फिर मुलाकात की, और उनके सरकार बनाने की संभावना है। यह घटना, हालांकि, उस महत्व की याद दिलाती है, विशेष रूप से एक ऐसे फैसले के बाद जिसमें संख्या पूरी तरह से स्पष्ट नहीं है, कि राज्यपाल संविधान का पालन करें — न केवल अक्षरशः, बल्कि भावना के अनुरूप भी।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support. It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close. In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government. Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims. On Friday, armed with the numbers, Vijay met the governor again, and is likely to form the government. The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">The <span class="tw" title="Constitution">Constitution</span> says that the chief minister “shall be appointed by the Governor”. But the <span class="tw" title="gubernatorial">gubernatorial</span> role in government formation is that of a politically neutral <span class="tw" title="facilitator">facilitator</span> in the implementation of the <span class="tw" title="mandate">mandate</span>. In a hung <span class="tw" title="assembly">assembly</span>, the governor exercises <span class="tw" title="discretionary">discretionary</span> power but that, too, must be <span class="tw" title="circumscribed">circumscribed</span> by the goal of giving effect to the people’s <span class="tw" title="verdict">verdict</span>. Governors have often cited the requirement of “<span class="tw" title="subjective">subjective</span> satisfaction” before extending an invitation to form the government. For Arlekar, however, and every governor who has been in this situation — Goa’s Governor Mridula Sinha in 2017 and Karnataka’s Governor Vajubhai Vala in 2018 — the <span class="tw" title="irrefutable">irrefutable</span> test is the floor test. For instance, in a midnight hearing in 2018, the Supreme Court heard MLAs of a post-poll <span class="tw" title="coalition">coalition</span> led by Congress in Karnataka but refused to stay the swearing-in of a BJP government that was short of the halfway mark by eight MLAs. It is another matter that within 36 hours, the B S Yediyurappa government <span class="tw" title="collapsed">collapsed</span> after failing to prove its <span class="tw" title="majority">majority</span>. The SC has underlined the <span class="tw" title="primacy">primacy</span> of the floor test in several other <span class="tw" title="instances">instances</span> — in Goa in 2017, Uttarakhand in 2016 and Maharashtra in 2019. Even if the government falls, it must do so on the floor of the House. By demanding signatures beforehand, the governor is pre-empting this process, which must <span class="tw" title="unfold">unfold</span> in the appropriate <span class="tw" title="forum">forum</span>.</p>
+          <div class="hi-exp" id="hi_1">संविधान कहता है कि मुख्यमंत्री की नियुक्ति राज्यपाल द्वारा की जाएगी। लेकिन सरकार गठन में राज्यपाल की भूमिका जनादेश को लागू करने में एक तटस्थ सुविधा प्रदाता की होती है। त्रिशंकु विधानसभा में, राज्यपाल अपनी विवेकाधीन शक्तियों का उपयोग करते हैं, लेकिन इसे लोगों के फैसले को प्रभावी बनाने के लक्ष्य तक ही सीमित होना चाहिए। राज्यपाल अक्सर सरकार बनाने का निमंत्रण देने से पहले &#x27;व्यक्तिपरक संतुष्टि&#x27; की आवश्यकता का हवाला देते हैं। हालांकि, अर्लेकर और इस स्थिति में रहे हर राज्यपाल के लिए, सबसे महत्वपूर्ण परीक्षण सदन में बहुमत साबित करना (फ्लोर टेस्ट) है।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="The Constitution says that the chief minister “shall be appointed by the Governor”. But the gubernatorial role in government formation is that of a politically neutral facilitator in the implementation of the mandate. In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict. Governors have often cited the requirement of “subjective satisfaction” before extending an invitation to form the government. For Arlekar, however, and every governor who has been in this situation — Goa’s Governor Mridula Sinha in 2017 and Karnataka’s Governor Vajubhai Vala in 2018 — the irrefutable test is the floor test. For instance, in a midnight hearing in 2018, the Supreme Court heard MLAs of a post-poll coalition led by Congress in Karnataka but refused to stay the swearing-in of a BJP government that was short of the halfway mark by eight MLAs. It is another matter that within 36 hours, the B S Yediyurappa government collapsed after failing to prove its majority. The SC has underlined the primacy of the floor test in several other instances — in Goa in 2017, Uttarakhand in 2016 and Maharashtra in 2019. Even if the government falls, it must do so on the floor of the House. By demanding signatures beforehand, the governor is pre-empting this process, which must unfold in the appropriate forum.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">The governor’s actions must be <span class="tw" title="impartial">impartial</span>, and they must be seen to be so, too. The <span class="tw" title="verdict">verdict</span> cannot be re-shaped or <span class="tw" title="manipulated">manipulated</span> through post-election <span class="tw" title="manoeuvres">manoeuvres</span> in Raj Bhavan. In Chennai, the support of the Left parties and VCK — The Congress had <span class="tw" title="pledged">pledged</span> its five earlier — helped Vijay cross the line and avoided what could have been an <span class="tw" title="unseemly">unseemly</span> <span class="tw" title="deadlock">deadlock</span>. Still, the Lok Bhavan needs a reminder that it must <span class="tw" title="abide">abide</span> by first <span class="tw" title="principles">principles</span>, place the Lok, the people’s <span class="tw" title="mandate">mandate</span>, above all.</p>
+          <div class="hi-exp" id="hi_2">राज्यपाल के कार्य निष्पक्ष होने चाहिए और उन्हें निष्पक्ष दिखना भी चाहिए। चुनाव के बाद राजभवन में की जाने वाली पैंतरेबाज़ी से जनादेश को बदला या हेरफेर नहीं किया जा सकता है। चेन्नई में, वामपंथी दलों और वीसीके के समर्थन ने विजय को बहुमत के आंकड़े तक पहुंचने में मदद की और एक संभावित गतिरोध को टाल दिया। फिर भी, राजभवन को यह याद दिलाने की आवश्यकता है कि उसे अपने मूल सिद्धांतों का पालन करना चाहिए और लोगों के जनादेश को सर्वोपरि रखना चाहिए।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="The governor’s actions must be impartial, and they must be seen to be so, too. The verdict cannot be re-shaped or manipulated through post-election manoeuvres in Raj Bhavan. In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock. Still, the Lok Bhavan needs a reminder that it must abide by first principles, place the Lok, the people’s mandate, above all.">🔊 Listen</button>
+        </div>
+  <div class="section-title">🔴 Tough Words</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">dramatic</td><td>striking in appearance or effect</td><td>नाटकीय</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">overturned</td><td>abolished, invalidated, or reversed completely</td><td>पलट दिया</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">incumbent</td><td>currently holding an indicated office</td><td>पदधारी</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">debut</td><td>a person&#x27;s first appearance or performance</td><td>प्रथम प्रदर्शन</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">overwhelming</td><td>very great in amount or intensity</td><td>अत्यधिक</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">precedent</td><td>an earlier event regarded as example</td><td>मिसाल</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">dictate</td><td>lay down authoritatively or prescribe</td><td>आदेश देना</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">stalling</td><td>delaying or obstructing an action</td><td>टालमटोल</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">insistence</td><td>the act of demanding something firmly</td><td>आग्रह</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">speculation</td><td>forming a theory without firm evidence</td><td>अनुमान</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">untenable</td><td>not able to be maintained or defended</td><td>असमर्थनीय</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">unambiguous</td><td>not open to more than one interpretation</td><td>स्पष्ट</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">abiding</td><td>complying with or obeying a rule</td><td>पालन करना</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">verdict</td><td>a decision on a disputed issue</td><td>फैसला</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">aftermath</td><td>the consequences of an unpleasant event</td><td>परिणाम</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">convention</td><td>a way in which something is done</td><td>परंपरा</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">electoral</td><td>relating to elections or electors</td><td>चुनावी</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">coalition</td><td>an alliance for combined action</td><td>गठबंधन</td><td><em>It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close.</em></td></tr><tr><td class="tw-word">rival</td><td>a person or thing competing with another</td><td>प्रतिद्वंद्वी</td><td><em>It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close.</em></td></tr><tr><td class="tw-word">majority</td><td>the greater number of something</td><td>बहुमत</td><td><em>It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close.</em></td></tr><tr><td class="tw-word">armed</td><td>equipped with something necessary</td><td>सज्जित</td><td><em>On Friday, armed with the numbers, Vijay met the governor again, and is likely to form the government.</em></td></tr><tr><td class="tw-word">episode</td><td>an event or a group of events</td><td>घटना</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">constitution</td><td>the supreme law of a state</td><td>संविधान</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">predictions</td><td>things predicted or forecast</td><td>भविष्यवाणियां</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">rumour</td><td>a currently circulating story of uncertain truth</td><td>अफवाह</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">gubernatorial</td><td>Relating to the office of a governor</td><td>राज्यपाल संबंधी</td><td><em>But the gubernatorial role in government formation is that of a politically neutral facilitator in the implementation of the mandate.</em></td></tr><tr><td class="tw-word">facilitator</td><td>Someone who helps a process run smoothly</td><td>सुविधा प्रदाता</td><td><em>But the gubernatorial role in government formation is that of a politically neutral facilitator in the implementation of the mandate.</em></td></tr><tr><td class="tw-word">mandate</td><td>Official authority to carry out a policy</td><td>जनादेश</td><td><em>But the gubernatorial role in government formation is that of a politically neutral facilitator in the implementation of the mandate.</em></td></tr><tr><td class="tw-word">circumscribed</td><td>Restricted within certain limits or boundaries</td><td>सीमित</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">discretionary</td><td>Available to be used when desired</td><td>विवेकाधीन</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">subjective</td><td>Based on personal feelings or opinions</td><td>व्यक्तिपरक</td><td><em>Governors have often cited the requirement of “subjective satisfaction” before extending an invitation to form the government.</em></td></tr><tr><td class="tw-word">irrefutable</td><td>Impossible to deny or disprove</td><td>अकाट्य</td><td><em>For Arlekar, however, and every governor who has been in this situation — Goa’s Governor Mridula Sinha in 2017 and Karnataka’s Governor Vajubhai Vala in 2018 — the irrefutable test is the floor test.</em></td></tr><tr><td class="tw-word">primacy</td><td>The state of being most important</td><td>प्रधानता</td><td><em>The SC has underlined the primacy of the floor test in several other instances — in Goa in 2017, Uttarakhand in 2016 and Maharashtra in 2019.</em></td></tr><tr><td class="tw-word">pre-empting</td><td>Taking action to prevent an event</td><td>पूर्व-अतिक्रमण करना</td><td><em>By demanding signatures beforehand, the governor is pre-empting this process, which must unfold in the appropriate forum.</em></td></tr><tr><td class="tw-word">impartial</td><td>Treating all rivals equally; fair</td><td>निष्पक्ष</td><td><em>The governor’s actions must be impartial, and they must be seen to be so, too.</em></td></tr><tr><td class="tw-word">manoeuvres</td><td>Carefully planned series of actions</td><td>पैंतरेबाज़ी</td><td><em>The verdict cannot be re-shaped or manipulated through post-election manoeuvres in Raj Bhavan.</em></td></tr><tr><td class="tw-word">unseemly</td><td>Not proper or appropriate behavior</td><td>अनुचित</td><td><em>In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock.</em></td></tr><tr><td class="tw-word">deadlock</td><td>A situation where no progress is possible</td><td>गतिरोध</td><td><em>In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock.</em></td></tr><tr><td class="tw-word">pledged</td><td>Committed by a solemn promise</td><td>वचनबद्ध</td><td><em>In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock.</em></td></tr><tr><td class="tw-word">abide</td><td>Accept or act in accordance with</td><td>पालन करना</td><td><em>Still, the Lok Bhavan needs a reminder that it must abide by first principles, place the Lok, the people’s mandate, above all.</em></td></tr><tr><td class="tw-word">assembly</td><td>A group of people gathered together</td><td>विधानसभा</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">verdict</td><td>A decision on a disputed issue</td><td>फैसला</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">coalition</td><td>An alliance for combined action</td><td>गठबंधन</td><td><em>For instance, in a midnight hearing in 2018, the Supreme Court heard MLAs of a post-poll coalition led by Congress in Karnataka but refused to stay the swearing-in of a BJP government that was short of the halfway mark by eight MLAs.</em></td></tr><tr><td class="tw-word">swearing-in</td><td>The ceremony of taking an oath</td><td>शपथ ग्रहण</td><td><em>For instance, in a midnight hearing in 2018, the Supreme Court heard MLAs of a post-poll coalition led by Congress in Karnataka but refused to stay the swearing-in of a BJP government that was short of the halfway mark by eight MLAs.</em></td></tr><tr><td class="tw-word">collapsed</td><td>Fell down or failed suddenly</td><td>गिर जाना</td><td><em>It is another matter that within 36 hours, the B S Yediyurappa government collapsed after failing to prove its majority.</em></td></tr><tr><td class="tw-word">instances</td><td>Examples or occurrences of something</td><td>उदाहरण</td><td><em>The SC has underlined the primacy of the floor test in several other instances — in Goa in 2017, Uttarakhand in 2016 and Maharashtra in 2019.</em></td></tr><tr><td class="tw-word">unfold</td><td>To reveal or develop gradually</td><td>प्रकट होना</td><td><em>By demanding signatures beforehand, the governor is pre-empting this process, which must unfold in the appropriate forum.</em></td></tr><tr><td class="tw-word">manipulated</td><td>Controlled in a skillful or unfair way</td><td>हेरफेर करना</td><td><em>The verdict cannot be re-shaped or manipulated through post-election manoeuvres in Raj Bhavan.</em></td></tr><tr><td class="tw-word">principles</td><td>Fundamental truths or propositions</td><td>सिद्धांत</td><td><em>Still, the Lok Bhavan needs a reminder that it must abide by first principles, place the Lok, the people’s mandate, above all.</em></td></tr><tr><td class="tw-word">forum</td><td>A place for discussion or debate</td><td>मंच</td><td><em>By demanding signatures beforehand, the governor is pre-empting this process, which must unfold in the appropriate forum.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- VOCABULARY TAB -->
+<div id="vocabulary" class="tab-section">
+  <div class="section-title">📚 Vocabulary</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">dramatic</td><td>striking in appearance or effect</td><td>नाटकीय</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">overturned</td><td>abolished, invalidated, or reversed completely</td><td>पलट दिया</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">incumbent</td><td>currently holding an indicated office</td><td>पदधारी</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">debut</td><td>a person&#x27;s first appearance or performance</td><td>प्रथम प्रदर्शन</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">overwhelming</td><td>very great in amount or intensity</td><td>अत्यधिक</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">precedent</td><td>an earlier event regarded as example</td><td>मिसाल</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">dictate</td><td>lay down authoritatively or prescribe</td><td>आदेश देना</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">stalling</td><td>delaying or obstructing an action</td><td>टालमटोल</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">insistence</td><td>the act of demanding something firmly</td><td>आग्रह</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">speculation</td><td>forming a theory without firm evidence</td><td>अनुमान</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">untenable</td><td>not able to be maintained or defended</td><td>असमर्थनीय</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">unambiguous</td><td>not open to more than one interpretation</td><td>स्पष्ट</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">abiding</td><td>complying with or obeying a rule</td><td>पालन करना</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">verdict</td><td>a decision on a disputed issue</td><td>फैसला</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">aftermath</td><td>the consequences of an unpleasant event</td><td>परिणाम</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">convention</td><td>a way in which something is done</td><td>परंपरा</td><td><em>In the aftermath, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</em></td></tr><tr><td class="tw-word">electoral</td><td>relating to elections or electors</td><td>चुनावी</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">coalition</td><td>an alliance for combined action</td><td>गठबंधन</td><td><em>It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close.</em></td></tr><tr><td class="tw-word">rival</td><td>a person or thing competing with another</td><td>प्रतिद्वंद्वी</td><td><em>It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close.</em></td></tr><tr><td class="tw-word">majority</td><td>the greater number of something</td><td>बहुमत</td><td><em>It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close.</em></td></tr><tr><td class="tw-word">armed</td><td>equipped with something necessary</td><td>सज्जित</td><td><em>On Friday, armed with the numbers, Vijay met the governor again, and is likely to form the government.</em></td></tr><tr><td class="tw-word">episode</td><td>an event or a group of events</td><td>घटना</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">constitution</td><td>the supreme law of a state</td><td>संविधान</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="tw-word">predictions</td><td>things predicted or forecast</td><td>भविष्यवाणियां</td><td><em>O N MAY 4, in Tamil Nadu, in a dramatic verdict that overturned pre-poll predictions, the incumbent Dravida Munnetra Kazhagam (DMK) lost, while Vijay’s Tamilaga Vettri Kazhagam (TVK), in its electoral debut, got overwhelming support.</em></td></tr><tr><td class="tw-word">rumour</td><td>a currently circulating story of uncertain truth</td><td>अफवाह</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="tw-word">gubernatorial</td><td>Relating to the office of a governor</td><td>राज्यपाल संबंधी</td><td><em>But the gubernatorial role in government formation is that of a politically neutral facilitator in the implementation of the mandate.</em></td></tr><tr><td class="tw-word">facilitator</td><td>Someone who helps a process run smoothly</td><td>सुविधा प्रदाता</td><td><em>But the gubernatorial role in government formation is that of a politically neutral facilitator in the implementation of the mandate.</em></td></tr><tr><td class="tw-word">mandate</td><td>Official authority to carry out a policy</td><td>जनादेश</td><td><em>But the gubernatorial role in government formation is that of a politically neutral facilitator in the implementation of the mandate.</em></td></tr><tr><td class="tw-word">circumscribed</td><td>Restricted within certain limits or boundaries</td><td>सीमित</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">discretionary</td><td>Available to be used when desired</td><td>विवेकाधीन</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">subjective</td><td>Based on personal feelings or opinions</td><td>व्यक्तिपरक</td><td><em>Governors have often cited the requirement of “subjective satisfaction” before extending an invitation to form the government.</em></td></tr><tr><td class="tw-word">irrefutable</td><td>Impossible to deny or disprove</td><td>अकाट्य</td><td><em>For Arlekar, however, and every governor who has been in this situation — Goa’s Governor Mridula Sinha in 2017 and Karnataka’s Governor Vajubhai Vala in 2018 — the irrefutable test is the floor test.</em></td></tr><tr><td class="tw-word">primacy</td><td>The state of being most important</td><td>प्रधानता</td><td><em>The SC has underlined the primacy of the floor test in several other instances — in Goa in 2017, Uttarakhand in 2016 and Maharashtra in 2019.</em></td></tr><tr><td class="tw-word">pre-empting</td><td>Taking action to prevent an event</td><td>पूर्व-अतिक्रमण करना</td><td><em>By demanding signatures beforehand, the governor is pre-empting this process, which must unfold in the appropriate forum.</em></td></tr><tr><td class="tw-word">impartial</td><td>Treating all rivals equally; fair</td><td>निष्पक्ष</td><td><em>The governor’s actions must be impartial, and they must be seen to be so, too.</em></td></tr><tr><td class="tw-word">manoeuvres</td><td>Carefully planned series of actions</td><td>पैंतरेबाज़ी</td><td><em>The verdict cannot be re-shaped or manipulated through post-election manoeuvres in Raj Bhavan.</em></td></tr><tr><td class="tw-word">unseemly</td><td>Not proper or appropriate behavior</td><td>अनुचित</td><td><em>In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock.</em></td></tr><tr><td class="tw-word">deadlock</td><td>A situation where no progress is possible</td><td>गतिरोध</td><td><em>In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock.</em></td></tr><tr><td class="tw-word">pledged</td><td>Committed by a solemn promise</td><td>वचनबद्ध</td><td><em>In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock.</em></td></tr><tr><td class="tw-word">abide</td><td>Accept or act in accordance with</td><td>पालन करना</td><td><em>Still, the Lok Bhavan needs a reminder that it must abide by first principles, place the Lok, the people’s mandate, above all.</em></td></tr><tr><td class="tw-word">assembly</td><td>A group of people gathered together</td><td>विधानसभा</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">verdict</td><td>A decision on a disputed issue</td><td>फैसला</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="tw-word">coalition</td><td>An alliance for combined action</td><td>गठबंधन</td><td><em>For instance, in a midnight hearing in 2018, the Supreme Court heard MLAs of a post-poll coalition led by Congress in Karnataka but refused to stay the swearing-in of a BJP government that was short of the halfway mark by eight MLAs.</em></td></tr><tr><td class="tw-word">swearing-in</td><td>The ceremony of taking an oath</td><td>शपथ ग्रहण</td><td><em>For instance, in a midnight hearing in 2018, the Supreme Court heard MLAs of a post-poll coalition led by Congress in Karnataka but refused to stay the swearing-in of a BJP government that was short of the halfway mark by eight MLAs.</em></td></tr><tr><td class="tw-word">collapsed</td><td>Fell down or failed suddenly</td><td>गिर जाना</td><td><em>It is another matter that within 36 hours, the B S Yediyurappa government collapsed after failing to prove its majority.</em></td></tr><tr><td class="tw-word">instances</td><td>Examples or occurrences of something</td><td>उदाहरण</td><td><em>The SC has underlined the primacy of the floor test in several other instances — in Goa in 2017, Uttarakhand in 2016 and Maharashtra in 2019.</em></td></tr><tr><td class="tw-word">unfold</td><td>To reveal or develop gradually</td><td>प्रकट होना</td><td><em>By demanding signatures beforehand, the governor is pre-empting this process, which must unfold in the appropriate forum.</em></td></tr><tr><td class="tw-word">manipulated</td><td>Controlled in a skillful or unfair way</td><td>हेरफेर करना</td><td><em>The verdict cannot be re-shaped or manipulated through post-election manoeuvres in Raj Bhavan.</em></td></tr><tr><td class="tw-word">principles</td><td>Fundamental truths or propositions</td><td>सिद्धांत</td><td><em>Still, the Lok Bhavan needs a reminder that it must abide by first principles, place the Lok, the people’s mandate, above all.</em></td></tr><tr><td class="tw-word">forum</td><td>A place for discussion or debate</td><td>मंच</td><td><em>By demanding signatures beforehand, the governor is pre-empting this process, which must unfold in the appropriate forum.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- IDIOMS TAB -->
+<div id="idioms" class="tab-section">
+  <div class="section-title">💬 Idioms &amp; Phrases</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phrase</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="idm-phrase">stopped just short of</td><td>almost reached a point but did not</td><td>बस थोड़ा सा पीछे रह जाना</td><td><em>It stopped just short of a simple majority, with no rival party or pre-poll coalition coming close.</em></td></tr><tr><td class="idm-phrase">kept the doors open</td><td>allowed a possibility to continue</td><td>संभावना बनाए रखना</td><td><em>Yet, Governor R V Arlekar’s stalling, his insistence on a list with signatures of MLAs, kept the doors open for rumour and speculation, and untenable claims.</em></td></tr><tr><td class="idm-phrase">in letter and in spirit</td><td>following both the literal rules and the intent</td><td>अक्षरशः और भावना के अनुरूप</td><td><em>The episode, however, is a reminder of the importance, especially after a verdict in which the numbers are not entirely unambiguous, of the governor abiding by the constitution — not just in letter, but also in spirit.</em></td></tr><tr><td class="idm-phrase">hung assembly</td><td>A parliament where no party has a majority</td><td>त्रिशंकु विधानसभा</td><td><em>In a hung assembly, the governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s verdict.</em></td></tr><tr><td class="idm-phrase">floor test</td><td>A vote to prove majority in the house</td><td>बहुमत परीक्षण</td><td><em>For Arlekar, however, and every governor who has been in this situation — Goa’s Governor Mridula Sinha in 2017 and Karnataka’s Governor Vajubhai Vala in 2018 — the irrefutable test is the floor test.</em></td></tr><tr><td class="idm-phrase">cross the line</td><td>To reach a required goal or threshold</td><td>लक्ष्य प्राप्त करना</td><td><em>In Chennai, the support of the Left parties and VCK — The Congress had pledged its five earlier — helped Vijay cross the line and avoided what could have been an unseemly deadlock.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- CLOZE TEST TAB -->
+<div id="cloze" class="tab-section">
+  <div class="section-title">✏️ Cloze Test</div>
+  <div class="q-block"><p><b>Q1.</b> The governor’s actions must be ___, and they must be seen to be so, too.</p><div class="mcq-opts"><button class="opt-btn" data-ans="impartial" onclick="clozeAns(this)">impartial</button><button class="opt-btn" data-ans="impartial" onclick="clozeAns(this)">unambiguous</button><button class="opt-btn" data-ans="impartial" onclick="clozeAns(this)">untenable</button><button class="opt-btn" data-ans="impartial" onclick="clozeAns(this)">unseemly</button></div></div><div class="q-block"><p><b>Q2.</b> The Constitution says that the chief minister “shall be appointed by the ___”.</p><div class="mcq-opts"><button class="opt-btn" data-ans="Governor" onclick="clozeAns(this)">Governor</button><button class="opt-btn" data-ans="Governor" onclick="clozeAns(this)">Assembly</button><button class="opt-btn" data-ans="Governor" onclick="clozeAns(this)">Legislature</button><button class="opt-btn" data-ans="Governor" onclick="clozeAns(this)">President</button></div></div><div class="q-block"><p><b>Q3.</b> The governor exercises discretionary power but that, too, must be circumscribed by the goal of giving effect to the people’s ___.</p><div class="mcq-opts"><button class="opt-btn" data-ans="mandate" onclick="clozeAns(this)">mandate</button><button class="opt-btn" data-ans="mandate" onclick="clozeAns(this)">precedent</button><button class="opt-btn" data-ans="mandate" onclick="clozeAns(this)">convention</button><button class="opt-btn" data-ans="mandate" onclick="clozeAns(this)">verdict</button></div></div><div class="q-block"><p><b>Q4.</b> In the ___, both democratic convention and judicial precedent dictate that the single-largest party has the strongest claim to form the government.</p><div class="mcq-opts"><button class="opt-btn" data-ans="aftermath" onclick="clozeAns(this)">aftermath</button><button class="opt-btn" data-ans="aftermath" onclick="clozeAns(this)">episode</button><button class="opt-btn" data-ans="aftermath" onclick="clozeAns(this)">verdict</button><button class="opt-btn" data-ans="aftermath" onclick="clozeAns(this)">debut</button></div></div><div class="q-block"><p><b>Q5.</b> The SC has underlined the ___ of the floor test in several other instances.</p><div class="mcq-opts"><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)">primacy</button><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)">majority</button><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)">coalition</button><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)">discretion</button></div></div>
+</div>
+
+<!-- VOCAB MCQ TAB -->
+<div id="vocabtest" class="tab-section">
+  <div class="section-title">🧪 Vocabulary MCQ</div>
+  <div class="q-block"><p><b>Q1.</b> Which word means &#x27;a person or thing that makes an action or process easy or easier&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="facilitator" onclick="clozeAns(this)"><b>facilitator</b></button><button class="opt-btn" data-ans="facilitator" onclick="clozeAns(this)"><b>coalition</b></button><button class="opt-btn" data-ans="facilitator" onclick="clozeAns(this)"><b>precedent</b></button><button class="opt-btn" data-ans="facilitator" onclick="clozeAns(this)"><b>mandate</b></button></div></div><div class="q-block"><p><b>Q2.</b> Which word means &#x27;the state of being the current holder of an office&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="incumbent" onclick="clozeAns(this)"><b>incumbent</b></button><button class="opt-btn" data-ans="incumbent" onclick="clozeAns(this)"><b>majority</b></button><button class="opt-btn" data-ans="incumbent" onclick="clozeAns(this)"><b>assembly</b></button><button class="opt-btn" data-ans="incumbent" onclick="clozeAns(this)"><b>verdict</b></button></div></div><div class="q-block"><p><b>Q3.</b> Which word means &#x27;not able to be maintained or defended against attack or objection&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="untenable" onclick="clozeAns(this)"><b>untenable</b></button><button class="opt-btn" data-ans="untenable" onclick="clozeAns(this)"><b>unambiguous</b></button><button class="opt-btn" data-ans="untenable" onclick="clozeAns(this)"><b>impartial</b></button><button class="opt-btn" data-ans="untenable" onclick="clozeAns(this)"><b>unseemly</b></button></div></div><div class="q-block"><p><b>Q4.</b> Which word means &#x27;the first appearance of a person or thing in a particular capacity&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="debut" onclick="clozeAns(this)"><b>debut</b></button><button class="opt-btn" data-ans="debut" onclick="clozeAns(this)"><b>episode</b></button><button class="opt-btn" data-ans="debut" onclick="clozeAns(this)"><b>aftermath</b></button><button class="opt-btn" data-ans="debut" onclick="clozeAns(this)"><b>verdict</b></button></div></div><div class="q-block"><p><b>Q5.</b> Which word means &#x27;the most important or primary position&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)"><b>primacy</b></button><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)"><b>majority</b></button><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)"><b>convention</b></button><button class="opt-btn" data-ans="primacy" onclick="clozeAns(this)"><b>mandate</b></button></div></div>
+</div>
+
+<!-- PARA JUMBLE TAB -->
+<div id="jumble" class="tab-section">
+  <div class="section-title">🔀 Para Jumble</div>
+  <div class="q-block"><p><b>Para Jumble 1:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The governor must act as a neutral party during government formation.</div><div class="pj-sent"><span class="pj-label">S2</span> However, the governor&#x27;s role is strictly defined by the constitution.</div><div class="pj-sent"><span class="pj-label">S3</span> He should facilitate the process rather than obstruct it.</div><div class="pj-sent"><span class="pj-label">S4</span> This ensures the people&#x27;s mandate is respected.</div></div><div class="mcq-opts pj-opts" id="pjopts_1"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S3→S1→S2→S4</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S2→S1→S4→S3</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S2→S3→S4→S1</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S2→S1→S3→S4</button></div><div class="ans-reveal" id="pj_1" style="display:none">✅ Correct order: <b>S2→S1→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 2:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The Supreme Court has consistently prioritized the floor test.</div><div class="pj-sent"><span class="pj-label">S2</span> This test is the ultimate way to prove a majority.</div><div class="pj-sent"><span class="pj-label">S3</span> It prevents governors from making subjective decisions.</div><div class="pj-sent"><span class="pj-label">S4</span> Therefore, the assembly floor is the only appropriate forum.</div></div><div class="mcq-opts pj-opts" id="pjopts_2"><button class="opt-btn pj-opt" data-ans="0" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S4→S2→S3→S1</button><button class="opt-btn pj-opt" data-ans="0" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S2→S4→S1→S3</button><button class="opt-btn pj-opt" data-ans="0" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S4→S2→S3</button></div><div class="ans-reveal" id="pj_2" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 3:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> Vijay&#x27;s party performed exceptionally well in its first election.</div><div class="pj-sent"><span class="pj-label">S2</span> They nearly achieved a simple majority on their own.</div><div class="pj-sent"><span class="pj-label">S3</span> This result surprised many political analysts.</div><div class="pj-sent"><span class="pj-label">S4</span> Consequently, they sought to form the new government.</div></div><div class="mcq-opts pj-opts" id="pjopts_3"><button class="opt-btn pj-opt" data-ans="2" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S2→S4→S3</button><button class="opt-btn pj-opt" data-ans="2" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S3→S2→S4→S1</button><button class="opt-btn pj-opt" data-ans="2" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="2" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S2→S4→S3→S1</button></div><div class="ans-reveal" id="pj_3" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 4:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The governor demanded signatures from the MLAs.</div><div class="pj-sent"><span class="pj-label">S2</span> This action caused unnecessary speculation and delay.</div><div class="pj-sent"><span class="pj-label">S3</span> It was an attempt to pre-empt the formal floor test.</div><div class="pj-sent"><span class="pj-label">S4</span> Such demands are not in line with democratic conventions.</div></div><div class="mcq-opts pj-opts" id="pjopts_4"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S4→S1→S2→S3</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S3→S1→S4→S2</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S1→S2→S4→S3</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S2→S3→S4</button></div><div class="ans-reveal" id="pj_4" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 5:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The incumbent party lost the election unexpectedly.</div><div class="pj-sent"><span class="pj-label">S2</span> The new party gained significant public support.</div><div class="pj-sent"><span class="pj-label">S3</span> This shift in power changed the political landscape.</div><div class="pj-sent"><span class="pj-label">S4</span> The people&#x27;s verdict was clear and decisive.</div></div><div class="mcq-opts pj-opts" id="pjopts_5"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S2→S3→S4→S1</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S4→S2→S3</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S2→S1→S4</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S2→S4→S3</button></div><div class="ans-reveal" id="pj_5" style="display:none">✅ Correct order: <b>S1→S2→S4→S3</b></div></div>
+</div>
+
+
+<!-- SHARE FOOTER -->
+<div style="margin:40px 0 20px;padding:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border-radius:16px;text-align:center;border:1px solid rgba(233,69,96,.3);">
+  <div style="color:#fff;font-family:Inter,sans-serif;font-weight:700;font-size:1rem;
+    margin-bottom:6px;">Powered by A2Z Updates4U</div>
+  <div style="color:rgba(255,255,255,.6);font-size:.8rem;font-family:Inter,sans-serif;
+    margin-bottom:14px;">Daily Editorial · Vocab · Current Affairs</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <a href="https://t.me/A2ZUpdates4U" target="_blank"
+      style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;display:inline-flex;align-items:center;gap:7px;">
+      📢 A2Z Updates Channel
+    </a>
+    <a href="https://t.me/A2Zupdates4uLounge" target="_blank"
+      style="background:linear-gradient(135deg,#0f3460,#16213e);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;border:1px solid rgba(233,69,96,.4);
+      display:inline-flex;align-items:center;gap:7px;">
+      📚 Vocab Bot Lounge
+    </a>
+  </div>
+</div>
+
+
+<!-- ABOUT SECTION -->
+<div id="about" class="tab-section">
+  <div class="section-title">ℹ️ About A2Z Updates4U</div>
+    <!-- Founder Story -->
+    <div style="background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(217,70,239,.1));
+      border:1px solid rgba(201,146,42,.4);border-radius:16px;padding:26px;
+      margin-bottom:24px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.06;line-height:1;">🏆</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:54px;height:54px;border-radius:50%;
+          background:linear-gradient(135deg,#c9922a,#8b1a1a);
+          display:flex;align-items:center;justify-content:center;
+          font-size:22px;font-weight:900;color:var(--dark);font-family:Inter,sans-serif;
+          flex-shrink:0;box-shadow:0 4px 14px rgba(201,146,42,.4);">R</div>
+        <div>
+          <div style="color:var(--dark);font-family:Inter,sans-serif;font-weight:800;font-size:1.05rem;">
+            Rahul Best
+          </div>
+          <div style="color:#d4a843;font-size:.8rem;font-family:Inter,sans-serif;">
+            Founder &amp; Creator &nbsp;·&nbsp;
+            <span style="background:linear-gradient(135deg,#f59e0b,#ef4444);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">
+              SSC CGL AIR 209 🏆
+            </span>
+          </div>
+        </div>
+      </div>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        <strong style="color:#d4a843;">A2Z Updates4U</strong> was born from a single student's obsession
+        with cracking India's toughest competitive exams. <strong>Rahul Best</strong> spent years
+        grinding through newspaper editorials every single morning, building vocabulary flashcard by
+        flashcard, and decoding idioms that left most students stumped. His secret? He turned every
+        editorial into a structured study session — exactly what this tool does for you.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        That obsession paid off.
+        Rahul cleared <strong>SSC CGL with an All India Rank of 209</strong> — placing him among the
+        top exam toppers in the country. His English section score was near-perfect, powered entirely
+        by the vocabulary and editorial reading habits he had built over years.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;">
+        After his selection, Rahul decided he couldn't keep these battle-tested techniques to himself.
+        He built <strong>A2Z Updates4U</strong> so that every serious aspirant could access the same
+        powerful study system — completely free. If it got him to <strong>AIR 209</strong>,
+        imagine what it can do for you. 🚀
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <span style="background:rgba(245,158,11,.15);border:1px solid #f59e0b;color:#fbbf24;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          🏆 SSC CGL
+        </span>
+        <span style="background:rgba(201,146,42,.12);border:1px solid #8b5cf6;color:#d4a843;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📊 AIR 209
+        </span>
+        <span style="background:rgba(16,185,129,.15);border:1px solid #10b981;color:#6ee7b7;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📰 Daily Editorial Reader
+        </span>
+        <span style="background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#fca5a5;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📚 5000+ Vocab Words Mastered
+        </span>
+      </div>
+    </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:24px;">
+    <!-- Vocab Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📚</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Vocabulary Builder Bot
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Add any English word and instantly get its <strong>meaning in English &amp; Hindi</strong>,
+        synonyms, antonyms, phonetics, a <strong>root-based mnemonic</strong> to never forget it,
+        and an example sentence. Export your entire word list as a beautiful HTML flashcard set
+        with mock tests &amp; mind maps!
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔤 Word meaning in EN + HI</li>
+        <li>🧠 Memory mnemonic (root-based)</li>
+        <li>🃏 Flashcard practice</li>
+        <li>🧪 Mock vocabulary test</li>
+        <li>🗺️ Mind map of word tones</li>
+      </ul>
+    </div>
+    <!-- Editorial Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📰</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Daily Editorial Study
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Every day we post The Hindu &amp; Indian Express editorials transformed into a
+        <strong>complete study package</strong>. Difficult words are highlighted and explained,
+        idioms are listed, and you get full Hindi translation paragraph by paragraph.
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔴 Tough words highlighted in red</li>
+        <li>💬 Idioms &amp; fixed phrases</li>
+        <li>🇮🇳 Word-by-word Hindi translation</li>
+        <li>✏️ Cloze Test (fill in the blank)</li>
+        <li>🧪 Vocabulary MCQ</li>
+        <li>🔀 Para Jumble with ordering options</li>
+      </ul>
+    </div>
+  </div>
+  <!-- Share Button -->
+  <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#1a1a2e,#0f3460);
+    border-radius:16px;border:1px solid rgba(233,69,96,.3);">
+    <p style="color:rgba(255,255,255,.8);font-family:Inter,sans-serif;font-size:.92rem;
+      margin-bottom:16px;line-height:1.6;">
+      Found this helpful? Share it with your friends and study partners! 🎯
+    </p>
+    <a href="https://t.me/share/url?url=https://t.me/A2ZUpdates4U&text=Hey!%20👋%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20🚀%0A%0A📚%20VOCAB%20BUILDER%20BOT%0ALearn%20new%20English%20words%20daily%20with:%0A✔️%20English%20%2B%20Hindi%20meanings%0A✔️%20Memory%20mnemonics%20(root-based)%0A✔️%20Synonyms,%20antonyms%20%26%20phonetics%0A✔️%20Flashcard%20practice%0A✔️%20Mock%20vocabulary%20test%0A✔️%20Mind%20map%20by%20word%20tone%0A%0A📰%20DAILY%20EDITORIAL%20STUDY%0AEvery%20day%20we%20post%20The%20Hindu%20%26%20Indian%20Express%20editorials%20with:%0A✔️%20🔴%20Difficult%20words%20highlighted%20in%20red%0A✔️%20Word%20meanings%20in%20English%20%26%20Hindi%0A✔️%20Idioms%20%26%20fixed%20phrases%20explained%0A✔️%20Word-by-word%20Hindi%20translation%0A✔️%20✏️%20Cloze%20Test%20(fill%20in%20the%20blank)%0A✔️%20🧪%20Vocabulary%20MCQ%20(meaning%20→%20word)%0A✔️%20🔀%20Para%20Jumble%20with%204%20ordering%20options%0A✔️%20Read%20with%20browser%20Text-to-Speech!%0A%0A🎯%20Perfect%20for%20SSC%20CGL,%20UPSC,%20IBPS,%20CAT%20%26%20all%20competitive%20exams!%0A%0A🏆%20Founded%20by%20Rahul%20Best%20—%20SSC%20CGL%202022%20AIR%20209%0AHe%20used%20these%20exact%20techniques%20to%20crack%20the%20exam.%20Now%20it's%20your%20turn!%0A%0A👉%20Join%20us%20FREE:%20https://t.me/A2ZUpdates4U%0A%F0%9F%92%AC%20Vocab%20Lounge%3A%20https%3A%2F%2Ft.me%2FA2Zupdates4uLounge" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e94560,#c0392b);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(233,69,96,.4);transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      ✈️ Share on Telegram
+    </a>
+    <a href="https://wa.me/?text=Hey!%20%F0%9F%91%8B%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20%F0%9F%9A%80%0A%0A%F0%9F%93%9A%20VOCAB%20BUILDER%20BOT%0ALearn%20English%20words%20daily%20with%3A%0A%E2%9C%94%EF%B8%8F%20EN%20%2B%20HI%20meanings%0A%E2%9C%94%EF%B8%8F%20Mnemonics%2C%20Flashcards%2C%20Mock%20test%0A%0A%F0%9F%93%B0%20DAILY%20EDITORIAL%20STUDY%0AThe%20Hindu%20%26%20Indian%20Express%20with%3A%0A%E2%9C%94%EF%B8%8F%20Tough%20words%20highlighted%0A%E2%9C%94%EF%B8%8F%20Hindi%20translation%0A%E2%9C%94%EF%B8%8F%20Cloze%20Test%2C%20Vocab%20MCQ%2C%20Para%20Jumble%0A%0A%F0%9F%8F%86%20Founded%20by%20Rahul%20Best%20-%20SSC%20CGL%20AIR%20209%0A%0A%F0%9F%91%89%20Join%20FREE%3A%20https%3A%2F%2Ft.me%2FA2ZUpdates4U" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;
+      background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(37,211,102,.35);margin-top:10px;transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      📲 Share on WhatsApp
+    </a>
+    <p style="color:rgba(255,255,255,.4);font-size:.75rem;margin-top:10px;font-family:Inter,sans-serif;">
+      Opens Telegram with a pre-filled message to forward to friends
+    </p>
+  </div>
+</div>
+
+</div><!-- /container -->
+</div><!-- /mainContent -->
+
+<script>
+// ── Source selector ──────────────────────────────────────────────────────
+function selectSource(src) {
+  document.getElementById('selectorScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('topnav').style.display = 'flex';
+  document.getElementById('srcHeader').style.display = 'block';
+  document.getElementById('ttsBar').style.display = 'flex';
+  var badge = document.getElementById('srcBadge');
+  if (src === 'hindu') { badge.style.background = '#c0392b'; badge.textContent = 'The Hindu'; }
+  else { badge.style.background = '#1a3a6e'; badge.textContent = 'Indian Express'; }
+}
+
+// ── Tab navigation ───────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.topnav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Hindi explanation toggle ─────────────────────────────────────────────
+var hindiVisible = false;
+function toggleAllHindi() {
+  hindiVisible = !hindiVisible;
+  document.querySelectorAll('.hi-exp').forEach(function(el) {
+    el.style.display = hindiVisible ? 'block' : 'none';
+  });
+  document.getElementById('hindiBtn').textContent =
+    hindiVisible ? '🙈 Hide Hindi' : '🇮🇳 Hindi Explanation';
+}
+
+// ── MCQ answer check ─────────────────────────────────────────────────────
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx      = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) {
+    var rev = qblock.querySelector('.ans-reveal');
+    if (rev) rev.style.display = 'block';
+  }
+}
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) { var rev=qblock.querySelector('.ans-reveal'); if(rev) rev.style.display='block'; }
+}
+function clozeAns(btn) {
+  var parent = btn.closest('.mcq-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correct = btn.dataset.ans;
+  parent.querySelectorAll('.opt-btn').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (btn.textContent.trim() === correct) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.opt-btn').forEach(function(b) {
+      if (b.textContent.trim() === correct) b.classList.add('correct');
+    });
+  }
+}
+
+// ── Show/hide answer ─────────────────────────────────────────────────────
+function toggleEl(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── TTS (browser built-in SpeechSynthesis) ───────────────────────────────
+var ttsActive = null;
+function stopSpeech() {
+  if (typeof globalSpeechQueue !== 'undefined') globalSpeechQueue = [];
+  window.speechSynthesis.cancel();
+  ttsActive = null;
+  document.querySelectorAll('.tts-btn').forEach(function(b) { b.textContent = '🔊 Listen'; });
+}
+function speakText(text, btn) {
+  stopSpeech();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-IN';
+  utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  if (btn) {
+    btn.textContent = '⏹ Stop';
+    ttsActive = btn;
+    utt.onend = function() { btn.textContent = '🔊 Listen'; ttsActive = null; };
+  }
+  window.speechSynthesis.speak(utt);
+}
+function speakPara(btn) {
+  if (btn.textContent === '⏹ Stop') { stopSpeech(); return; }
+  var raw = btn.dataset.text || '';
+  // Decode HTML entities so TTS reads plain text
+  var tmp = document.createElement('textarea');
+  tmp.innerHTML = raw;
+  speakText(tmp.value, btn);
+}
+var globalSpeechQueue = [];
+function speakNextInQueue() {
+  if (!globalSpeechQueue.length) return;
+  var text = globalSpeechQueue.shift();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-IN';
+  utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  utt.onend = function() { speakNextInQueue(); };
+  window.speechSynthesis.speak(utt);
+}
+function speakAll() {
+  stopSpeech();
+  globalSpeechQueue = [];
+  document.querySelectorAll('.para-block .para-text').forEach(function(p) {
+    var text = p.innerText || p.textContent;
+    if (text.trim()) globalSpeechQueue.push(text);
+  });
+  speakNextInQueue();
+}
+</script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+    (function(){
+      var tg = window.Telegram?.WebApp;
+      var scores = {clozeTotal:0,clozeCorrect:0,jumbleTotal:0,jumbleCorrect:0,submitted:false};
+      var editorialId = '82a9dc10-a0f';
+
+      // Count total questions on page load
+      scores.clozeTotal = document.querySelectorAll('.mcq-opts').length;
+      scores.jumbleTotal = document.querySelectorAll('.pj-opts').length;
+
+      // Override clozeAns to track correct answers
+      var origCloze = window.clozeAns;
+      window.clozeAns = function(btn) {
+        var parent = btn.closest('.mcq-opts');
+        if (parent && parent.querySelector('.correct,.wrong')) return;
+        var correct = btn.dataset.ans;
+        if (btn.textContent.trim() === correct) scores.clozeCorrect++;
+        origCloze(btn);
+        updateTracker();
+      };
+
+      // Override pjAns to track correct answers
+      var origPj = window.pjAns;
+      window.pjAns = function(btn) {
+        var correctIdx = parseInt(btn.dataset.ans);
+        var myIdx = parseInt(btn.dataset.idx);
+        if (myIdx === correctIdx) scores.jumbleCorrect++;
+        origPj(btn);
+        updateTracker();
+      };
+
+      function updateTracker() {
+        var el = document.getElementById('a2z-score-display');
+        if (!el) return;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        el.innerHTML = '<span>Cloze:'+scores.clozeCorrect+'/'+scores.clozeTotal+'</span>'+
+                       '<span>Jumble:'+scores.jumbleCorrect+'/'+scores.jumbleTotal+'</span>'+
+                       '<span>Total: <b style="color:var(--tracker-gold)">'+correct+'/'+total+'</b></span>';
+      }
+
+      function submitResults() {
+        if (scores.submitted) return;
+        scores.submitted = true;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        var acc = total > 0 ? Math.round(correct/total*100) : 0;
+        document.getElementById('a2z-submit-btn').textContent = 'Submitted';
+        document.getElementById('a2z-submit-btn').classList.add('done');
+        document.getElementById('a2z-toast').style.display='block';
+        document.getElementById('a2z-toast').innerHTML =
+          '<div style="font-size:2rem;">'+(acc>=70?'🎉':acc>=40?'✅':'📚')+'</div>'+
+          '<div style="font-weight:700;margin:8px 0;">'+correct+'/'+total+' correct ('+acc+'%)</div>'+
+          '<div style="font-size:.75rem;color:#94a3b8;">Results saved! Check Analytics tab.</div>';
+        setTimeout(function(){document.getElementById('a2z-toast').style.display='none';},3000);
+
+        if (tg) {
+          tg.sendData(JSON.stringify({action:'editorial_result',editorial_id:editorialId,
+            cloze_correct:scores.clozeCorrect,cloze_total:scores.clozeTotal,
+            jumble_correct:scores.jumbleCorrect,jumble_total:scores.jumbleTotal}));
+        }
+      }
+
+      // Build tracker UI
+      var tracker = document.createElement('div');
+      tracker.className = 'a2z-tracker';
+      tracker.id = 'a2z-tracker';
+      tracker.innerHTML = '<div class="a2z-score" id="a2z-score-display">'+
+        '<span>Cloze:0/'+scores.clozeTotal+'</span>'+
+        '<span>Jumble:0/'+scores.jumbleTotal+'</span>'+
+        '<span>Total: <b style="color:var(--tracker-gold)">0/'+(scores.clozeTotal+scores.jumbleTotal)+'</b></span>'+
+        '</div>'+
+        '<button class="a2z-btn" id="a2z-submit-btn" onclick="submitResults()">Submit</button>';
+      document.body.appendChild(tracker);
+
+      // Toast
+      var toast = document.createElement('div');
+      toast.className = 'a2z-toast';
+      toast.id = 'a2z-toast';
+      document.body.appendChild(toast);
+
+      // Add bottom padding for tracker
+      document.body.classList.add('a2z-mode');
+    })();
+    </script>
+    
+</body>
+</html>
