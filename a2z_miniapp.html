@@ -921,15 +921,13 @@ function renderEditorialsList(editorials) {
 }
 
 function openEditorial(editorialId) {
-  if (API_BASE_URL) {
-    let url = API_BASE_URL + '/api/editorial/' + editorialId + '?token=' + getApiToken();
-    document.getElementById('learn-content').innerHTML =
-      '<iframe src="'+url+'" style="width:100%;height:80vh;border:none;border-radius:8px;"></iframe>' +
-      '<button class="btn btn-outline" onclick="loadEditorials()" style="width:100%;margin-top:8px;">← Back to List</button>';
-  } else if (tg) {
-    sendToBot('get_editorial', {editorial_id: editorialId});
-    tg.showPopup({title:'Editorial Sent',message:'Check your chat with the bot to open the editorial file.',buttons:[{type:'ok'}]});
-  }
+  // Load editorial from GitHub Pages mocks_storage or API
+  var url = 'mocks_storage/' + editorialId + '.html';
+  document.getElementById('learn-content').innerHTML =
+    '<div style="position:relative;width:100%;height:85vh;">' +
+    '<iframe src="'+url+'" style="width:100%;height:100%;border:none;border-radius:12px;"></iframe>' +
+    '</div>' +
+    '<button class="btn btn-outline" onclick="loadEditorials()" style="width:100%;margin-top:10px;font-size:.8rem;">← Back to Editorials</button>';
 }
 
 function requestEditorial(editorialId) {
@@ -976,6 +974,13 @@ function shareApp() {
 
   if (tg?.onEvent) { tg.onEvent('viewportChanged', () => tg.expand()); }
 })();
+
+// Listen for editorial result messages from iframes
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'a2z_editorial_result') {
+    if (tg) tg.sendData(JSON.stringify(e.data.data));
+  }
+});
 
 function loadFromDataJson() {
   fetch('data.json')

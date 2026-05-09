@@ -125,6 +125,29 @@ tr:nth-child(even) td{background:rgba(230,210,170,.16);}
       .a2z-tracker .a2z-btn{font-size:.75rem;padding:8px 14px;}
     }
     
+
+    /* A2Z Results Tracker — injected */
+    .a2z-tracker{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+      padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+      z-index:9999;box-shadow:0 -4px 20px rgba(139,92,246,.5);font-family:Inter,sans-serif;
+      padding-bottom:max(12px,env(safe-area-inset-bottom));animation:a2zPulse 2s ease-in-out infinite;}
+    @keyframes a2zPulse{0%,100%{box-shadow:0 -4px 20px rgba(139,92,246,.5)}50%{box-shadow:0 -4px 30px rgba(139,92,246,.8)}}
+    .a2z-tracker .a2z-score{display:flex;gap:10px;font-size:.75rem;color:#e2e8f0;}
+    .a2z-tracker .a2z-score span{color:#fbbf24;font-weight:700;}
+    .a2z-tracker .a2z-btn{background:#fbbf24;color:#000;border:none;
+      padding:10px 24px;border-radius:10px;font-weight:800;font-size:.85rem;cursor:pointer;
+      box-shadow:0 2px 8px rgba(251,191,36,.4);}
+    .a2z-tracker .a2z-btn.done{background:#22c55e;color:#fff;}
+    .a2z-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;
+      color:#fff;padding:24px 32px;border-radius:16px;z-index:10000;font-family:Inter,sans-serif;
+      text-align:center;display:none;box-shadow:0 12px 48px rgba(0,0,0,.6);}
+    .a2z-toast .a2z-toast-score{font-size:2.5rem;font-weight:900;margin:8px 0;color:#fbbf24;}
+    body.a2z-mode{padding-bottom:80px !important;}
+    @media(max-width:600px){
+    .a2z-tracker .a2z-score{font-size:.7rem;gap:6px;}
+    .a2z-tracker .a2z-btn{font-size:.8rem;padding:10px 18px;}
+    }
+    
 </style>
 </head>
 <body>
@@ -639,6 +662,91 @@ function speakAll() {
 
       // Add bottom padding for tracker
       document.body.classList.add('a2z-mode');
+    })();
+    </script>
+    
+
+    <script>
+    (function(){
+      var scores = {clozeTotal:0,clozeCorrect:0,jumbleTotal:0,jumbleCorrect:0,submitted:false};
+      var editorialId = 'afd8b444-c45';
+
+      scores.clozeTotal = document.querySelectorAll('.mcq-opts').length;
+      scores.jumbleTotal = document.querySelectorAll('.pj-opts').length;
+
+      // Hook into existing answer functions by periodic checking
+      var lastCorrect = 0;
+      setInterval(function(){
+        var c = document.querySelectorAll('.opt-btn.correct,.pj-opt.correct').length;
+        if (c > lastCorrect) {
+          lastCorrect = c;
+          // Count correct answers
+          scores.clozeCorrect = document.querySelectorAll('.mcq-opts .opt-btn.correct').length;
+          scores.jumbleCorrect = document.querySelectorAll('.pj-opts .pj-opt.correct').length;
+          updateTracker();
+        }
+      }, 500);
+
+      function updateTracker() {
+        var el = document.getElementById('a2z-score-display');
+        if (!el) return;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        el.innerHTML = 'Cloze: <span>'+scores.clozeCorrect+'/'+scores.clozeTotal+'</span> &nbsp; Jumble: <span>'+scores.jumbleCorrect+'/'+scores.jumbleTotal+'</span> &nbsp; <b style="color:#fff;">'+correct+'/'+total+'</b>';
+      }
+
+      window.submitResults = function() {
+        if (scores.submitted) return;
+        scores.submitted = true;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        var acc = total > 0 ? Math.round(correct/total*100) : 0;
+        var btn = document.getElementById('a2z-submit-btn');
+        btn.textContent = '✓ Saved';
+        btn.classList.add('done');
+        var toast = document.getElementById('a2z-toast');
+        toast.style.display='block';
+        toast.innerHTML = '<div style="font-size:3rem;">'+(acc>=70?'🔥':acc>=40?'✅':'📚')+'</div>'+
+          '<div class="a2z-toast-score">'+correct+'/'+total+'</div>'+
+          '<div style="font-size:.9rem;">' + acc + '% accuracy</div>'+
+          '<div style="font-size:.75rem;color:#94a3b8;margin-top:8px;">Results sent to A2Z Bot!</div>';
+        setTimeout(function(){toast.style.display='none';},4000);
+
+        var payload = {action:'editorial_result',editorial_id:editorialId,
+          cloze_correct:scores.clozeCorrect,cloze_total:scores.clozeTotal,
+          jumble_correct:scores.jumbleCorrect,jumble_total:scores.jumbleTotal};
+
+        // Try multiple methods to send results
+        if (window.Telegram?.WebApp) {
+          window.Telegram.WebApp.sendData(JSON.stringify(payload));
+          window.Telegram.WebApp.close();
+        }
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({type:'a2z_editorial_result',data:payload}, '*');
+        }
+        // Fallback: copy to clipboard
+        try {
+          navigator.clipboard.writeText('Results: '+correct+'/'+total+' ('+acc+'%) - Sent to bot');
+        } catch(e) {}
+      };
+
+      // Build tracker
+      var bar = document.createElement('div');
+      bar.className = 'a2z-tracker';
+      bar.id = 'a2z-tracker';
+      bar.innerHTML = '<div class="a2z-score" id="a2z-score-display">'+
+        'Cloze: <span>0/'+scores.clozeTotal+'</span> &nbsp; Jumble: <span>0/'+scores.jumbleTotal+'</span> &nbsp; <b style="color:#fff;">0/'+(scores.clozeTotal+scores.jumbleTotal)+'</b>'+
+        '</div>'+
+        '<button class="a2z-btn" id="a2z-submit-btn" onclick="submitResults()">📊 Submit</button>';
+      document.body.appendChild(bar);
+
+      var toast = document.createElement('div');
+      toast.className = 'a2z-toast';
+      toast.id = 'a2z-toast';
+      document.body.appendChild(toast);
+
+      document.body.classList.add('a2z-mode');
+      updateTracker();
     })();
     </script>
     

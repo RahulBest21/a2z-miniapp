@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Learning outcomes and child health are linked — Editorial Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--parchment:#f5eedc;--parchment2:#ede0c4;--dark:#3b2a1a;--ink:#2c1a0e;
+  --accent:#8b1a1a;--gold:#c9922a;--card:#fdf6e3;--border:#d4b896;
+  --shadow:rgba(60,30,10,.15);--red:#c0392b;--red-bg:rgba(192,57,43,.1);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--parchment);color:var(--ink);font-family:'Lora',Georgia,serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:
+  repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(139,90,43,.05) 28px,rgba(139,90,43,.05) 29px),
+  radial-gradient(ellipse at 10% 0%,rgba(139,90,43,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{max-width:860px;margin:0 auto;padding:20px;position:relative;z-index:1}
+/* Source selector */
+.src-selector{display:flex;justify-content:center;gap:12px;padding:20px 0;}
+.src-btn{padding:12px 28px;border:3px solid var(--border);border-radius:10px;background:var(--card);
+  font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;}
+.src-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow);}
+.src-btn.hindu{border-color:#c0392b;color:#c0392b;}
+.src-btn.ie{border-color:#1a3a6e;color:#1a3a6e;}
+.src-btn.hindu:hover,.src-btn.hindu.sel{background:#c0392b;color:#fff;}
+.src-btn.ie:hover,.src-btn.ie.sel{background:#1a3a6e;color:#fff;}
+.src-header{text-align:center;padding:8px 20px 24px;border-bottom:3px double var(--border);margin-bottom:24px;display:none;}
+.src-badge{display:inline-block;padding:4px 14px;border-radius:20px;color:#fff;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:10px;background:#1a3a6e;}
+.src-header h1{font-size:1.9rem;color:var(--dark);line-height:1.3;}
+.src-header .meta{color:var(--gold);font-size:.88rem;margin-top:6px;font-style:italic;}
+/* Nav */
+.topnav{background:var(--parchment2);border-bottom:2px solid var(--border);display:flex;flex-wrap:wrap;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px var(--shadow);display:none;}
+.topnav button{flex:1;min-width:100px;padding:12px 6px;background:none;border:none;
+  color:var(--dark);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .2s;}
+.topnav button.active,.topnav button:hover{color:var(--accent);border-bottom-color:var(--accent);background:rgba(139,26,26,.06);}
+.tab-section{display:none;animation:fadeIn .3s ease;}
+.tab-section.active{display:block;}
+
+/* Para Jumble */
+.pj-sentences{margin:10px 0;}
+.pj-sent{padding:6px 10px;margin:4px 0;background:rgba(201,146,42,.08);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.92rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;font-family:'Inter',sans-serif;
+  font-weight:700;font-size:.78rem;padding:1px 7px;border-radius:4px;margin-right:8px;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;color:var(--accent);
+  margin-right:6px;}
+.opts-hint{font-size:.85rem;color:#888;margin-bottom:4px;}
+
+
+/* Para Jumble MCQ */
+.pj-sentences{margin:10px 0 14px;}
+.pj-sent{padding:7px 10px;margin:4px 0;background:rgba(201,146,42,.09);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.93rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;
+  font-family:'Inter',sans-serif;font-weight:700;font-size:.78rem;
+  padding:1px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;font-size:.9rem;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;
+  color:var(--accent);margin-right:6px;}
+.opts-hint{font-size:.84rem;color:#888;margin:-4px 0 8px;font-style:italic;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent);
+  border-bottom:2px solid var(--border);padding-bottom:8px;margin:24px 0 14px;display:flex;align-items:center;gap:8px;}
+/* Para */
+.para-block{margin-bottom:18px;}
+.para-text{line-height:1.9;font-size:1.03rem;text-align:justify;}
+.tw{color:var(--red);font-weight:600;background:var(--red-bg);border-radius:3px;padding:0 2px;
+  text-decoration:underline dotted var(--red);cursor:help;}
+.hi-exp{display:none;margin-top:8px;padding:10px 14px;background:rgba(201,146,42,.12);
+  border-left:4px solid var(--gold);border-radius:4px;font-size:.93rem;line-height:1.7;color:var(--dark);}
+/* Buttons */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px;}
+.explain-btn,.tts-btn,.reveal-btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:.85rem;transition:opacity .2s;}
+.explain-btn{background:var(--gold);color:#fff;}
+.tts-btn{background:var(--parchment2);color:var(--dark);border:1px solid var(--border);margin-top:6px;font-size:.8rem;}
+.tts-btn:hover,.explain-btn:hover,.reveal-btn:hover{opacity:.82;}
+.reveal-btn{background:var(--accent);color:#fff;}
+/* Tables */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;box-shadow:0 4px 14px var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:.91rem;}
+th{background:var(--parchment2);color:var(--dark);padding:10px;text-align:left;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-weight:700;}
+td{padding:9px 10px;border-bottom:1px solid rgba(180,130,70,.2);vertical-align:top;line-height:1.5;}
+tr:nth-child(even) td{background:rgba(230,210,170,.16);}
+.tw-word{font-weight:700;color:var(--red);} .idm-phrase{color:var(--accent);font-weight:600;}
+.empty-msg{text-align:center;color:#999;padding:20px;}
+/* Questions */
+.q-block{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px var(--shadow);}
+.q-block p{line-height:1.7;margin-bottom:8px;}
+.mcq-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.opt-btn{padding:8px 14px;border:2px solid var(--border);border-radius:8px;background:var(--parchment2);
+  color:var(--ink);font-family:'Lora',serif;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.opt-btn:hover{border-color:var(--accent);}
+.opt-btn.correct{background:rgba(39,174,96,.15);border-color:#27ae60;color:#1a5e35;font-weight:700;}
+.opt-btn.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);font-weight:700;}
+.ans-reveal{margin-top:10px;padding:10px 14px;background:rgba(139,90,43,.1);border-left:4px solid var(--accent);border-radius:4px;font-size:.91rem;}
+.jumble-list{padding-left:20px;line-height:1.9;}
+/* Misc */
+.tts-bar{background:var(--parchment2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:.85rem;}
+.tts-bar select{border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--card);}
+@media(max-width:600px){.src-header h1{font-size:1.3rem;}.container{padding:10px;}table{font-size:.8rem;}}
+
+    /* A2Z Results Tracker — injected */
+    .a2z-tracker{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+      padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+      z-index:9999;box-shadow:0 -4px 20px rgba(139,92,246,.5);font-family:Inter,sans-serif;
+      padding-bottom:max(12px,env(safe-area-inset-bottom));animation:a2zPulse 2s ease-in-out infinite;}
+    @keyframes a2zPulse{0%,100%{box-shadow:0 -4px 20px rgba(139,92,246,.5)}50%{box-shadow:0 -4px 30px rgba(139,92,246,.8)}}
+    .a2z-tracker .a2z-score{display:flex;gap:10px;font-size:.75rem;color:#e2e8f0;}
+    .a2z-tracker .a2z-score span{color:#fbbf24;font-weight:700;}
+    .a2z-tracker .a2z-btn{background:#fbbf24;color:#000;border:none;
+      padding:10px 24px;border-radius:10px;font-weight:800;font-size:.85rem;cursor:pointer;
+      box-shadow:0 2px 8px rgba(251,191,36,.4);}
+    .a2z-tracker .a2z-btn.done{background:#22c55e;color:#fff;}
+    .a2z-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;
+      color:#fff;padding:24px 32px;border-radius:16px;z-index:10000;font-family:Inter,sans-serif;
+      text-align:center;display:none;box-shadow:0 12px 48px rgba(0,0,0,.6);}
+    .a2z-toast .a2z-toast-score{font-size:2.5rem;font-weight:900;margin:8px 0;color:#fbbf24;}
+    body.a2z-mode{padding-bottom:80px !important;}
+    @media(max-width:600px){
+    .a2z-tracker .a2z-score{font-size:.7rem;gap:6px;}
+    .a2z-tracker .a2z-btn{font-size:.8rem;padding:10px 18px;}
+    }
+    
+</style>
+</head>
+<body>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+<!-- A2Z BRANDING BAR -->
+<div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="background:linear-gradient(135deg,#e94560,#0f3460);
+      width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+      justify-content:center;font-size:18px;font-weight:900;color:#fff;font-family:Inter,sans-serif;">A</div>
+    <div>
+      <div style="color:#fff;font-family:Inter,sans-serif;font-weight:800;font-size:.95rem;
+        letter-spacing:.5px;">A2Z Updates4U</div>
+      <div style="color:rgba(255,255,255,.6);font-size:.72rem;font-family:Inter,sans-serif;">
+        Editorial Study Series</div>
+    </div>
+  </div>
+  <a href="https://t.me/A2ZUpdates4U" target="_blank"
+    style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+    text-decoration:none;padding:7px 16px;border-radius:20px;font-family:Inter,sans-serif;
+    font-weight:700;font-size:.8rem;display:flex;align-items:center;gap:6px;">
+    📢 Join Channel
+  </a>
+</div>
+<nav class="topnav" id="topnav" style="display:flex;">
+  <button class="active" onclick="showTab('editorial',this)">📰 Editorial</button>
+  <button onclick="showTab('vocabulary',this)">📚 Vocabulary</button>
+  <button onclick="showTab('idioms',this)">💬 Idioms</button>
+  <button onclick="showTab('cloze',this)">✏️ Cloze Test</button>
+  <button onclick="showTab('vocabtest',this)">🧪 Vocab MCQ</button>
+  <button onclick="showTab('jumble',this)">🔀 Para Jumble</button>
+  <button onclick="showTab('about',this)">ℹ️ About</button>
+</nav>
+<div class="container">
+
+<header class="src-header" id="srcHeader" style="display:block;">
+  <div class="src-badge" id="srcBadge">The Indian Express</div>
+  <h1 id="editTitle">Learning outcomes and child health are linked</h1>
+  <div class="meta">02 May 2026</div>
+</header>
+
+<!-- TTS control bar -->
+<div class="tts-bar" id="ttsBar">
+  🔊 <b>Text-to-Speech:</b>
+  <select id="ttsRate"><option value="0.8">Slow</option><option value="1" selected>Normal</option><option value="1.3">Fast</option></select>
+  <button class="reveal-btn" onclick="speakAll()" style="padding:5px 12px;">▶ Read All</button>
+  <button class="reveal-btn" onclick="stopSpeech()" style="padding:5px 12px;background:#666;">■ Stop</button>
+</div>
+
+<!-- EDITORIAL TAB -->
+<div id="editorial" class="tab-section active">
+  <div class="section-title">📝 Editorial</div>
+  <div class="btn-row">
+    <button class="explain-btn" id="hindiBtn" onclick="toggleAllHindi()">🇮🇳 Hindi Explanation</button>
+  </div>
+  
+        <div class="para-block">
+          <p class="para-text">AS INDIA observed POSHAN <span class="tw" title="Pakhwada">Pakhwada</span> last month, attention was focused on improving nutrition outcomes for women and children. This year&#x27;s emphasis on early brain development is especially timely. Global evidence suggests that investments in early-childhood development can generate significant economic returns — through higher future earnings, better learning outcomes, and reduced social costs — often exceeding returns from those made later in life. Advances in neuroscience show that early childhood represents a once-in-a-lifetime window, when nutrition, health, stimulation, and <span class="tw" title="responsive">responsive</span> caregiving together shape the developing brain.</p>
+          <div class="hi-exp" id="hi_0">जैसा भारत मनाया पोषण पखवाड़ा पिछला महीना, ध्यान था केंद्रित सुधारने पर पोषण परिणाम के लिए महिलाओं और बच्चों।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="AS INDIA observed POSHAN Pakhwada last month, attention was focused on improving nutrition outcomes for women and children. This year&#x27;s emphasis on early brain development is especially timely. Global evidence suggests that investments in early-childhood development can generate significant economic returns — through higher future earnings, better learning outcomes, and reduced social costs — often exceeding returns from those made later in life. Advances in neuroscience show that early childhood represents a once-in-a-lifetime window, when nutrition, health, stimulation, and responsive caregiving together shape the developing brain.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">Over the past two decades, India has laid a solid foundation. The National Food Security Act, POSHAN Abhiyaan, ICDS, maternity benefits, and school meals reflect sustained policy commitment. The National Education Policy, 2020 recognises Early Childhood Care and Education as a crucial &quot;foundational stage&quot;, with the goal of universal, quality pre-primary education by 2030. At the same time, national surveys continue to report high levels of stunting, wasting, and anaemia, as well as learning gaps.</p>
+          <div class="hi-exp" id="hi_1">इस वर्ष का जोर प्रारंभिक मस्तिष्क विकास पर है विशेष रूप से समयोचित। वैश्विक साक्ष्य सुझाव देते हैं कि निवेश प्रारंभिक-बचपन विकास में उत्पन्न कर सकते हैं महत्वपूर्ण आर्थिक प्रतिफल — उच्च भविष्य की कमाई, बेहतर सीखने के परिणाम, और कम सामाजिक लागत — अक्सर अधिक प्रतिफल से जो किए जाते हैं बाद में जीवन में। प्रगति तंत्रिका विज्ञान में दिखाती है कि प्रारंभिक बचपन प्रतिनिधित्व करता है एक जीवन में एक बार की खिड़की, जब पोषण, स्वास्थ्य, उत्तेजना, और प्रतिक्रियाशील देखभाल एक साथ आकार देते हैं विकासशील मस्तिष्क को।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="Over the past two decades, India has laid a solid foundation. The National Food Security Act, POSHAN Abhiyaan, ICDS, maternity benefits, and school meals reflect sustained policy commitment. The National Education Policy, 2020 recognises Early Childhood Care and Education as a crucial &quot;foundational stage&quot;, with the goal of universal, quality pre-primary education by 2030. At the same time, national surveys continue to report high levels of stunting, wasting, and anaemia, as well as learning gaps.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">In early childhood, nutrition and development outcomes depend critically on the quality of care children receive. Delivering its full spectrum requires <span class="tw" title="convergence">convergence</span> across the sectors responsible for health, nutrition, childcare, and early learning.</p>
+          <div class="hi-exp" id="hi_2">पिछले दो दशकों में, भारत ने रखी है एक ठोस नींव। राष्ट्रीय खाद्य सुरक्षा अधिनियम, पोषण अभियान, आईसीडीएस, मातृत्व लाभ, और स्कूल भोजन दर्शाते हैं निरंतर नीति प्रतिबद्धता। राष्ट्रीय शिक्षा नीति, 2020 पहचानती है प्रारंभिक बचपन देखभाल और शिक्षा को एक महत्वपूर्ण &#x27;आधारभूत चरण&#x27; के रूप में, लक्ष्य के साथ सार्वभौमिक, गुणवत्ता पूर्व-प्राथमिक शिक्षा 2030 तक। उसी समय, राष्ट्रीय सर्वेक्षण जारी रखते हैं रिपोर्ट करना उच्च स्तर ठिगनेपन, दुबलेपन, और एनीमिया का, साथ ही सीखने की कमियों का।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="In early childhood, nutrition and development outcomes depend critically on the quality of care children receive. Delivering its full spectrum requires convergence across the sectors responsible for health, nutrition, childcare, and early learning.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">The anganwadi network has been a <span class="tw" title="cornerstone">cornerstone</span> of service delivery, providing nutrition, health, and early learning support at scale. In practice, however, different systems prioritise different objectives. Anganwadis largely focus on food supplementation; health systems emphasise survival and disease control; and childcare and early learning receive comparatively less attention until children reach school age, particularly for those under three. These gaps are most visible for working families in agriculture, construction, domestic work, and other informal occupations. When childcare is hard to access, families are forced into difficult choices, affecting both children&#x27;s development and women&#x27;s ability to work.</p>
+          <div class="hi-exp" id="hi_3">प्रारंभिक बचपन में, पोषण और विकास परिणाम निर्भर करते हैं महत्वपूर्ण रूप से गुणवत्ता पर देखभाल की जो बच्चे प्राप्त करते हैं। वितरित करना इसका पूर्ण स्पेक्ट्रम आवश्यकता है अभिसरण की उन क्षेत्रों के पार जो जिम्मेदार हैं स्वास्थ्य, पोषण, शिशु देखभाल, और प्रारंभिक शिक्षा के लिए।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="The anganwadi network has been a cornerstone of service delivery, providing nutrition, health, and early learning support at scale. In practice, however, different systems prioritise different objectives. Anganwadis largely focus on food supplementation; health systems emphasise survival and disease control; and childcare and early learning receive comparatively less attention until children reach school age, particularly for those under three. These gaps are most visible for working families in agriculture, construction, domestic work, and other informal occupations. When childcare is hard to access, families are forced into difficult choices, affecting both children&#x27;s development and women&#x27;s ability to work.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">All this underscores the need for stronger structural support. Several initiatives point the way forward. Karnataka&#x27;s Koosina Mane demonstrates how community-based childcare, supported through converged funding and panchayat leadership, can benefit both children and working mothers. Mobile Creches has shown the <span class="tw" title="feasibility">feasibility</span> of providing childcare near work-sites in urban informal settings. The Centre&#x27;s Palna initiative, which strengthens anganwadi-cum-crèches for children of working parents, reflects growing recognition of the need to integrate childcare within existing service platforms.</p>
+          <div class="hi-exp" id="hi_4">आंगनवाड़ी नेटवर्क रहा है एक आधारशिला सेवा वितरण की, प्रदान करते हुए पोषण, स्वास्थ्य, और प्रारंभिक शिक्षा समर्थन बड़े पैमाने पर। व्यवहार में, हालांकि, विभिन्न प्रणालियाँ प्राथमिकता देती हैं विभिन्न उद्देश्यों को। आंगनवाड़ी मुख्य रूप से ध्यान केंद्रित करती हैं खाद्य अनुपूरण पर; स्वास्थ्य प्रणालियाँ जोर देती हैं अस्तित्व और रोग नियंत्रण पर; और शिशु देखभाल और प्रारंभिक शिक्षा प्राप्त करती हैं तुलनात्मक रूप से कम ध्यान जब तक बच्चे नहीं पहुँचते स्कूल की उम्र तक, विशेष रूप से उनके लिए जो तीन साल से कम हैं। ये अंतराल सबसे अधिक दिखाई देते हैं कामकाजी परिवारों के लिए कृषि, निर्माण, घरेलू काम, और अन्य अनौपचारिक व्यवसायों में। जब शिशु देखभाल है कठिन पहुँचने के लिए, परिवार मजबूर होते हैं कठिन विकल्पों में, प्रभावित करते हुए दोनों बच्चों का विकास और महिलाओं की क्षमता काम करने की।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="All this underscores the need for stronger structural support. Several initiatives point the way forward. Karnataka&#x27;s Koosina Mane demonstrates how community-based childcare, supported through converged funding and panchayat leadership, can benefit both children and working mothers. Mobile Creches has shown the feasibility of providing childcare near work-sites in urban informal settings. The Centre&#x27;s Palna initiative, which strengthens anganwadi-cum-crèches for children of working parents, reflects growing recognition of the need to integrate childcare within existing service platforms.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">Building on these experiences, India can strengthen early brain-development outcomes through three practical administrative priorities. First, make care a defined function of existing frontline platforms. An-ganwadi centres and primary health services already reach families during pregnancy and early childhood. Clear instructions can en-able these platforms to integrate counselling on <span class="tw" title="responsive">responsive</span> caregiving and maternal well-being alongside nutrition services. Struc-tured caregiving messages can be incorpor-ated into routine antenatal visits, immunisation days, and home-based care schedules. Where feasible, anganwadi activ-ities can be adjusted to better serve younger children and working caregivers.</p>
+          <div class="hi-exp" id="hi_5">यह सब रेखांकित करता है आवश्यकता को मजबूत संरचनात्मक समर्थन की। कई पहलें दिखाती हैं रास्ता आगे का। कर्नाटक का &#x27;कोसीना माने&#x27; प्रदर्शित करता है कैसे समुदाय-आधारित शिशु देखभाल, समर्थित अभिसरण निधि और पंचायत नेतृत्व के माध्यम से, लाभ पहुँचा सकती है दोनों बच्चों और कामकाजी माताओं को। मोबाइल क्रेच ने दिखाया है व्यवहार्यता शिशु देखभाल प्रदान करने की कार्य-स्थलों के पास शहरी अनौपचारिक सेटिंग्स में। केंद्र की &#x27;पालना&#x27; पहल, जो मजबूत करती है आंगनवाड़ी-सह-क्रेच कामकाजी माता-पिता के बच्चों के लिए, दर्शाती है बढ़ती मान्यता आवश्यकता की एकीकृत करने की शिशु देखभाल मौजूदा सेवा प्लेटफार्मों के भीतर।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="Building on these experiences, India can strengthen early brain-development outcomes through three practical administrative priorities. First, make care a defined function of existing frontline platforms. An-ganwadi centres and primary health services already reach families during pregnancy and early childhood. Clear instructions can en-able these platforms to integrate counselling on responsive caregiving and maternal well-being alongside nutrition services. Struc-tured caregiving messages can be incorpor-ated into routine antenatal visits, immunisation days, and home-based care schedules. Where feasible, anganwadi activ-ities can be adjusted to better serve younger children and working caregivers.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">Second, link childcare provision more deliberately with <span class="tw" title="livelihoods">livelihoods</span> and social pro-tection programmes, with an enabling role for the private sector. This requires clearer guidance allowing local governments to use converged funds for community-based childcare, particularly in high-migration and informal-work settings. Simple measures— such as locating childcare centres near work-sites, markets, or villages with high female labour participation — can significantly re-duce care-work trade-offs.</p>
+          <div class="hi-exp" id="hi_6">निर्माण करते हुए इन अनुभवों पर, भारत मजबूत कर सकता है प्रारंभिक मस्तिष्क-विकास परिणाम तीन व्यावहारिक प्रशासनिक प्राथमिकताओं के माध्यम से। पहला, बनाएँ देखभाल को एक परिभाषित कार्य मौजूदा फ्रंटलाइन प्लेटफार्मों का। आंगनवाड़ी केंद्र और प्राथमिक स्वास्थ्य सेवाएं पहले से ही पहुँचती हैं परिवारों तक गर्भावस्था और प्रारंभिक बचपन के दौरान। स्पष्ट निर्देश सक्षम कर सकते हैं इन प्लेटफार्मों को एकीकृत करने के लिए परामर्श प्रतिक्रियाशील देखभाल और मातृ कल्याण पर पोषण सेवाओं के साथ। संरचित देखभाल संदेश शामिल किए जा सकते हैं नियमित प्रसवपूर्व दौरों, टीकाकरण दिनों, और घर-आधारित देखभाल अनुसूचियों में। जहाँ संभव हो, आंगनवाड़ी गतिविधियों को समायोजित किया जा सकता है बेहतर सेवा देने के लिए छोटे बच्चों और कामकाजी देखभाल करने वालों को।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="Second, link childcare provision more deliberately with livelihoods and social pro-tection programmes, with an enabling role for the private sector. This requires clearer guidance allowing local governments to use converged funds for community-based childcare, particularly in high-migration and informal-work settings. Simple measures— such as locating childcare centres near work-sites, markets, or villages with high female labour participation — can significantly re-duce care-work trade-offs.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">Third, strengthen programme reviews by tracking child development outcomes alongside service delivery. While nutrition programmes are closely monitored, reviews often focus on inputs such as rations dis-tributed or beneficiaries reached. Routine reviews should also consider a small set of child development indicators, service-quality measures, and equity markers. Better use of existing data systems across sectors can support local planning and accountabil-ity without adding undue reporting burdens.</p>
+          <div class="hi-exp" id="hi_7">दूसरा, जोड़ें शिशु देखभाल प्रावधान को अधिक जानबूझकर आजीविका और सामाजिक सुरक्षा कार्यक्रमों के साथ, एक सक्षम भूमिका के साथ निजी क्षेत्र के लिए। यह आवश्यकता है स्पष्ट मार्गदर्शन की अनुमति देते हुए स्थानीय सरकारों को उपयोग करने की अभिसरण निधि समुदाय-आधारित शिशु देखभाल के लिए, विशेष रूप से उच्च-प्रवास और अनौपचारिक-कार्य सेटिंग्स में। सरल उपाय— जैसे स्थित करना शिशु देखभाल केंद्रों को कार्य-स्थलों, बाजारों, या गांवों के पास जहाँ है उच्च महिला श्रम भागीदारी — कर सकते हैं महत्वपूर्ण रूप से कम देखभाल-कार्य व्यापार-बंद को।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="Third, strengthen programme reviews by tracking child development outcomes alongside service delivery. While nutrition programmes are closely monitored, reviews often focus on inputs such as rations dis-tributed or beneficiaries reached. Routine reviews should also consider a small set of child development indicators, service-quality measures, and equity markers. Better use of existing data systems across sectors can support local planning and accountabil-ity without adding undue reporting burdens.">🔊 Listen</button>
+        </div>
+        <div class="para-block">
+          <p class="para-text">The timing is right. As India invests in human capital and advances towards the vi-sion of Viksit Bharat 2047, ensuring that children not only survive but thrive is central to inclusive growth.</p>
+          <div class="hi-exp" id="hi_8">तीसरा, मजबूत करें कार्यक्रम समीक्षाओं को ट्रैक करके बाल विकास परिणामों को सेवा वितरण के साथ। जबकि पोषण कार्यक्रम बारीकी से निगरानी किए जाते हैं, समीक्षाएं अक्सर ध्यान केंद्रित करती हैं इनपुट पर जैसे राशन वितरित या लाभार्थी पहुँचे। नियमित समीक्षाओं को भी विचार करना चाहिए एक छोटे सेट पर बाल विकास संकेतकों, सेवा-गुणवत्ता उपायों, और इक्विटी मार्करों के। बेहतर उपयोग मौजूदा डेटा प्रणालियों का विभिन्न क्षेत्रों के पार समर्थन कर सकता है स्थानीय योजना और जवाबदेही को बिना जोड़े अनुचित रिपोर्टिंग बोझ के। समय सही है। जैसे भारत निवेश करता है मानव पूंजी में और आगे बढ़ता है &#x27;विकसित भारत 2047&#x27; के दृष्टिकोण की ओर, सुनिश्चित करना कि बच्चे न केवल जीवित रहें बल्कि फलें-फूलें केंद्रीय है समावेशी विकास के लिए।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="The timing is right. As India invests in human capital and advances towards the vi-sion of Viksit Bharat 2047, ensuring that children not only survive but thrive is central to inclusive growth.">🔊 Listen</button>
+        </div>
+  <div class="section-title">🔴 Tough Words</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">Pakhwada</td><td>A period of two weeks or fortnight</td><td>पखवाड़ा, दो सप्ताह की अवधि</td><td><em>AS INDIA observed POSHAN Pakhwada last month, attention was focused on improving nutrition outcomes for women and children.</em></td></tr><tr><td class="tw-word">Convergence</td><td>The process of coming together or meeting</td><td>अभिसरण, मिलन, एक साथ आना</td><td><em>Delivering its full spectrum requires convergence across the sectors responsible for health, nutrition, childcare, and early learning.</em></td></tr><tr><td class="tw-word">Cornerstone</td><td>An important quality or feature on which something depends</td><td>आधारशिला, मुख्य आधार</td><td><em>The anganwadi network has been a cornerstone of service delivery, providing nutrition, health, and early learning support at scale.</em></td></tr><tr><td class="tw-word">Feasibility</td><td>The state or degree of being easily done</td><td>व्यवहार्यता, संभव होने की स्थिति</td><td><em>Mobile Creches has shown the feasibility of providing childcare near work-sites in urban informal settings.</em></td></tr><tr><td class="tw-word">Responsive</td><td>Acting in a quick and positive way</td><td>प्रतिक्रियाशील, संवेदनशील</td><td><em>Clear instructions can enable these platforms to integrate counselling on responsive caregiving and maternal well-being alongside nutrition services.</em></td></tr><tr><td class="tw-word">Livelihoods</td><td>Means of securing the necessities of life</td><td>आजीविका, जीवन निर्वाह के साधन</td><td><em>Second, link childcare provision more deliberately with livelihoods and social protection programmes, with an enabling role for the private sector.</em></td></tr><tr><td class="tw-word">Accountability</td><td>The fact of being responsible for actions</td><td>जवाबदेही, उत्तरदायित्व</td><td><em>Better use of existing data systems across sectors can support local planning and accountability without adding undue reporting burdens.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- VOCABULARY TAB -->
+<div id="vocabulary" class="tab-section">
+  <div class="section-title">📚 Vocabulary</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">Pakhwada</td><td>A period of two weeks or fortnight</td><td>पखवाड़ा, दो सप्ताह की अवधि</td><td><em>AS INDIA observed POSHAN Pakhwada last month, attention was focused on improving nutrition outcomes for women and children.</em></td></tr><tr><td class="tw-word">Convergence</td><td>The process of coming together or meeting</td><td>अभिसरण, मिलन, एक साथ आना</td><td><em>Delivering its full spectrum requires convergence across the sectors responsible for health, nutrition, childcare, and early learning.</em></td></tr><tr><td class="tw-word">Cornerstone</td><td>An important quality or feature on which something depends</td><td>आधारशिला, मुख्य आधार</td><td><em>The anganwadi network has been a cornerstone of service delivery, providing nutrition, health, and early learning support at scale.</em></td></tr><tr><td class="tw-word">Feasibility</td><td>The state or degree of being easily done</td><td>व्यवहार्यता, संभव होने की स्थिति</td><td><em>Mobile Creches has shown the feasibility of providing childcare near work-sites in urban informal settings.</em></td></tr><tr><td class="tw-word">Responsive</td><td>Acting in a quick and positive way</td><td>प्रतिक्रियाशील, संवेदनशील</td><td><em>Clear instructions can enable these platforms to integrate counselling on responsive caregiving and maternal well-being alongside nutrition services.</em></td></tr><tr><td class="tw-word">Livelihoods</td><td>Means of securing the necessities of life</td><td>आजीविका, जीवन निर्वाह के साधन</td><td><em>Second, link childcare provision more deliberately with livelihoods and social protection programmes, with an enabling role for the private sector.</em></td></tr><tr><td class="tw-word">Accountability</td><td>The fact of being responsible for actions</td><td>जवाबदेही, उत्तरदायित्व</td><td><em>Better use of existing data systems across sectors can support local planning and accountability without adding undue reporting burdens.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- IDIOMS TAB -->
+<div id="idioms" class="tab-section">
+  <div class="section-title">💬 Idioms &amp; Phrases</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phrase</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="idm-phrase">Once-in-a-lifetime</td><td>Occurring only once in a person&#x27;s life</td><td>जीवन में एक बार होने वाला</td><td><em>Advances in neuroscience show that early childhood represents a once-in-a-lifetime window, when nutrition, health, stimulation, and responsive caregiving together shape the developing brain.</em></td></tr><tr><td class="idm-phrase">Laid a solid foundation</td><td>To create a strong base for future success</td><td>मजबूत नींव रखना</td><td><em>Over the past two decades, India has laid a solid foundation.</em></td></tr><tr><td class="idm-phrase">Point the way forward</td><td>To suggest a method for future progress</td><td>आगे का रास्ता दिखाना</td><td><em>Several initiatives point the way forward.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- CLOZE TEST TAB -->
+<div id="cloze" class="tab-section">
+  <div class="section-title">✏️ Cloze Test</div>
+  <div class="q-block"><p><b>Q1.</b> Global evidence suggests that investments in early-childhood development can generate significant economic ___, often exceeding returns from those made later in life.</p><div class="mcq-opts"><button class="opt-btn" data-ans="returns" onclick="clozeAns(this)">returns</button><button class="opt-btn" data-ans="returns" onclick="clozeAns(this)">outcomes</button><button class="opt-btn" data-ans="returns" onclick="clozeAns(this)">investments</button><button class="opt-btn" data-ans="returns" onclick="clozeAns(this)">earnings</button></div></div><div class="q-block"><p><b>Q2.</b> The anganwadi network has been a ___ of service delivery, providing nutrition, health, and early learning support at scale.</p><div class="mcq-opts"><button class="opt-btn" data-ans="cornerstone" onclick="clozeAns(this)">cornerstone</button><button class="opt-btn" data-ans="cornerstone" onclick="clozeAns(this)">foundation</button><button class="opt-btn" data-ans="cornerstone" onclick="clozeAns(this)">platform</button><button class="opt-btn" data-ans="cornerstone" onclick="clozeAns(this)">network</button></div></div><div class="q-block"><p><b>Q3.</b> Delivering its full spectrum requires ___ across the sectors responsible for health, nutrition, childcare, and early learning.</p><div class="mcq-opts"><button class="opt-btn" data-ans="convergence" onclick="clozeAns(this)">convergence</button><button class="opt-btn" data-ans="convergence" onclick="clozeAns(this)">integration</button><button class="opt-btn" data-ans="convergence" onclick="clozeAns(this)">coordination</button><button class="opt-btn" data-ans="convergence" onclick="clozeAns(this)">collaboration</button></div></div><div class="q-block"><p><b>Q4.</b> Advances in neuroscience show that early childhood represents a once-in-a-lifetime ___, when nutrition, health, stimulation, and responsive caregiving together shape the developing brain.</p><div class="mcq-opts"><button class="opt-btn" data-ans="window" onclick="clozeAns(this)">window</button><button class="opt-btn" data-ans="window" onclick="clozeAns(this)">stage</button><button class="opt-btn" data-ans="window" onclick="clozeAns(this)">period</button><button class="opt-btn" data-ans="window" onclick="clozeAns(this)">foundation</button></div></div><div class="q-block"><p><b>Q5.</b> Routine reviews should also consider a small set of child development indicators, service-quality measures, and equity ___.</p><div class="mcq-opts"><button class="opt-btn" data-ans="markers" onclick="clozeAns(this)">markers</button><button class="opt-btn" data-ans="markers" onclick="clozeAns(this)">indicators</button><button class="opt-btn" data-ans="markers" onclick="clozeAns(this)">measures</button><button class="opt-btn" data-ans="markers" onclick="clozeAns(this)">outcomes</button></div></div>
+</div>
+
+<!-- VOCAB MCQ TAB -->
+<div id="vocabtest" class="tab-section">
+  <div class="section-title">🧪 Vocabulary MCQ</div>
+  <div class="q-block"><p><b>Q1.</b> Which word means &#x27;a period of time or a campaign dedicated to a specific cause or activity&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="Pakhwada" onclick="clozeAns(this)"><b>Pakhwada</b></button><button class="opt-btn" data-ans="Pakhwada" onclick="clozeAns(this)"><b>Convergence</b></button><button class="opt-btn" data-ans="Pakhwada" onclick="clozeAns(this)"><b>Cornerstone</b></button><button class="opt-btn" data-ans="Pakhwada" onclick="clozeAns(this)"><b>Feasibility</b></button></div></div><div class="q-block"><p><b>Q2.</b> Which word means &#x27;the process of coming together or merging from different directions&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="Convergence" onclick="clozeAns(this)"><b>Convergence</b></button><button class="opt-btn" data-ans="Convergence" onclick="clozeAns(this)"><b>Accountability</b></button><button class="opt-btn" data-ans="Convergence" onclick="clozeAns(this)"><b>Livelihoods</b></button><button class="opt-btn" data-ans="Convergence" onclick="clozeAns(this)"><b>Responsive</b></button></div></div><div class="q-block"><p><b>Q3.</b> Which word means &#x27;an important quality or feature on which a particular thing depends or is based&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="Cornerstone" onclick="clozeAns(this)"><b>Cornerstone</b></button><button class="opt-btn" data-ans="Cornerstone" onclick="clozeAns(this)"><b>Feasibility</b></button><button class="opt-btn" data-ans="Cornerstone" onclick="clozeAns(this)"><b>Pakhwada</b></button><button class="opt-btn" data-ans="Cornerstone" onclick="clozeAns(this)"><b>Responsive</b></button></div></div><div class="q-block"><p><b>Q4.</b> Which word means &#x27;the state or degree of being easily or conveniently done&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="Feasibility" onclick="clozeAns(this)"><b>Feasibility</b></button><button class="opt-btn" data-ans="Feasibility" onclick="clozeAns(this)"><b>Accountability</b></button><button class="opt-btn" data-ans="Feasibility" onclick="clozeAns(this)"><b>Livelihoods</b></button><button class="opt-btn" data-ans="Feasibility" onclick="clozeAns(this)"><b>Convergence</b></button></div></div><div class="q-block"><p><b>Q5.</b> Which word means &#x27;the obligation or willingness to accept responsibility for one&#x27;s actions&#x27;?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="Accountability" onclick="clozeAns(this)"><b>Accountability</b></button><button class="opt-btn" data-ans="Accountability" onclick="clozeAns(this)"><b>Responsive</b></button><button class="opt-btn" data-ans="Accountability" onclick="clozeAns(this)"><b>Livelihoods</b></button><button class="opt-btn" data-ans="Accountability" onclick="clozeAns(this)"><b>Cornerstone</b></button></div></div>
+</div>
+
+<!-- PARA JUMBLE TAB -->
+<div id="jumble" class="tab-section">
+  <div class="section-title">🔀 Para Jumble</div>
+  <div class="q-block"><p><b>Para Jumble 1:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> Early childhood is a critical period for brain development.</div><div class="pj-sent"><span class="pj-label">S2</span> Nutrition and care during this time have long-term economic benefits.</div><div class="pj-sent"><span class="pj-label">S3</span> India has established various policies to support this foundational stage.</div><div class="pj-sent"><span class="pj-label">S4</span> However, significant challenges like stunting and learning gaps persist.</div></div><div class="mcq-opts pj-opts" id="pjopts_1"><button class="opt-btn pj-opt" data-ans="1" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S4→S3→S2</button><button class="opt-btn pj-opt" data-ans="1" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="1" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S4→S1→S2</button><button class="opt-btn pj-opt" data-ans="1" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S3→S1→S4→S2</button></div><div class="ans-reveal" id="pj_1" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 2:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> Working parents in informal sectors struggle to find reliable childcare.</div><div class="pj-sent"><span class="pj-label">S2</span> This lack of support forces families to make difficult trade-offs.</div><div class="pj-sent"><span class="pj-label">S3</span> Consequently, both child development and maternal employment suffer.</div><div class="pj-sent"><span class="pj-label">S4</span> Addressing this requires integrating childcare into existing service platforms.</div></div><div class="mcq-opts pj-opts" id="pjopts_2"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S2→S3→S4→S1</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S4→S3→S2</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S4→S1→S2</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S2→S3→S4</button></div><div class="ans-reveal" id="pj_2" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 3:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> Frontline workers can be trained to provide better caregiving advice.</div><div class="pj-sent"><span class="pj-label">S2</span> This should be integrated into routine health visits and immunizations.</div><div class="pj-sent"><span class="pj-label">S3</span> Such a shift would make care a core function of existing platforms.</div><div class="pj-sent"><span class="pj-label">S4</span> This is a practical administrative priority for improving outcomes.</div></div><div class="mcq-opts pj-opts" id="pjopts_3"><button class="opt-btn pj-opt" data-ans="1" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S4→S3→S1→S2</button><button class="opt-btn pj-opt" data-ans="1" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="1" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S1→S2→S4</button><button class="opt-btn pj-opt" data-ans="1" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S4→S2→S3→S1</button></div><div class="ans-reveal" id="pj_3" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 4:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> Childcare provision should be linked to social protection programs.</div><div class="pj-sent"><span class="pj-label">S2</span> Local governments can use converged funds to support community centers.</div><div class="pj-sent"><span class="pj-label">S3</span> Locating these centers near work-sites helps working mothers significantly.</div><div class="pj-sent"><span class="pj-label">S4</span> Private sector involvement can further enable these initiatives.</div></div><div class="mcq-opts pj-opts" id="pjopts_4"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S2→S4→S3→S1</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S3→S4→S1→S2</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S2→S3→S1→S4</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S2→S3→S4</button></div><div class="ans-reveal" id="pj_4" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 5:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> Current program reviews focus heavily on input metrics.</div><div class="pj-sent"><span class="pj-label">S2</span> We must start tracking actual child development outcomes instead.</div><div class="pj-sent"><span class="pj-label">S3</span> Using existing data systems can help monitor quality and equity.</div><div class="pj-sent"><span class="pj-label">S4</span> This approach ensures accountability without increasing reporting burdens.</div></div><div class="mcq-opts pj-opts" id="pjopts_5"><button class="opt-btn pj-opt" data-ans="0" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S3→S1→S2→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S1→S4→S2</button><button class="opt-btn pj-opt" data-ans="0" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S2→S4→S1→S3</button></div><div class="ans-reveal" id="pj_5" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div>
+</div>
+
+
+<!-- SHARE FOOTER -->
+<div style="margin:40px 0 20px;padding:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border-radius:16px;text-align:center;border:1px solid rgba(233,69,96,.3);">
+  <div style="color:#fff;font-family:Inter,sans-serif;font-weight:700;font-size:1rem;
+    margin-bottom:6px;">Powered by A2Z Updates4U</div>
+  <div style="color:rgba(255,255,255,.6);font-size:.8rem;font-family:Inter,sans-serif;
+    margin-bottom:14px;">Daily Editorial · Vocab · Current Affairs</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <a href="https://t.me/A2ZUpdates4U" target="_blank"
+      style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;display:inline-flex;align-items:center;gap:7px;">
+      📢 A2Z Updates Channel
+    </a>
+    <a href="https://t.me/A2Zupdates4uLounge" target="_blank"
+      style="background:linear-gradient(135deg,#0f3460,#16213e);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;border:1px solid rgba(233,69,96,.4);
+      display:inline-flex;align-items:center;gap:7px;">
+      📚 Vocab Bot Lounge
+    </a>
+  </div>
+</div>
+
+
+<!-- ABOUT SECTION -->
+<div id="about" class="tab-section">
+  <div class="section-title">ℹ️ About A2Z Updates4U</div>
+    <!-- Founder Story -->
+    <div style="background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(217,70,239,.1));
+      border:1px solid rgba(201,146,42,.4);border-radius:16px;padding:26px;
+      margin-bottom:24px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.06;line-height:1;">🏆</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:54px;height:54px;border-radius:50%;
+          background:linear-gradient(135deg,#c9922a,#8b1a1a);
+          display:flex;align-items:center;justify-content:center;
+          font-size:22px;font-weight:900;color:var(--dark);font-family:Inter,sans-serif;
+          flex-shrink:0;box-shadow:0 4px 14px rgba(201,146,42,.4);">R</div>
+        <div>
+          <div style="color:var(--dark);font-family:Inter,sans-serif;font-weight:800;font-size:1.05rem;">
+            Rahul Best
+          </div>
+          <div style="color:#d4a843;font-size:.8rem;font-family:Inter,sans-serif;">
+            Founder &amp; Creator &nbsp;·&nbsp;
+            <span style="background:linear-gradient(135deg,#f59e0b,#ef4444);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">
+              SSC CGL AIR 209 🏆
+            </span>
+          </div>
+        </div>
+      </div>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        <strong style="color:#d4a843;">A2Z Updates4U</strong> was born from a single student's obsession
+        with cracking India's toughest competitive exams. <strong>Rahul Best</strong> spent years
+        grinding through newspaper editorials every single morning, building vocabulary flashcard by
+        flashcard, and decoding idioms that left most students stumped. His secret? He turned every
+        editorial into a structured study session — exactly what this tool does for you.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        That obsession paid off.
+        Rahul cleared <strong>SSC CGL with an All India Rank of 209</strong> — placing him among the
+        top exam toppers in the country. His English section score was near-perfect, powered entirely
+        by the vocabulary and editorial reading habits he had built over years.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;">
+        After his selection, Rahul decided he couldn't keep these battle-tested techniques to himself.
+        He built <strong>A2Z Updates4U</strong> so that every serious aspirant could access the same
+        powerful study system — completely free. If it got him to <strong>AIR 209</strong>,
+        imagine what it can do for you. 🚀
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <span style="background:rgba(245,158,11,.15);border:1px solid #f59e0b;color:#fbbf24;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          🏆 SSC CGL
+        </span>
+        <span style="background:rgba(201,146,42,.12);border:1px solid #8b5cf6;color:#d4a843;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📊 AIR 209
+        </span>
+        <span style="background:rgba(16,185,129,.15);border:1px solid #10b981;color:#6ee7b7;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📰 Daily Editorial Reader
+        </span>
+        <span style="background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#fca5a5;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📚 5000+ Vocab Words Mastered
+        </span>
+      </div>
+    </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:24px;">
+    <!-- Vocab Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📚</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Vocabulary Builder Bot
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Add any English word and instantly get its <strong>meaning in English &amp; Hindi</strong>,
+        synonyms, antonyms, phonetics, a <strong>root-based mnemonic</strong> to never forget it,
+        and an example sentence. Export your entire word list as a beautiful HTML flashcard set
+        with mock tests &amp; mind maps!
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔤 Word meaning in EN + HI</li>
+        <li>🧠 Memory mnemonic (root-based)</li>
+        <li>🃏 Flashcard practice</li>
+        <li>🧪 Mock vocabulary test</li>
+        <li>🗺️ Mind map of word tones</li>
+      </ul>
+    </div>
+    <!-- Editorial Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📰</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Daily Editorial Study
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Every day we post The Hindu &amp; Indian Express editorials transformed into a
+        <strong>complete study package</strong>. Difficult words are highlighted and explained,
+        idioms are listed, and you get full Hindi translation paragraph by paragraph.
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔴 Tough words highlighted in red</li>
+        <li>💬 Idioms &amp; fixed phrases</li>
+        <li>🇮🇳 Word-by-word Hindi translation</li>
+        <li>✏️ Cloze Test (fill in the blank)</li>
+        <li>🧪 Vocabulary MCQ</li>
+        <li>🔀 Para Jumble with ordering options</li>
+      </ul>
+    </div>
+  </div>
+  <!-- Share Button -->
+  <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#1a1a2e,#0f3460);
+    border-radius:16px;border:1px solid rgba(233,69,96,.3);">
+    <p style="color:rgba(255,255,255,.8);font-family:Inter,sans-serif;font-size:.92rem;
+      margin-bottom:16px;line-height:1.6;">
+      Found this helpful? Share it with your friends and study partners! 🎯
+    </p>
+    <a href="https://t.me/share/url?url=https://t.me/A2ZUpdates4U&text=Hey!%20👋%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20🚀%0A%0A📚%20VOCAB%20BUILDER%20BOT%0ALearn%20new%20English%20words%20daily%20with:%0A✔️%20English%20%2B%20Hindi%20meanings%0A✔️%20Memory%20mnemonics%20(root-based)%0A✔️%20Synonyms,%20antonyms%20%26%20phonetics%0A✔️%20Flashcard%20practice%0A✔️%20Mock%20vocabulary%20test%0A✔️%20Mind%20map%20by%20word%20tone%0A%0A📰%20DAILY%20EDITORIAL%20STUDY%0AEvery%20day%20we%20post%20The%20Hindu%20%26%20Indian%20Express%20editorials%20with:%0A✔️%20🔴%20Difficult%20words%20highlighted%20in%20red%0A✔️%20Word%20meanings%20in%20English%20%26%20Hindi%0A✔️%20Idioms%20%26%20fixed%20phrases%20explained%0A✔️%20Word-by-word%20Hindi%20translation%0A✔️%20✏️%20Cloze%20Test%20(fill%20in%20the%20blank)%0A✔️%20🧪%20Vocabulary%20MCQ%20(meaning%20→%20word)%0A✔️%20🔀%20Para%20Jumble%20with%204%20ordering%20options%0A✔️%20Read%20with%20browser%20Text-to-Speech!%0A%0A🎯%20Perfect%20for%20SSC%20CGL,%20UPSC,%20IBPS,%20CAT%20%26%20all%20competitive%20exams!%0A%0A🏆%20Founded%20by%20Rahul%20Best%20—%20SSC%20CGL%202022%20AIR%20209%0AHe%20used%20these%20exact%20techniques%20to%20crack%20the%20exam.%20Now%20it's%20your%20turn!%0A%0A👉%20Join%20us%20FREE:%20https://t.me/A2ZUpdates4U%0A%F0%9F%92%AC%20Vocab%20Lounge%3A%20https%3A%2F%2Ft.me%2FA2Zupdates4uLounge" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e94560,#c0392b);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(233,69,96,.4);transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      ✈️ Share on Telegram
+    </a>
+    <a href="https://wa.me/?text=Hey!%20%F0%9F%91%8B%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20%F0%9F%9A%80%0A%0A%F0%9F%93%9A%20VOCAB%20BUILDER%20BOT%0ALearn%20English%20words%20daily%20with%3A%0A%E2%9C%94%EF%B8%8F%20EN%20%2B%20HI%20meanings%0A%E2%9C%94%EF%B8%8F%20Mnemonics%2C%20Flashcards%2C%20Mock%20test%0A%0A%F0%9F%93%B0%20DAILY%20EDITORIAL%20STUDY%0AThe%20Hindu%20%26%20Indian%20Express%20with%3A%0A%E2%9C%94%EF%B8%8F%20Tough%20words%20highlighted%0A%E2%9C%94%EF%B8%8F%20Hindi%20translation%0A%E2%9C%94%EF%B8%8F%20Cloze%20Test%2C%20Vocab%20MCQ%2C%20Para%20Jumble%0A%0A%F0%9F%8F%86%20Founded%20by%20Rahul%20Best%20-%20SSC%20CGL%20AIR%20209%0A%0A%F0%9F%91%89%20Join%20FREE%3A%20https%3A%2F%2Ft.me%2FA2ZUpdates4U" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;
+      background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(37,211,102,.35);margin-top:10px;transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      📲 Share on WhatsApp
+    </a>
+    <p style="color:rgba(255,255,255,.4);font-size:.75rem;margin-top:10px;font-family:Inter,sans-serif;">
+      Opens Telegram with a pre-filled message to forward to friends
+    </p>
+  </div>
+</div>
+
+</div><!-- /container -->
+</div><!-- /mainContent -->
+
+<script>
+// ── Source selector ──────────────────────────────────────────────────────
+function selectSource(src) {
+  document.getElementById('selectorScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('topnav').style.display = 'flex';
+  document.getElementById('srcHeader').style.display = 'block';
+  document.getElementById('ttsBar').style.display = 'flex';
+  var badge = document.getElementById('srcBadge');
+  if (src === 'hindu') { badge.style.background = '#c0392b'; badge.textContent = 'The Hindu'; }
+  else { badge.style.background = '#1a3a6e'; badge.textContent = 'Indian Express'; }
+}
+
+// ── Tab navigation ───────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.topnav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Hindi explanation toggle ─────────────────────────────────────────────
+var hindiVisible = false;
+function toggleAllHindi() {
+  hindiVisible = !hindiVisible;
+  document.querySelectorAll('.hi-exp').forEach(function(el) {
+    el.style.display = hindiVisible ? 'block' : 'none';
+  });
+  document.getElementById('hindiBtn').textContent =
+    hindiVisible ? '🙈 Hide Hindi' : '🇮🇳 Hindi Explanation';
+}
+
+// ── MCQ answer check ─────────────────────────────────────────────────────
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx      = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) {
+    var rev = qblock.querySelector('.ans-reveal');
+    if (rev) rev.style.display = 'block';
+  }
+}
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) { var rev=qblock.querySelector('.ans-reveal'); if(rev) rev.style.display='block'; }
+}
+function clozeAns(btn) {
+  var parent = btn.closest('.mcq-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correct = btn.dataset.ans;
+  parent.querySelectorAll('.opt-btn').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (btn.textContent.trim() === correct) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.opt-btn').forEach(function(b) {
+      if (b.textContent.trim() === correct) b.classList.add('correct');
+    });
+  }
+}
+
+// ── Show/hide answer ─────────────────────────────────────────────────────
+function toggleEl(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── TTS (browser built-in SpeechSynthesis) ───────────────────────────────
+var ttsActive = null;
+function stopSpeech() {
+  window.speechSynthesis.cancel();
+  ttsActive = null;
+  document.querySelectorAll('.tts-btn').forEach(function(b) { b.textContent = '🔊 Listen'; });
+}
+function speakText(text, btn) {
+  stopSpeech();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-IN';
+  utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  if (btn) {
+    btn.textContent = '⏹ Stop';
+    ttsActive = btn;
+    utt.onend = function() { btn.textContent = '🔊 Listen'; ttsActive = null; };
+  }
+  window.speechSynthesis.speak(utt);
+}
+function speakPara(btn) {
+  if (btn.textContent === '⏹ Stop') { stopSpeech(); return; }
+  speakText(btn.dataset.text, btn);
+}
+function speakAll() {
+  var texts = [];
+  document.querySelectorAll('.para-block .para-text').forEach(function(p) {
+    texts.push(p.textContent);
+  });
+  stopSpeech();
+  var combined = texts.join(' ');
+  var utt = new SpeechSynthesisUtterance(combined);
+  utt.lang = 'en-IN'; utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  window.speechSynthesis.speak(utt);
+}
+</script>
+
+    <script>
+    (function(){
+      var scores = {clozeTotal:0,clozeCorrect:0,jumbleTotal:0,jumbleCorrect:0,submitted:false};
+      var editorialId = 'ed_health';
+
+      scores.clozeTotal = document.querySelectorAll('.mcq-opts').length;
+      scores.jumbleTotal = document.querySelectorAll('.pj-opts').length;
+
+      // Hook into existing answer functions by periodic checking
+      var lastCorrect = 0;
+      setInterval(function(){
+        var c = document.querySelectorAll('.opt-btn.correct,.pj-opt.correct').length;
+        if (c > lastCorrect) {
+          lastCorrect = c;
+          // Count correct answers
+          scores.clozeCorrect = document.querySelectorAll('.mcq-opts .opt-btn.correct').length;
+          scores.jumbleCorrect = document.querySelectorAll('.pj-opts .pj-opt.correct').length;
+          updateTracker();
+        }
+      }, 500);
+
+      function updateTracker() {
+        var el = document.getElementById('a2z-score-display');
+        if (!el) return;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        el.innerHTML = 'Cloze: <span>'+scores.clozeCorrect+'/'+scores.clozeTotal+'</span> &nbsp; Jumble: <span>'+scores.jumbleCorrect+'/'+scores.jumbleTotal+'</span> &nbsp; <b style="color:#fff;">'+correct+'/'+total+'</b>';
+      }
+
+      window.submitResults = function() {
+        if (scores.submitted) return;
+        scores.submitted = true;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        var acc = total > 0 ? Math.round(correct/total*100) : 0;
+        var btn = document.getElementById('a2z-submit-btn');
+        btn.textContent = '✓ Saved';
+        btn.classList.add('done');
+        var toast = document.getElementById('a2z-toast');
+        toast.style.display='block';
+        toast.innerHTML = '<div style="font-size:3rem;">'+(acc>=70?'🔥':acc>=40?'✅':'📚')+'</div>'+
+          '<div class="a2z-toast-score">'+correct+'/'+total+'</div>'+
+          '<div style="font-size:.9rem;">' + acc + '% accuracy</div>'+
+          '<div style="font-size:.75rem;color:#94a3b8;margin-top:8px;">Results sent to A2Z Bot!</div>';
+        setTimeout(function(){toast.style.display='none';},4000);
+
+        var payload = {action:'editorial_result',editorial_id:editorialId,
+          cloze_correct:scores.clozeCorrect,cloze_total:scores.clozeTotal,
+          jumble_correct:scores.jumbleCorrect,jumble_total:scores.jumbleTotal};
+
+        // Try multiple methods to send results
+        if (window.Telegram?.WebApp) {
+          window.Telegram.WebApp.sendData(JSON.stringify(payload));
+          window.Telegram.WebApp.close();
+        }
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({type:'a2z_editorial_result',data:payload}, '*');
+        }
+        // Fallback: copy to clipboard
+        try {
+          navigator.clipboard.writeText('Results: '+correct+'/'+total+' ('+acc+'%) - Sent to bot');
+        } catch(e) {}
+      };
+
+      // Build tracker
+      var bar = document.createElement('div');
+      bar.className = 'a2z-tracker';
+      bar.id = 'a2z-tracker';
+      bar.innerHTML = '<div class="a2z-score" id="a2z-score-display">'+
+        'Cloze: <span>0/'+scores.clozeTotal+'</span> &nbsp; Jumble: <span>0/'+scores.jumbleTotal+'</span> &nbsp; <b style="color:#fff;">0/'+(scores.clozeTotal+scores.jumbleTotal)+'</b>'+
+        '</div>'+
+        '<button class="a2z-btn" id="a2z-submit-btn" onclick="submitResults()">📊 Submit</button>';
+      document.body.appendChild(bar);
+
+      var toast = document.createElement('div');
+      toast.className = 'a2z-toast';
+      toast.id = 'a2z-toast';
+      document.body.appendChild(toast);
+
+      document.body.classList.add('a2z-mode');
+      updateTracker();
+    })();
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Building bridges — Editorial Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--parchment:#f5eedc;--parchment2:#ede0c4;--dark:#3b2a1a;--ink:#2c1a0e;
+  --accent:#8b1a1a;--gold:#c9922a;--card:#fdf6e3;--border:#d4b896;
+  --shadow:rgba(60,30,10,.15);--red:#c0392b;--red-bg:rgba(192,57,43,.1);}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--parchment);color:var(--ink);font-family:'Lora',Georgia,serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:
+  repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(139,90,43,.05) 28px,rgba(139,90,43,.05) 29px),
+  radial-gradient(ellipse at 10% 0%,rgba(139,90,43,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{max-width:860px;margin:0 auto;padding:20px;position:relative;z-index:1}
+/* Source selector */
+.src-selector{display:flex;justify-content:center;gap:12px;padding:20px 0;}
+.src-btn{padding:12px 28px;border:3px solid var(--border);border-radius:10px;background:var(--card);
+  font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;}
+.src-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px var(--shadow);}
+.src-btn.hindu{border-color:#c0392b;color:#c0392b;}
+.src-btn.ie{border-color:#1a3a6e;color:#1a3a6e;}
+.src-btn.hindu:hover,.src-btn.hindu.sel{background:#c0392b;color:#fff;}
+.src-btn.ie:hover,.src-btn.ie.sel{background:#1a3a6e;color:#fff;}
+.src-header{text-align:center;padding:8px 20px 24px;border-bottom:3px double var(--border);margin-bottom:24px;display:none;}
+.src-badge{display:inline-block;padding:4px 14px;border-radius:20px;color:#fff;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:10px;background:#c0392b;}
+.src-header h1{font-size:1.9rem;color:var(--dark);line-height:1.3;}
+.src-header .meta{color:var(--gold);font-size:.88rem;margin-top:6px;font-style:italic;}
+/* Nav */
+.topnav{background:var(--parchment2);border-bottom:2px solid var(--border);display:flex;flex-wrap:wrap;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px var(--shadow);display:none;}
+.topnav button{flex:1;min-width:100px;padding:12px 6px;background:none;border:none;
+  color:var(--dark);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;
+  border-bottom:3px solid transparent;transition:all .2s;}
+.topnav button.active,.topnav button:hover{color:var(--accent);border-bottom-color:var(--accent);background:rgba(139,26,26,.06);}
+.tab-section{display:none;animation:fadeIn .3s ease;}
+.tab-section.active{display:block;}
+
+/* Para Jumble */
+.pj-sentences{margin:10px 0;}
+.pj-sent{padding:6px 10px;margin:4px 0;background:rgba(201,146,42,.08);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.92rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;font-family:'Inter',sans-serif;
+  font-weight:700;font-size:.78rem;padding:1px 7px;border-radius:4px;margin-right:8px;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;color:var(--accent);
+  margin-right:6px;}
+.opts-hint{font-size:.85rem;color:#888;margin-bottom:4px;}
+
+
+/* Para Jumble MCQ */
+.pj-sentences{margin:10px 0 14px;}
+.pj-sent{padding:7px 10px;margin:4px 0;background:rgba(201,146,42,.09);
+  border-left:3px solid var(--gold);border-radius:4px;line-height:1.6;font-size:.93rem;}
+.pj-label{display:inline-block;background:var(--gold);color:#fff;
+  font-family:'Inter',sans-serif;font-weight:700;font-size:.78rem;
+  padding:1px 8px;border-radius:4px;margin-right:8px;vertical-align:middle;}
+.pj-opt{width:100%;text-align:left;margin:4px 0;font-family:'Lora',serif;font-size:.9rem;}
+.pj-opt-letter{font-family:'Inter',sans-serif;font-weight:700;
+  color:var(--accent);margin-right:6px;}
+.opts-hint{font-size:.84rem;color:#888;margin:-4px 0 8px;font-style:italic;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.section-title{font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent);
+  border-bottom:2px solid var(--border);padding-bottom:8px;margin:24px 0 14px;display:flex;align-items:center;gap:8px;}
+/* Para */
+.para-block{margin-bottom:18px;}
+.para-text{line-height:1.9;font-size:1.03rem;text-align:justify;}
+.tw{color:var(--red);font-weight:600;background:var(--red-bg);border-radius:3px;padding:0 2px;
+  text-decoration:underline dotted var(--red);cursor:help;}
+.hi-exp{display:none;margin-top:8px;padding:10px 14px;background:rgba(201,146,42,.12);
+  border-left:4px solid var(--gold);border-radius:4px;font-size:.93rem;line-height:1.7;color:var(--dark);}
+/* Buttons */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px;}
+.explain-btn,.tts-btn,.reveal-btn{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-weight:600;font-size:.85rem;transition:opacity .2s;}
+.explain-btn{background:var(--gold);color:#fff;}
+.tts-btn{background:var(--parchment2);color:var(--dark);border:1px solid var(--border);margin-top:6px;font-size:.8rem;}
+.tts-btn:hover,.explain-btn:hover,.reveal-btn:hover{opacity:.82;}
+.reveal-btn{background:var(--accent);color:#fff;}
+/* Tables */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;box-shadow:0 4px 14px var(--shadow);}
+table{width:100%;border-collapse:collapse;font-size:.91rem;}
+th{background:var(--parchment2);color:var(--dark);padding:10px;text-align:left;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-weight:700;}
+td{padding:9px 10px;border-bottom:1px solid rgba(180,130,70,.2);vertical-align:top;line-height:1.5;}
+tr:nth-child(even) td{background:rgba(230,210,170,.16);}
+.tw-word{font-weight:700;color:var(--red);} .idm-phrase{color:var(--accent);font-weight:600;}
+.empty-msg{text-align:center;color:#999;padding:20px;}
+/* Questions */
+.q-block{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px var(--shadow);}
+.q-block p{line-height:1.7;margin-bottom:8px;}
+.mcq-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.opt-btn{padding:8px 14px;border:2px solid var(--border);border-radius:8px;background:var(--parchment2);
+  color:var(--ink);font-family:'Lora',serif;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.opt-btn:hover{border-color:var(--accent);}
+.opt-btn.correct{background:rgba(39,174,96,.15);border-color:#27ae60;color:#1a5e35;font-weight:700;}
+.opt-btn.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);font-weight:700;}
+.ans-reveal{margin-top:10px;padding:10px 14px;background:rgba(139,90,43,.1);border-left:4px solid var(--accent);border-radius:4px;font-size:.91rem;}
+.jumble-list{padding-left:20px;line-height:1.9;}
+/* Misc */
+.tts-bar{background:var(--parchment2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:.85rem;}
+.tts-bar select{border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--card);}
+@media(max-width:600px){.src-header h1{font-size:1.3rem;}.container{padding:10px;}table{font-size:.8rem;}}
+
+    /* A2Z Results Tracker — injected */
+    .a2z-tracker{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#8b5cf6,#6d28d9);
+      padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+      z-index:9999;box-shadow:0 -4px 20px rgba(139,92,246,.5);font-family:Inter,sans-serif;
+      padding-bottom:max(12px,env(safe-area-inset-bottom));animation:a2zPulse 2s ease-in-out infinite;}
+    @keyframes a2zPulse{0%,100%{box-shadow:0 -4px 20px rgba(139,92,246,.5)}50%{box-shadow:0 -4px 30px rgba(139,92,246,.8)}}
+    .a2z-tracker .a2z-score{display:flex;gap:10px;font-size:.75rem;color:#e2e8f0;}
+    .a2z-tracker .a2z-score span{color:#fbbf24;font-weight:700;}
+    .a2z-tracker .a2z-btn{background:#fbbf24;color:#000;border:none;
+      padding:10px 24px;border-radius:10px;font-weight:800;font-size:.85rem;cursor:pointer;
+      box-shadow:0 2px 8px rgba(251,191,36,.4);}
+    .a2z-tracker .a2z-btn.done{background:#22c55e;color:#fff;}
+    .a2z-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;
+      color:#fff;padding:24px 32px;border-radius:16px;z-index:10000;font-family:Inter,sans-serif;
+      text-align:center;display:none;box-shadow:0 12px 48px rgba(0,0,0,.6);}
+    .a2z-toast .a2z-toast-score{font-size:2.5rem;font-weight:900;margin:8px 0;color:#fbbf24;}
+    body.a2z-mode{padding-bottom:80px !important;}
+    @media(max-width:600px){
+    .a2z-tracker .a2z-score{font-size:.7rem;gap:6px;}
+    .a2z-tracker .a2z-btn{font-size:.8rem;padding:10px 18px;}
+    }
+    
+</style>
+</head>
+<body>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+<!-- A2Z BRANDING BAR -->
+<div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="background:linear-gradient(135deg,#e94560,#0f3460);
+      width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+      justify-content:center;font-size:18px;font-weight:900;color:#fff;font-family:Inter,sans-serif;">A</div>
+    <div>
+      <div style="color:#fff;font-family:Inter,sans-serif;font-weight:800;font-size:.95rem;
+        letter-spacing:.5px;">A2Z Updates4U</div>
+      <div style="color:rgba(255,255,255,.6);font-size:.72rem;font-family:Inter,sans-serif;">
+        Editorial Study Series</div>
+    </div>
+  </div>
+  <a href="https://t.me/A2ZUpdates4U" target="_blank"
+    style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+    text-decoration:none;padding:7px 16px;border-radius:20px;font-family:Inter,sans-serif;
+    font-weight:700;font-size:.8rem;display:flex;align-items:center;gap:6px;">
+    📢 Join Channel
+  </a>
+</div>
+<nav class="topnav" id="topnav" style="display:flex;">
+  <button class="active" onclick="showTab('editorial',this)">📰 Editorial</button>
+  <button onclick="showTab('vocabulary',this)">📚 Vocabulary</button>
+  <button onclick="showTab('idioms',this)">💬 Idioms</button>
+  <button onclick="showTab('cloze',this)">✏️ Cloze Test</button>
+  <button onclick="showTab('vocabtest',this)">🧪 Vocab MCQ</button>
+  <button onclick="showTab('jumble',this)">🔀 Para Jumble</button>
+  <button onclick="showTab('about',this)">ℹ️ About</button>
+</nav>
+<div class="container">
+
+<header class="src-header" id="srcHeader" style="display:block;">
+  <div class="src-badge" id="srcBadge">The Hindu</div>
+  <h1 id="editTitle">Building bridges</h1>
+  <div class="meta">06 May 2026</div>
+</header>
+
+<!-- TTS control bar -->
+<div class="tts-bar" id="ttsBar">
+  🔊 <b>Text-to-Speech:</b>
+  <select id="ttsRate"><option value="0.8">Slow</option><option value="1" selected>Normal</option><option value="1.3">Fast</option></select>
+  <button class="reveal-btn" onclick="speakAll()" style="padding:5px 12px;">▶ Read All</button>
+  <button class="reveal-btn" onclick="stopSpeech()" style="padding:5px 12px;background:#666;">■ Stop</button>
+</div>
+
+<!-- EDITORIAL TAB -->
+<div id="editorial" class="tab-section active">
+  <div class="section-title">📝 Editorial</div>
+  <div class="btn-row">
+    <button class="explain-btn" id="hindiBtn" onclick="toggleAllHindi()">🇮🇳 Hindi Explanation</button>
+  </div>
+  
+        <div class="para-block">
+          <p class="para-text">India <span class="tw" title="scaled">scaled</span> a record peak demand of 256.1
+GW on April 25 with solar plants supplying
+21.5% of the afternoon load — an all-time
+high, and the clearest signal yet that the country’s
+<span class="tw" title="installed">installed</span> solar <span class="tw" title="fleet">fleet</span> can do real work when the
+sun is <span class="tw" title="overhead">overhead</span>. But the same day’s full 24-hour
+<span class="tw" title="ledger">ledger</span> told a more <span class="tw" title="sobering">sobering</span> story. When there
+was <span class="tw" title="accounting">accounting</span> for the whole day of April 25, so-
+lar contributed only about 10.8% of daily genera-
+tion, and just 0.1% of the evening’s needs after
+sunset. Solar’s share of India’s <span class="tw" title="installed">installed</span> electric
+<span class="tw" title="capacity">capacity</span> has nearly doubled from about 15% in
+2022 to nearly 28% in early 2026. However, solar
+accounted for roughly 5.6% of <span class="tw" title="generation">generation</span> on In-
+dia’s peak-demand day in 2022 and only in-
+creased to the 10.8% of April — a clear indication
+of the <span class="tw" title="yawning">yawning</span> gap that remains between the
+<span class="tw" title="realities">realities</span> of the present and what is possible. The
+<span class="tw" title="bottleneck">bottleneck</span> is not panels, land or <span class="tw" title="ambition">ambition</span> but the
+<span class="tw" title="inability">inability</span> to use the vast stores of generated elec-
+trons through batteries. In fact, such is the pauc-
+ity of battery storage that States which are <span class="tw" title="prolific">prolific</span>
+producers of solar power are being asked to halt
+their supply, <span class="tw" title="lest">lest</span> it <span class="tw" title="compromise">compromise</span> the <span class="tw" title="stability">stability</span> of In-
+dia’s electric grid. In 2025, India had to <span class="tw" title="curtail">curtail</span> 2.3
+terawatt hours of solar <span class="tw" title="generation">generation</span> between late
+May and December, <span class="tw" title="equivalent">equivalent</span> to 18% of <span class="tw" title="average">average</span>
+<span class="tw" title="monthly">monthly</span> solar <span class="tw" title="output">output</span>, with 0.9 TWh (terra-watt
+hours) <span class="tw" title="wasted">wasted</span> in October alone. Given that pro-
+ducers of such electricity must be <span class="tw" title="compensated">compensated</span>,
+this ends up being a cost to the public <span class="tw" title="exchequer">exchequer</span>
+which pays for power that was never <span class="tw" title="delivered">delivered</span>.
+The India Meteorological Department’s <span class="tw" title="forecast">forecast</span>
+of a below-normal <span class="tw" title="monsoon">monsoon</span> at 92% of the Long
+Period <span class="tw" title="Average">Average</span> — the first such <span class="tw" title="warning">warning</span> in 11 years
+— only sharpens the argument: a hotter, drier
+<span class="tw" title="summer">summer</span> means greater daytime demand, which
+is <span class="tw" title="precisely">precisely</span> when solar should be doing the heavy
+lifting.
+The <span class="tw" title="encouraging">encouraging</span> news is battery <span class="tw" title="economics">economics</span>.
+<span class="tw" title="Standalone">Standalone</span> two-hour battery storage <span class="tw" title="tariffs">tariffs</span> fell
+from around ₹2.21 lakh per MW per month in ear-
+ly 2025 to ₹1.48 lakh by year-end. The challenge is
+execution. Only 0.7 GWh of battery storage was
+<span class="tw" title="operational">operational</span> in India by end-2025, with another 2
+GWh expected by December 2026. The Centre
+and States must now focus less on <span class="tw" title="tendering">tendering</span> and
+more on <span class="tw" title="commissioning">commissioning</span> — pairing every fresh so-
+lar <span class="tw" title="auction">auction</span> with <span class="tw" title="mandatory">mandatory</span> co-located storage
+and <span class="tw" title="resolving">resolving</span> the <span class="tw" title="financing">financing</span> wall facing aggres-
+sively bid low-tariff <span class="tw" title="projects">projects</span>. Solar <span class="tw" title="capacity">capacity</span> with-
+out storage is a half-built <span class="tw" title="bridge">bridge</span></p>
+          <div class="hi-exp" id="hi_0">भारत ने 25 अप्रैल को 256.1 गीगावाट की रिकॉर्ड मांग दर्ज की, जिसमें सौर संयंत्रों ने दोपहर के भार का 21.5% योगदान दिया — यह अब तक का सबसे अधिक है, और यह स्पष्ट संकेत है कि भारत का सौर बेड़ा तब काम कर सकता है जब सूरज सिर के ऊपर हो। लेकिन उसी दिन का 24 घंटे का पूरा हिसाब एक अधिक गंभीर कहानी बताता है। जब 25 अप्रैल के पूरे दिन का हिसाब लगाया गया, तो सौर ऊर्जा ने दैनिक उत्पादन का केवल 10.8% और सूर्यास्त के बाद शाम की जरूरतों का केवल 0.1% योगदान दिया। भारत की स्थापित सौर क्षमता का हिस्सा 2022 में लगभग 15% से बढ़कर 2026 की शुरुआत में लगभग 28% हो गया है। हालांकि, 2022 में भारत के चरम मांग वाले दिन सौर ऊर्जा का उत्पादन में हिस्सा लगभग 5.6% था और अप्रैल में यह केवल 10.8% तक बढ़ा — यह वर्तमान की वास्तविकताओं और जो संभव है, के बीच के बड़े अंतर का स्पष्ट संकेत है। बाधा पैनल, भूमि या महत्वाकांक्षा नहीं है, बल्कि बैटरी के माध्यम से उत्पन्न इलेक्ट्रॉनों के विशाल भंडार का उपयोग करने में असमर्थता है। वास्तव में, बैटरी भंडारण की कमी इतनी है कि सौर ऊर्जा के बड़े उत्पादक राज्यों को अपनी आपूर्ति रोकने के लिए कहा जा रहा है, ताकि भारत के इलेक्ट्रिक ग्रिड की स्थिरता से समझौता न हो। 2025 में, भारत को मई के अंत और दिसंबर के बीच 2.3 टेरावाट घंटे सौर उत्पादन में कटौती करनी पड़ी, जो औसत मासिक सौर उत्पादन का 18% है, जिसमें केवल अक्टूबर में 0.9 टेरावाट घंटे बर्बाद हो गए। चूंकि ऐसी बिजली के उत्पादकों को मुआवजा दिया जाना चाहिए, इसलिए यह अंततः सरकारी खजाने पर एक लागत बन जाती है जो उस बिजली के लिए भुगतान करता है जिसे कभी वितरित नहीं किया गया। भारतीय मौसम विभाग का 92% लॉन्ग पीरियड एवरेज पर सामान्य से कम मानसून का पूर्वानुमान — 11 वर्षों में ऐसी पहली चेतावनी — केवल तर्क को तेज करती है: एक गर्म, शुष्क गर्मी का मतलब है दिन के समय अधिक मांग, जो कि ठीक वही समय है जब सौर ऊर्जा को कठिन कार्य करना चाहिए। उत्साहजनक खबर बैटरी अर्थशास्त्र है। स्टैंडअलोन दो घंटे की बैटरी भंडारण शुल्क 2025 की शुरुआत में लगभग ₹2.21 लाख प्रति मेगावाट प्रति माह से गिरकर साल के अंत तक ₹1.48 लाख हो गए। चुनौती निष्पादन की है। 2025 के अंत तक भारत में केवल 0.7 गीगावाट-घंटा बैटरी भंडारण चालू था, और दिसंबर 2026 तक 2 गीगावाट-घंटा और आने की उम्मीद है। केंद्र और राज्यों को अब निविदाओं पर कम और चालू करने पर अधिक ध्यान देना चाहिए — प्रत्येक नई सौर नीलामी को अनिवार्य सह-स्थित भंडारण के साथ जोड़ना और आक्रामक रूप से बोली लगाने वाली कम-शुल्क वाली परियोजनाओं के सामने आने वाली वित्तपोषण की दीवार को हल करना। भंडारण के बिना सौर क्षमता एक आधे बने पुल की तरह है।</div>
+          <button class="tts-btn" onclick="speakPara(this)" data-text="India scaled a record peak demand of 256.1
+GW on April 25 with solar plants supplying
+21.5% of the afternoon load — an all-time
+high, and the clearest signal yet that the country’s
+installed solar fleet can do real work when the
+sun is overhead. But the same day’s full 24-hour
+ledger told a more sobering story. When there
+was accounting for the whole day of April 25, so-
+lar contributed only about 10.8% of daily genera-
+tion, and just 0.1% of the evening’s needs after
+sunset. Solar’s share of India’s installed electric
+capacity has nearly doubled from about 15% in
+2022 to nearly 28% in early 2026. However, solar
+accounted for roughly 5.6% of generation on In-
+dia’s peak-demand day in 2022 and only in-
+creased to the 10.8% of April — a clear indication
+of the yawning gap that remains between the
+realities of the present and what is possible. The
+bottleneck is not panels, land or ambition but the
+inability to use the vast stores of generated elec-
+trons through batteries. In fact, such is the pauc-
+ity of battery storage that States which are prolific
+producers of solar power are being asked to halt
+their supply, lest it compromise the stability of In-
+dia’s electric grid. In 2025, India had to curtail 2.3
+terawatt hours of solar generation between late
+May and December, equivalent to 18% of average
+monthly solar output, with 0.9 TWh (terra-watt
+hours) wasted in October alone. Given that pro-
+ducers of such electricity must be compensated,
+this ends up being a cost to the public exchequer
+which pays for power that was never delivered.
+The India Meteorological Department’s forecast
+of a below-normal monsoon at 92% of the Long
+Period Average — the first such warning in 11 years
+— only sharpens the argument: a hotter, drier
+summer means greater daytime demand, which
+is precisely when solar should be doing the heavy
+lifting.
+The encouraging news is battery economics.
+Standalone two-hour battery storage tariffs fell
+from around ₹2.21 lakh per MW per month in ear-
+ly 2025 to ₹1.48 lakh by year-end. The challenge is
+execution. Only 0.7 GWh of battery storage was
+operational in India by end-2025, with another 2
+GWh expected by December 2026. The Centre
+and States must now focus less on tendering and
+more on commissioning — pairing every fresh so-
+lar auction with mandatory co-located storage
+and resolving the financing wall facing aggres-
+sively bid low-tariff projects. Solar capacity with-
+out storage is a half-built bridge">🔊 Listen</button>
+        </div>
+  <div class="section-title">🔴 Tough Words</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">scaled</td><td>reached a particular level or height</td><td>पहुंचना</td><td><em>India scaled a record peak demand of 256.1 GW on April 25 with solar plants supplying 21.5% of the afternoon load — an all-time high, and the clearest signal yet that the country’s installed solar fleet can do real work when the sun is overhead.</em></td></tr><tr><td class="tw-word">sobering</td><td>making one feel serious and thoughtful</td><td>गंभीर</td><td><em>But the same day’s full 24-hour ledger told a more sobering story.</em></td></tr><tr><td class="tw-word">ledger</td><td>a book or record of financial accounts</td><td>खाता बही</td><td><em>But the same day’s full 24-hour ledger told a more sobering story.</em></td></tr><tr><td class="tw-word">yawning</td><td>wide open or very large gap</td><td>बहुत बड़ा अंतर</td><td><em>However, solar accounted for roughly 5.6% of generation on India’s peak-demand day in 2022 and only increased to the 10.8% of April — a clear indication of the yawning gap that remains between the realities of the present and what is possible.</em></td></tr><tr><td class="tw-word">bottleneck</td><td>a situation that causes delay in progress</td><td>बाधा</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">paucity</td><td>the presence of something in small quantities</td><td>कमी</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">prolific</td><td>producing a large amount of something</td><td>उत्पादक</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">lest</td><td>with the intention of preventing</td><td>कहीं ऐसा न हो कि</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">curtail</td><td>to reduce or impose a restriction</td><td>कटौती करना</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">exchequer</td><td>a government&#x27;s treasury or public funds</td><td>राजकोष</td><td><em>Given that producers of such electricity must be compensated, this ends up being a cost to the public exchequer which pays for power that was never delivered.</em></td></tr><tr><td class="tw-word">sharpen</td><td>to make more intense or focused</td><td>तीव्र करना</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">standalone</td><td>functioning independently without other components</td><td>स्वतंत्र</td><td><em>Standalone two-hour battery storage tariffs fell from around ₹2.21 lakh per MW per month in early 2025 to ₹1.48 lakh by year-end.</em></td></tr><tr><td class="tw-word">tariffs</td><td>a schedule of prices or fees</td><td>शुल्क</td><td><em>Standalone two-hour battery storage tariffs fell from around ₹2.21 lakh per MW per month in early 2025 to ₹1.48 lakh by year-end.</em></td></tr><tr><td class="tw-word">commissioning</td><td>bringing a system into working condition</td><td>चालू करना</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">tendering</td><td>inviting bids for a project</td><td>निविदा प्रक्रिया</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">mandatory</td><td>required by law or rules</td><td>अनिवार्य</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">co-located</td><td>placed in the same location</td><td>एक ही स्थान पर स्थित</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">aggressively</td><td>in a forceful or competitive manner</td><td>आक्रामक रूप से</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">fleet</td><td>a group of units or assets</td><td>बेड़ा</td><td><em>India scaled a record peak demand of 256.1 GW on April 25 with solar plants supplying 21.5% of the afternoon load — an all-time high, and the clearest signal yet that the country’s installed solar fleet can do real work when the sun is overhead.</em></td></tr><tr><td class="tw-word">overhead</td><td>directly above in the sky</td><td>सिर के ऊपर</td><td><em>India scaled a record peak demand of 256.1 GW on April 25 with solar plants supplying 21.5% of the afternoon load — an all-time high, and the clearest signal yet that the country’s installed solar fleet can do real work when the sun is overhead.</em></td></tr><tr><td class="tw-word">accounting</td><td>the process of calculating or reporting</td><td>हिसाब लगाना</td><td><em>When there was accounting for the whole day of April 25, solar contributed only about 10.8% of daily generation, and just 0.1% of the evening’s needs after sunset.</em></td></tr><tr><td class="tw-word">generation</td><td>the production of energy</td><td>उत्पादन</td><td><em>When there was accounting for the whole day of April 25, solar contributed only about 10.8% of daily generation, and just 0.1% of the evening’s needs after sunset.</em></td></tr><tr><td class="tw-word">installed</td><td>set up for use</td><td>स्थापित</td><td><em>Solar’s share of India’s installed electric capacity has nearly doubled from about 15% in 2022 to nearly 28% in early 2026.</em></td></tr><tr><td class="tw-word">capacity</td><td>the maximum amount something can produce</td><td>क्षमता</td><td><em>Solar’s share of India’s installed electric capacity has nearly doubled from about 15% in 2022 to nearly 28% in early 2026.</em></td></tr><tr><td class="tw-word">realities</td><td>the state of things as they exist</td><td>वास्तविकताएं</td><td><em>However, solar accounted for roughly 5.6% of generation on India’s peak-demand day in 2022 and only increased to the 10.8% of April — a clear indication of the yawning gap that remains between the realities of the present and what is possible.</em></td></tr><tr><td class="tw-word">ambition</td><td>a strong desire to achieve something</td><td>महत्वाकांक्षा</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">inability</td><td>the state of being unable to do something</td><td>असमर्थता</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">electrons</td><td>subatomic particles carrying electric charge</td><td>इलेक्ट्रॉन</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">stability</td><td>the state of being stable or secure</td><td>स्थिरता</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">compromise</td><td>to weaken or harm something</td><td>जोखिम में डालना</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">equivalent</td><td>equal in value or amount</td><td>समतुल्य</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">wasted</td><td>used or expended carelessly</td><td>बर्बाद</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">compensated</td><td>given money in recognition of loss</td><td>मुआवजा दिया जाना</td><td><em>Given that producers of such electricity must be compensated, this ends up being a cost to the public exchequer which pays for power that was never delivered.</em></td></tr><tr><td class="tw-word">delivered</td><td>brought and handed over</td><td>वितरित</td><td><em>Given that producers of such electricity must be compensated, this ends up being a cost to the public exchequer which pays for power that was never delivered.</em></td></tr><tr><td class="tw-word">forecast</td><td>a prediction of future events</td><td>पूर्वानुमान</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">monsoon</td><td>seasonal wind bringing heavy rain</td><td>मानसून</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">precisely</td><td>exactly at that time</td><td>ठीक उसी समय</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">encouraging</td><td>giving hope or confidence</td><td>उत्साहजनक</td><td><em>The encouraging news is battery economics.</em></td></tr><tr><td class="tw-word">economics</td><td>the financial aspects of something</td><td>अर्थशास्त्र</td><td><em>The encouraging news is battery economics.</em></td></tr><tr><td class="tw-word">operational</td><td>in a state of working</td><td>परिचालन में</td><td><em>Only 0.7 GWh of battery storage was operational in India by end-2025, with another 2 GWh expected by December 2026.</em></td></tr><tr><td class="tw-word">resolving</td><td>finding a solution to a problem</td><td>समाधान करना</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">financing</td><td>providing funds for a project</td><td>वित्तपोषण</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">projects</td><td>planned pieces of work</td><td>परियोजनाएं</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">auction</td><td>a public sale to the highest bidder</td><td>नीलामी</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">bridge</td><td>a structure connecting two points</td><td>पुल</td><td><em>Solar capacity without storage is a half-built bridge</em></td></tr><tr><td class="tw-word">average</td><td>the mean value of a set</td><td>औसत</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">monthly</td><td>happening once every month</td><td>मासिक</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">output</td><td>the amount produced</td><td>उत्पादन</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">warning</td><td>a statement of possible danger</td><td>चेतावनी</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">summer</td><td>the warmest season of the year</td><td>गर्मी</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- VOCABULARY TAB -->
+<div id="vocabulary" class="tab-section">
+  <div class="section-title">📚 Vocabulary</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Word</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="tw-word">scaled</td><td>reached a particular level or height</td><td>पहुंचना</td><td><em>India scaled a record peak demand of 256.1 GW on April 25 with solar plants supplying 21.5% of the afternoon load — an all-time high, and the clearest signal yet that the country’s installed solar fleet can do real work when the sun is overhead.</em></td></tr><tr><td class="tw-word">sobering</td><td>making one feel serious and thoughtful</td><td>गंभीर</td><td><em>But the same day’s full 24-hour ledger told a more sobering story.</em></td></tr><tr><td class="tw-word">ledger</td><td>a book or record of financial accounts</td><td>खाता बही</td><td><em>But the same day’s full 24-hour ledger told a more sobering story.</em></td></tr><tr><td class="tw-word">yawning</td><td>wide open or very large gap</td><td>बहुत बड़ा अंतर</td><td><em>However, solar accounted for roughly 5.6% of generation on India’s peak-demand day in 2022 and only increased to the 10.8% of April — a clear indication of the yawning gap that remains between the realities of the present and what is possible.</em></td></tr><tr><td class="tw-word">bottleneck</td><td>a situation that causes delay in progress</td><td>बाधा</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">paucity</td><td>the presence of something in small quantities</td><td>कमी</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">prolific</td><td>producing a large amount of something</td><td>उत्पादक</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">lest</td><td>with the intention of preventing</td><td>कहीं ऐसा न हो कि</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">curtail</td><td>to reduce or impose a restriction</td><td>कटौती करना</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">exchequer</td><td>a government&#x27;s treasury or public funds</td><td>राजकोष</td><td><em>Given that producers of such electricity must be compensated, this ends up being a cost to the public exchequer which pays for power that was never delivered.</em></td></tr><tr><td class="tw-word">sharpen</td><td>to make more intense or focused</td><td>तीव्र करना</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">standalone</td><td>functioning independently without other components</td><td>स्वतंत्र</td><td><em>Standalone two-hour battery storage tariffs fell from around ₹2.21 lakh per MW per month in early 2025 to ₹1.48 lakh by year-end.</em></td></tr><tr><td class="tw-word">tariffs</td><td>a schedule of prices or fees</td><td>शुल्क</td><td><em>Standalone two-hour battery storage tariffs fell from around ₹2.21 lakh per MW per month in early 2025 to ₹1.48 lakh by year-end.</em></td></tr><tr><td class="tw-word">commissioning</td><td>bringing a system into working condition</td><td>चालू करना</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">tendering</td><td>inviting bids for a project</td><td>निविदा प्रक्रिया</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">mandatory</td><td>required by law or rules</td><td>अनिवार्य</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">co-located</td><td>placed in the same location</td><td>एक ही स्थान पर स्थित</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">aggressively</td><td>in a forceful or competitive manner</td><td>आक्रामक रूप से</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">fleet</td><td>a group of units or assets</td><td>बेड़ा</td><td><em>India scaled a record peak demand of 256.1 GW on April 25 with solar plants supplying 21.5% of the afternoon load — an all-time high, and the clearest signal yet that the country’s installed solar fleet can do real work when the sun is overhead.</em></td></tr><tr><td class="tw-word">overhead</td><td>directly above in the sky</td><td>सिर के ऊपर</td><td><em>India scaled a record peak demand of 256.1 GW on April 25 with solar plants supplying 21.5% of the afternoon load — an all-time high, and the clearest signal yet that the country’s installed solar fleet can do real work when the sun is overhead.</em></td></tr><tr><td class="tw-word">accounting</td><td>the process of calculating or reporting</td><td>हिसाब लगाना</td><td><em>When there was accounting for the whole day of April 25, solar contributed only about 10.8% of daily generation, and just 0.1% of the evening’s needs after sunset.</em></td></tr><tr><td class="tw-word">generation</td><td>the production of energy</td><td>उत्पादन</td><td><em>When there was accounting for the whole day of April 25, solar contributed only about 10.8% of daily generation, and just 0.1% of the evening’s needs after sunset.</em></td></tr><tr><td class="tw-word">installed</td><td>set up for use</td><td>स्थापित</td><td><em>Solar’s share of India’s installed electric capacity has nearly doubled from about 15% in 2022 to nearly 28% in early 2026.</em></td></tr><tr><td class="tw-word">capacity</td><td>the maximum amount something can produce</td><td>क्षमता</td><td><em>Solar’s share of India’s installed electric capacity has nearly doubled from about 15% in 2022 to nearly 28% in early 2026.</em></td></tr><tr><td class="tw-word">realities</td><td>the state of things as they exist</td><td>वास्तविकताएं</td><td><em>However, solar accounted for roughly 5.6% of generation on India’s peak-demand day in 2022 and only increased to the 10.8% of April — a clear indication of the yawning gap that remains between the realities of the present and what is possible.</em></td></tr><tr><td class="tw-word">ambition</td><td>a strong desire to achieve something</td><td>महत्वाकांक्षा</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">inability</td><td>the state of being unable to do something</td><td>असमर्थता</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">electrons</td><td>subatomic particles carrying electric charge</td><td>इलेक्ट्रॉन</td><td><em>The bottleneck is not panels, land or ambition but the inability to use the vast stores of generated electrons through batteries.</em></td></tr><tr><td class="tw-word">stability</td><td>the state of being stable or secure</td><td>स्थिरता</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">compromise</td><td>to weaken or harm something</td><td>जोखिम में डालना</td><td><em>In fact, such is the paucity of battery storage that States which are prolific producers of solar power are being asked to halt their supply, lest it compromise the stability of India’s electric grid.</em></td></tr><tr><td class="tw-word">equivalent</td><td>equal in value or amount</td><td>समतुल्य</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">wasted</td><td>used or expended carelessly</td><td>बर्बाद</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">compensated</td><td>given money in recognition of loss</td><td>मुआवजा दिया जाना</td><td><em>Given that producers of such electricity must be compensated, this ends up being a cost to the public exchequer which pays for power that was never delivered.</em></td></tr><tr><td class="tw-word">delivered</td><td>brought and handed over</td><td>वितरित</td><td><em>Given that producers of such electricity must be compensated, this ends up being a cost to the public exchequer which pays for power that was never delivered.</em></td></tr><tr><td class="tw-word">forecast</td><td>a prediction of future events</td><td>पूर्वानुमान</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">monsoon</td><td>seasonal wind bringing heavy rain</td><td>मानसून</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">precisely</td><td>exactly at that time</td><td>ठीक उसी समय</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">encouraging</td><td>giving hope or confidence</td><td>उत्साहजनक</td><td><em>The encouraging news is battery economics.</em></td></tr><tr><td class="tw-word">economics</td><td>the financial aspects of something</td><td>अर्थशास्त्र</td><td><em>The encouraging news is battery economics.</em></td></tr><tr><td class="tw-word">operational</td><td>in a state of working</td><td>परिचालन में</td><td><em>Only 0.7 GWh of battery storage was operational in India by end-2025, with another 2 GWh expected by December 2026.</em></td></tr><tr><td class="tw-word">resolving</td><td>finding a solution to a problem</td><td>समाधान करना</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">financing</td><td>providing funds for a project</td><td>वित्तपोषण</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">projects</td><td>planned pieces of work</td><td>परियोजनाएं</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">auction</td><td>a public sale to the highest bidder</td><td>नीलामी</td><td><em>The Centre and States must now focus less on tendering and more on commissioning — pairing every fresh solar auction with mandatory co-located storage and resolving the financing wall facing aggressively bid low-tariff projects.</em></td></tr><tr><td class="tw-word">bridge</td><td>a structure connecting two points</td><td>पुल</td><td><em>Solar capacity without storage is a half-built bridge</em></td></tr><tr><td class="tw-word">average</td><td>the mean value of a set</td><td>औसत</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">monthly</td><td>happening once every month</td><td>मासिक</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">output</td><td>the amount produced</td><td>उत्पादन</td><td><em>In 2025, India had to curtail 2.3 terawatt hours of solar generation between late May and December, equivalent to 18% of average monthly solar output, with 0.9 TWh (terra-watt hours) wasted in October alone.</em></td></tr><tr><td class="tw-word">warning</td><td>a statement of possible danger</td><td>चेतावनी</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="tw-word">summer</td><td>the warmest season of the year</td><td>गर्मी</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- IDIOMS TAB -->
+<div id="idioms" class="tab-section">
+  <div class="section-title">💬 Idioms &amp; Phrases</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phrase</th><th>English Meaning</th><th>Hindi Meaning</th><th>Usage Sentence</th></tr></thead>
+    <tbody><tr><td class="idm-phrase">heavy lifting</td><td>doing the most difficult or substantial work</td><td>कठिन कार्य करना</td><td><em>The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such warning in 11 years — only sharpens the argument: a hotter, drier summer means greater daytime demand, which is precisely when solar should be doing the heavy lifting.</em></td></tr><tr><td class="idm-phrase">half-built bridge</td><td>an incomplete project that cannot be used</td><td>अधूरा काम</td><td><em>Solar capacity without storage is a half-built bridge</em></td></tr></tbody>
+  </table></div>
+</div>
+
+<!-- CLOZE TEST TAB -->
+<div id="cloze" class="tab-section">
+  <div class="section-title">✏️ Cloze Test</div>
+  <div class="q-block"><p><b>Q1.</b> The bottleneck is not panels, land or ___ but the inability to use the vast stores of generated electrons through batteries.</p><div class="mcq-opts"><button class="opt-btn" data-ans="ambition" onclick="clozeAns(this)">ambition</button><button class="opt-btn" data-ans="ambition" onclick="clozeAns(this)">capacity</button><button class="opt-btn" data-ans="ambition" onclick="clozeAns(this)">generation</button><button class="opt-btn" data-ans="ambition" onclick="clozeAns(this)">stability</button></div></div><div class="q-block"><p><b>Q2.</b> In fact, such is the ___ of battery storage that States which are prolific producers of solar power are being asked to halt their supply.</p><div class="mcq-opts"><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)">paucity</button><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)">stability</button><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)">capacity</button><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)">ambition</button></div></div><div class="q-block"><p><b>Q3.</b> The India Meteorological Department’s forecast of a below-normal monsoon at 92% of the Long Period Average — the first such ___ in 11 years — only sharpens the argument.</p><div class="mcq-opts"><button class="opt-btn" data-ans="warning" onclick="clozeAns(this)">warning</button><button class="opt-btn" data-ans="warning" onclick="clozeAns(this)">forecast</button><button class="opt-btn" data-ans="warning" onclick="clozeAns(this)">generation</button><button class="opt-btn" data-ans="warning" onclick="clozeAns(this)">ambition</button></div></div><div class="q-block"><p><b>Q4.</b> Solar capacity without storage is a half-built ___.</p><div class="mcq-opts"><button class="opt-btn" data-ans="bridge" onclick="clozeAns(this)">bridge</button><button class="opt-btn" data-ans="bridge" onclick="clozeAns(this)">fleet</button><button class="opt-btn" data-ans="bridge" onclick="clozeAns(this)">ledger</button><button class="opt-btn" data-ans="bridge" onclick="clozeAns(this)">bottleneck</button></div></div><div class="q-block"><p><b>Q5.</b> The Centre and States must now focus less on ___ and more on commissioning.</p><div class="mcq-opts"><button class="opt-btn" data-ans="tendering" onclick="clozeAns(this)">tendering</button><button class="opt-btn" data-ans="tendering" onclick="clozeAns(this)">commissioning</button><button class="opt-btn" data-ans="tendering" onclick="clozeAns(this)">financing</button><button class="opt-btn" data-ans="tendering" onclick="clozeAns(this)">auction</button></div></div>
+</div>
+
+<!-- VOCAB MCQ TAB -->
+<div id="vocabtest" class="tab-section">
+  <div class="section-title">🧪 Vocabulary MCQ</div>
+  <div class="q-block"><p><b>Q1.</b> Which word means a lack or scarcity of something?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)"><b>paucity</b></button><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)"><b>bottleneck</b></button><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)"><b>ledger</b></button><button class="opt-btn" data-ans="paucity" onclick="clozeAns(this)"><b>stability</b></button></div></div><div class="q-block"><p><b>Q2.</b> Which word means to reduce or restrict something?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="curtail" onclick="clozeAns(this)"><b>curtail</b></button><button class="opt-btn" data-ans="curtail" onclick="clozeAns(this)"><b>compromise</b></button><button class="opt-btn" data-ans="curtail" onclick="clozeAns(this)"><b>sharpen</b></button><button class="opt-btn" data-ans="curtail" onclick="clozeAns(this)"><b>resolve</b></button></div></div><div class="q-block"><p><b>Q3.</b> Which word means a wide or deep gap?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="yawning" onclick="clozeAns(this)"><b>yawning</b></button><button class="opt-btn" data-ans="yawning" onclick="clozeAns(this)"><b>sobering</b></button><button class="opt-btn" data-ans="yawning" onclick="clozeAns(this)"><b>prolific</b></button><button class="opt-btn" data-ans="yawning" onclick="clozeAns(this)"><b>mandatory</b></button></div></div><div class="q-block"><p><b>Q4.</b> Which word means a public treasury or government funds?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="exchequer" onclick="clozeAns(this)"><b>exchequer</b></button><button class="opt-btn" data-ans="exchequer" onclick="clozeAns(this)"><b>ledger</b></button><button class="opt-btn" data-ans="exchequer" onclick="clozeAns(this)"><b>capacity</b></button><button class="opt-btn" data-ans="exchequer" onclick="clozeAns(this)"><b>fleet</b></button></div></div><div class="q-block"><p><b>Q5.</b> Which word means a group of vehicles or equipment operating together?</p><p class="opts-hint"><em>Choose the correct word:</em></p><div class="mcq-opts"><button class="opt-btn" data-ans="fleet" onclick="clozeAns(this)"><b>fleet</b></button><button class="opt-btn" data-ans="fleet" onclick="clozeAns(this)"><b>capacity</b></button><button class="opt-btn" data-ans="fleet" onclick="clozeAns(this)"><b>generation</b></button><button class="opt-btn" data-ans="fleet" onclick="clozeAns(this)"><b>auction</b></button></div></div>
+</div>
+
+<!-- PARA JUMBLE TAB -->
+<div id="jumble" class="tab-section">
+  <div class="section-title">🔀 Para Jumble</div>
+  <div class="q-block"><p><b>Para Jumble 1:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> India reached a record solar power demand on April 25.</div><div class="pj-sent"><span class="pj-label">S2</span> However, the total daily contribution of solar remained quite low.</div><div class="pj-sent"><span class="pj-label">S3</span> This highlights a significant gap between current solar potential and actual usage.</div><div class="pj-sent"><span class="pj-label">S4</span> The primary issue is the lack of battery storage to manage these energy spikes.</div></div><div class="mcq-opts pj-opts" id="pjopts_1"><button class="opt-btn pj-opt" data-ans="0" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S3→S2→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S1→S2→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S4→S3→S2→S1</button></div><div class="ans-reveal" id="pj_1" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 2:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> The government is now pushing for battery storage integration.</div><div class="pj-sent"><span class="pj-label">S2</span> Battery costs have dropped significantly over the last year.</div><div class="pj-sent"><span class="pj-label">S3</span> Authorities must prioritize project completion over initial bidding.</div><div class="pj-sent"><span class="pj-label">S4</span> New solar projects should be paired with mandatory storage solutions.</div></div><div class="mcq-opts pj-opts" id="pjopts_2"><button class="opt-btn pj-opt" data-ans="1" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S2→S3→S1→S4</button><button class="opt-btn pj-opt" data-ans="1" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S2→S1→S4→S3</button><button class="opt-btn pj-opt" data-ans="1" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S3→S2→S1→S4</button><button class="opt-btn pj-opt" data-ans="1" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S2→S3→S4→S1</button></div><div class="ans-reveal" id="pj_2" style="display:none">✅ Correct order: <b>S2→S1→S4→S3</b></div></div><div class="q-block"><p><b>Para Jumble 3:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> Excess solar power is currently being wasted due to grid instability.</div><div class="pj-sent"><span class="pj-label">S2</span> States are forced to stop supply to prevent system failures.</div><div class="pj-sent"><span class="pj-label">S3</span> This wastage results in financial losses for the public treasury.</div><div class="pj-sent"><span class="pj-label">S4</span> Producers must be paid for electricity that is never actually consumed.</div></div><div class="mcq-opts pj-opts" id="pjopts_3"><button class="opt-btn pj-opt" data-ans="3" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S3→S2→S4</button><button class="opt-btn pj-opt" data-ans="3" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S3→S2→S4→S1</button><button class="opt-btn pj-opt" data-ans="3" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S2→S1→S4→S3</button><button class="opt-btn pj-opt" data-ans="3" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S1→S2→S3→S4</button></div><div class="ans-reveal" id="pj_3" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 4:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> A hotter summer increases the need for daytime electricity.</div><div class="pj-sent"><span class="pj-label">S2</span> Solar energy is perfectly suited to meet this peak demand.</div><div class="pj-sent"><span class="pj-label">S3</span> Unfortunately, the lack of storage limits this potential.</div><div class="pj-sent"><span class="pj-label">S4</span> Without batteries, solar remains an incomplete solution.</div></div><div class="mcq-opts pj-opts" id="pjopts_4"><button class="opt-btn pj-opt" data-ans="0" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S1→S3→S2→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S2→S3→S1→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S4→S1→S3→S2</button></div><div class="ans-reveal" id="pj_4" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div><div class="q-block"><p><b>Para Jumble 5:</b> Arrange these sentences in the correct reading order:</p><div class="pj-sentences"><div class="pj-sent"><span class="pj-label">S1</span> India&#x27;s solar capacity has grown rapidly since 2022.</div><div class="pj-sent"><span class="pj-label">S2</span> Despite this growth, generation percentages have not kept pace.</div><div class="pj-sent"><span class="pj-label">S3</span> The infrastructure for storing energy has not expanded sufficiently.</div><div class="pj-sent"><span class="pj-label">S4</span> This creates a bottleneck that prevents full utilization of solar power.</div></div><div class="mcq-opts pj-opts" id="pjopts_5"><button class="opt-btn pj-opt" data-ans="0" data-idx="0" onclick="pjAns(this)"><span class="pj-opt-letter">A)</span> S1→S2→S3→S4</button><button class="opt-btn pj-opt" data-ans="0" data-idx="1" onclick="pjAns(this)"><span class="pj-opt-letter">B)</span> S4→S3→S1→S2</button><button class="opt-btn pj-opt" data-ans="0" data-idx="2" onclick="pjAns(this)"><span class="pj-opt-letter">C)</span> S4→S2→S1→S3</button><button class="opt-btn pj-opt" data-ans="0" data-idx="3" onclick="pjAns(this)"><span class="pj-opt-letter">D)</span> S4→S1→S2→S3</button></div><div class="ans-reveal" id="pj_5" style="display:none">✅ Correct order: <b>S1→S2→S3→S4</b></div></div>
+</div>
+
+
+<!-- SHARE FOOTER -->
+<div style="margin:40px 0 20px;padding:20px;background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border-radius:16px;text-align:center;border:1px solid rgba(233,69,96,.3);">
+  <div style="color:#fff;font-family:Inter,sans-serif;font-weight:700;font-size:1rem;
+    margin-bottom:6px;">Powered by A2Z Updates4U</div>
+  <div style="color:rgba(255,255,255,.6);font-size:.8rem;font-family:Inter,sans-serif;
+    margin-bottom:14px;">Daily Editorial · Vocab · Current Affairs</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+    <a href="https://t.me/A2ZUpdates4U" target="_blank"
+      style="background:linear-gradient(135deg,#e94560,#c0392b);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;display:inline-flex;align-items:center;gap:7px;">
+      📢 A2Z Updates Channel
+    </a>
+    <a href="https://t.me/A2Zupdates4uLounge" target="_blank"
+      style="background:linear-gradient(135deg,#0f3460,#16213e);color:#fff;
+      text-decoration:none;padding:10px 22px;border-radius:25px;font-family:Inter,sans-serif;
+      font-weight:700;font-size:.88rem;border:1px solid rgba(233,69,96,.4);
+      display:inline-flex;align-items:center;gap:7px;">
+      📚 Vocab Bot Lounge
+    </a>
+  </div>
+</div>
+
+
+<!-- ABOUT SECTION -->
+<div id="about" class="tab-section">
+  <div class="section-title">ℹ️ About A2Z Updates4U</div>
+    <!-- Founder Story -->
+    <div style="background:linear-gradient(135deg,rgba(201,146,42,.12),rgba(217,70,239,.1));
+      border:1px solid rgba(201,146,42,.4);border-radius:16px;padding:26px;
+      margin-bottom:24px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;font-size:80px;opacity:.06;line-height:1;">🏆</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div style="width:54px;height:54px;border-radius:50%;
+          background:linear-gradient(135deg,#c9922a,#8b1a1a);
+          display:flex;align-items:center;justify-content:center;
+          font-size:22px;font-weight:900;color:var(--dark);font-family:Inter,sans-serif;
+          flex-shrink:0;box-shadow:0 4px 14px rgba(201,146,42,.4);">R</div>
+        <div>
+          <div style="color:var(--dark);font-family:Inter,sans-serif;font-weight:800;font-size:1.05rem;">
+            Rahul Best
+          </div>
+          <div style="color:#d4a843;font-size:.8rem;font-family:Inter,sans-serif;">
+            Founder &amp; Creator &nbsp;·&nbsp;
+            <span style="background:linear-gradient(135deg,#f59e0b,#ef4444);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;">
+              SSC CGL AIR 209 🏆
+            </span>
+          </div>
+        </div>
+      </div>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        <strong style="color:#d4a843;">A2Z Updates4U</strong> was born from a single student's obsession
+        with cracking India's toughest competitive exams. <strong>Rahul Best</strong> spent years
+        grinding through newspaper editorials every single morning, building vocabulary flashcard by
+        flashcard, and decoding idioms that left most students stumped. His secret? He turned every
+        editorial into a structured study session — exactly what this tool does for you.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;margin-bottom:14px;">
+        That obsession paid off.
+        Rahul cleared <strong>SSC CGL with an All India Rank of 209</strong> — placing him among the
+        top exam toppers in the country. His English section score was near-perfect, powered entirely
+        by the vocabulary and editorial reading habits he had built over years.
+      </p>
+      <p style="color:var(--ink);font-size:.9rem;line-height:1.9;">
+        After his selection, Rahul decided he couldn't keep these battle-tested techniques to himself.
+        He built <strong>A2Z Updates4U</strong> so that every serious aspirant could access the same
+        powerful study system — completely free. If it got him to <strong>AIR 209</strong>,
+        imagine what it can do for you. 🚀
+      </p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <span style="background:rgba(245,158,11,.15);border:1px solid #f59e0b;color:#fbbf24;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          🏆 SSC CGL
+        </span>
+        <span style="background:rgba(201,146,42,.12);border:1px solid #8b5cf6;color:#d4a843;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📊 AIR 209
+        </span>
+        <span style="background:rgba(16,185,129,.15);border:1px solid #10b981;color:#6ee7b7;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📰 Daily Editorial Reader
+        </span>
+        <span style="background:rgba(239,68,68,.15);border:1px solid #ef4444;color:#fca5a5;
+          padding:5px 14px;border-radius:20px;font-size:.8rem;font-family:Inter,sans-serif;font-weight:600;">
+          📚 5000+ Vocab Words Mastered
+        </span>
+      </div>
+    </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:24px;">
+    <!-- Vocab Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📚</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Vocabulary Builder Bot
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Add any English word and instantly get its <strong>meaning in English &amp; Hindi</strong>,
+        synonyms, antonyms, phonetics, a <strong>root-based mnemonic</strong> to never forget it,
+        and an example sentence. Export your entire word list as a beautiful HTML flashcard set
+        with mock tests &amp; mind maps!
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔤 Word meaning in EN + HI</li>
+        <li>🧠 Memory mnemonic (root-based)</li>
+        <li>🃏 Flashcard practice</li>
+        <li>🧪 Mock vocabulary test</li>
+        <li>🗺️ Mind map of word tones</li>
+      </ul>
+    </div>
+    <!-- Editorial Card -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;
+      padding:22px;box-shadow:0 4px 16px var(--shadow);">
+      <div style="font-size:2rem;margin-bottom:8px;">📰</div>
+      <h3 style="font-family:Inter,sans-serif;color:var(--accent);margin-bottom:10px;font-size:1.1rem;">
+        Daily Editorial Study
+      </h3>
+      <p style="line-height:1.8;font-size:.92rem;color:var(--ink);">
+        Every day we post The Hindu &amp; Indian Express editorials transformed into a
+        <strong>complete study package</strong>. Difficult words are highlighted and explained,
+        idioms are listed, and you get full Hindi translation paragraph by paragraph.
+      </p>
+      <ul style="margin-top:12px;padding-left:18px;line-height:2;font-size:.88rem;color:var(--dark);">
+        <li>🔴 Tough words highlighted in red</li>
+        <li>💬 Idioms &amp; fixed phrases</li>
+        <li>🇮🇳 Word-by-word Hindi translation</li>
+        <li>✏️ Cloze Test (fill in the blank)</li>
+        <li>🧪 Vocabulary MCQ</li>
+        <li>🔀 Para Jumble with ordering options</li>
+      </ul>
+    </div>
+  </div>
+  <!-- Share Button -->
+  <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#1a1a2e,#0f3460);
+    border-radius:16px;border:1px solid rgba(233,69,96,.3);">
+    <p style="color:rgba(255,255,255,.8);font-family:Inter,sans-serif;font-size:.92rem;
+      margin-bottom:16px;line-height:1.6;">
+      Found this helpful? Share it with your friends and study partners! 🎯
+    </p>
+    <a href="https://t.me/share/url?url=https://t.me/A2ZUpdates4U&text=Hey!%20👋%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20🚀%0A%0A📚%20VOCAB%20BUILDER%20BOT%0ALearn%20new%20English%20words%20daily%20with:%0A✔️%20English%20%2B%20Hindi%20meanings%0A✔️%20Memory%20mnemonics%20(root-based)%0A✔️%20Synonyms,%20antonyms%20%26%20phonetics%0A✔️%20Flashcard%20practice%0A✔️%20Mock%20vocabulary%20test%0A✔️%20Mind%20map%20by%20word%20tone%0A%0A📰%20DAILY%20EDITORIAL%20STUDY%0AEvery%20day%20we%20post%20The%20Hindu%20%26%20Indian%20Express%20editorials%20with:%0A✔️%20🔴%20Difficult%20words%20highlighted%20in%20red%0A✔️%20Word%20meanings%20in%20English%20%26%20Hindi%0A✔️%20Idioms%20%26%20fixed%20phrases%20explained%0A✔️%20Word-by-word%20Hindi%20translation%0A✔️%20✏️%20Cloze%20Test%20(fill%20in%20the%20blank)%0A✔️%20🧪%20Vocabulary%20MCQ%20(meaning%20→%20word)%0A✔️%20🔀%20Para%20Jumble%20with%204%20ordering%20options%0A✔️%20Read%20with%20browser%20Text-to-Speech!%0A%0A🎯%20Perfect%20for%20SSC%20CGL,%20UPSC,%20IBPS,%20CAT%20%26%20all%20competitive%20exams!%0A%0A🏆%20Founded%20by%20Rahul%20Best%20—%20SSC%20CGL%202022%20AIR%20209%0AHe%20used%20these%20exact%20techniques%20to%20crack%20the%20exam.%20Now%20it's%20your%20turn!%0A%0A👉%20Join%20us%20FREE:%20https://t.me/A2ZUpdates4U%0A%F0%9F%92%AC%20Vocab%20Lounge%3A%20https%3A%2F%2Ft.me%2FA2Zupdates4uLounge" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#e94560,#c0392b);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(233,69,96,.4);transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      ✈️ Share on Telegram
+    </a>
+    <a href="https://wa.me/?text=Hey!%20%F0%9F%91%8B%20Check%20out%20this%20amazing%20FREE%20study%20tool%20by%20A2Z%20Updates4U!%20%F0%9F%9A%80%0A%0A%F0%9F%93%9A%20VOCAB%20BUILDER%20BOT%0ALearn%20English%20words%20daily%20with%3A%0A%E2%9C%94%EF%B8%8F%20EN%20%2B%20HI%20meanings%0A%E2%9C%94%EF%B8%8F%20Mnemonics%2C%20Flashcards%2C%20Mock%20test%0A%0A%F0%9F%93%B0%20DAILY%20EDITORIAL%20STUDY%0AThe%20Hindu%20%26%20Indian%20Express%20with%3A%0A%E2%9C%94%EF%B8%8F%20Tough%20words%20highlighted%0A%E2%9C%94%EF%B8%8F%20Hindi%20translation%0A%E2%9C%94%EF%B8%8F%20Cloze%20Test%2C%20Vocab%20MCQ%2C%20Para%20Jumble%0A%0A%F0%9F%8F%86%20Founded%20by%20Rahul%20Best%20-%20SSC%20CGL%20AIR%20209%0A%0A%F0%9F%91%89%20Join%20FREE%3A%20https%3A%2F%2Ft.me%2FA2ZUpdates4U" target="_blank"
+      style="display:inline-flex;align-items:center;gap:8px;
+      background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff;text-decoration:none;padding:13px 30px;border-radius:25px;
+      font-family:Inter,sans-serif;font-weight:700;font-size:.95rem;
+      box-shadow:0 4px 20px rgba(37,211,102,.35);margin-top:10px;transition:transform .2s;"
+      onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      📲 Share on WhatsApp
+    </a>
+    <p style="color:rgba(255,255,255,.4);font-size:.75rem;margin-top:10px;font-family:Inter,sans-serif;">
+      Opens Telegram with a pre-filled message to forward to friends
+    </p>
+  </div>
+</div>
+
+</div><!-- /container -->
+</div><!-- /mainContent -->
+
+<script>
+// ── Source selector ──────────────────────────────────────────────────────
+function selectSource(src) {
+  document.getElementById('selectorScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('topnav').style.display = 'flex';
+  document.getElementById('srcHeader').style.display = 'block';
+  document.getElementById('ttsBar').style.display = 'flex';
+  var badge = document.getElementById('srcBadge');
+  if (src === 'hindu') { badge.style.background = '#c0392b'; badge.textContent = 'The Hindu'; }
+  else { badge.style.background = '#1a3a6e'; badge.textContent = 'Indian Express'; }
+}
+
+// ── Tab navigation ───────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.topnav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── Hindi explanation toggle ─────────────────────────────────────────────
+var hindiVisible = false;
+function toggleAllHindi() {
+  hindiVisible = !hindiVisible;
+  document.querySelectorAll('.hi-exp').forEach(function(el) {
+    el.style.display = hindiVisible ? 'block' : 'none';
+  });
+  document.getElementById('hindiBtn').textContent =
+    hindiVisible ? '🙈 Hide Hindi' : '🇮🇳 Hindi Explanation';
+}
+
+// ── MCQ answer check ─────────────────────────────────────────────────────
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx      = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) {
+    var rev = qblock.querySelector('.ans-reveal');
+    if (rev) rev.style.display = 'block';
+  }
+}
+function pjAns(btn) {
+  var parent = btn.closest('.pj-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correctIdx = parseInt(btn.dataset.ans);
+  var myIdx = parseInt(btn.dataset.idx);
+  parent.querySelectorAll('.pj-opt').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (myIdx === correctIdx) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.pj-opt').forEach(function(b) {
+      if (parseInt(b.dataset.idx) === correctIdx) b.classList.add('correct');
+    });
+  }
+  var qblock = btn.closest('.q-block');
+  if (qblock) { var rev=qblock.querySelector('.ans-reveal'); if(rev) rev.style.display='block'; }
+}
+function clozeAns(btn) {
+  var parent = btn.closest('.mcq-opts');
+  if (parent.querySelector('.correct,.wrong')) return;
+  var correct = btn.dataset.ans;
+  parent.querySelectorAll('.opt-btn').forEach(function(b) { b.style.pointerEvents='none'; });
+  if (btn.textContent.trim() === correct) { btn.classList.add('correct'); }
+  else {
+    btn.classList.add('wrong');
+    parent.querySelectorAll('.opt-btn').forEach(function(b) {
+      if (b.textContent.trim() === correct) b.classList.add('correct');
+    });
+  }
+}
+
+// ── Show/hide answer ─────────────────────────────────────────────────────
+function toggleEl(id) {
+  var el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── TTS (browser built-in SpeechSynthesis) ───────────────────────────────
+var ttsActive = null;
+function stopSpeech() {
+  if (typeof globalSpeechQueue !== 'undefined') globalSpeechQueue = [];
+  window.speechSynthesis.cancel();
+  ttsActive = null;
+  document.querySelectorAll('.tts-btn').forEach(function(b) { b.textContent = '🔊 Listen'; });
+}
+function speakText(text, btn) {
+  stopSpeech();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-IN';
+  utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  if (btn) {
+    btn.textContent = '⏹ Stop';
+    ttsActive = btn;
+    utt.onend = function() { btn.textContent = '🔊 Listen'; ttsActive = null; };
+  }
+  window.speechSynthesis.speak(utt);
+}
+function speakPara(btn) {
+  if (btn.textContent === '⏹ Stop') { stopSpeech(); return; }
+  var raw = btn.dataset.text || '';
+  // Decode HTML entities so TTS reads plain text
+  var tmp = document.createElement('textarea');
+  tmp.innerHTML = raw;
+  speakText(tmp.value, btn);
+}
+var globalSpeechQueue = [];
+function speakNextInQueue() {
+  if (!globalSpeechQueue.length) return;
+  var text = globalSpeechQueue.shift();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'en-IN';
+  utt.rate = parseFloat(document.getElementById('ttsRate').value);
+  utt.onend = function() { speakNextInQueue(); };
+  window.speechSynthesis.speak(utt);
+}
+function speakAll() {
+  stopSpeech();
+  globalSpeechQueue = [];
+  document.querySelectorAll('.para-block .para-text').forEach(function(p) {
+    var text = p.innerText || p.textContent;
+    if (text.trim()) globalSpeechQueue.push(text);
+  });
+  speakNextInQueue();
+}
+</script>
+
+    <script>
+    (function(){
+      var scores = {clozeTotal:0,clozeCorrect:0,jumbleTotal:0,jumbleCorrect:0,submitted:false};
+      var editorialId = 'ed_bridges';
+
+      scores.clozeTotal = document.querySelectorAll('.mcq-opts').length;
+      scores.jumbleTotal = document.querySelectorAll('.pj-opts').length;
+
+      // Hook into existing answer functions by periodic checking
+      var lastCorrect = 0;
+      setInterval(function(){
+        var c = document.querySelectorAll('.opt-btn.correct,.pj-opt.correct').length;
+        if (c > lastCorrect) {
+          lastCorrect = c;
+          // Count correct answers
+          scores.clozeCorrect = document.querySelectorAll('.mcq-opts .opt-btn.correct').length;
+          scores.jumbleCorrect = document.querySelectorAll('.pj-opts .pj-opt.correct').length;
+          updateTracker();
+        }
+      }, 500);
+
+      function updateTracker() {
+        var el = document.getElementById('a2z-score-display');
+        if (!el) return;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        el.innerHTML = 'Cloze: <span>'+scores.clozeCorrect+'/'+scores.clozeTotal+'</span> &nbsp; Jumble: <span>'+scores.jumbleCorrect+'/'+scores.jumbleTotal+'</span> &nbsp; <b style="color:#fff;">'+correct+'/'+total+'</b>';
+      }
+
+      window.submitResults = function() {
+        if (scores.submitted) return;
+        scores.submitted = true;
+        var total = scores.clozeTotal + scores.jumbleTotal;
+        var correct = scores.clozeCorrect + scores.jumbleCorrect;
+        var acc = total > 0 ? Math.round(correct/total*100) : 0;
+        var btn = document.getElementById('a2z-submit-btn');
+        btn.textContent = '✓ Saved';
+        btn.classList.add('done');
+        var toast = document.getElementById('a2z-toast');
+        toast.style.display='block';
+        toast.innerHTML = '<div style="font-size:3rem;">'+(acc>=70?'🔥':acc>=40?'✅':'📚')+'</div>'+
+          '<div class="a2z-toast-score">'+correct+'/'+total+'</div>'+
+          '<div style="font-size:.9rem;">' + acc + '% accuracy</div>'+
+          '<div style="font-size:.75rem;color:#94a3b8;margin-top:8px;">Results sent to A2Z Bot!</div>';
+        setTimeout(function(){toast.style.display='none';},4000);
+
+        var payload = {action:'editorial_result',editorial_id:editorialId,
+          cloze_correct:scores.clozeCorrect,cloze_total:scores.clozeTotal,
+          jumble_correct:scores.jumbleCorrect,jumble_total:scores.jumbleTotal};
+
+        // Try multiple methods to send results
+        if (window.Telegram?.WebApp) {
+          window.Telegram.WebApp.sendData(JSON.stringify(payload));
+          window.Telegram.WebApp.close();
+        }
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({type:'a2z_editorial_result',data:payload}, '*');
+        }
+        // Fallback: copy to clipboard
+        try {
+          navigator.clipboard.writeText('Results: '+correct+'/'+total+' ('+acc+'%) - Sent to bot');
+        } catch(e) {}
+      };
+
+      // Build tracker
+      var bar = document.createElement('div');
+      bar.className = 'a2z-tracker';
+      bar.id = 'a2z-tracker';
+      bar.innerHTML = '<div class="a2z-score" id="a2z-score-display">'+
+        'Cloze: <span>0/'+scores.clozeTotal+'</span> &nbsp; Jumble: <span>0/'+scores.jumbleTotal+'</span> &nbsp; <b style="color:#fff;">0/'+(scores.clozeTotal+scores.jumbleTotal)+'</b>'+
+        '</div>'+
+        '<button class="a2z-btn" id="a2z-submit-btn" onclick="submitResults()">📊 Submit</button>';
+      document.body.appendChild(bar);
+
+      var toast = document.createElement('div');
+      toast.className = 'a2z-toast';
+      toast.id = 'a2z-toast';
+      document.body.appendChild(toast);
+
+      document.body.classList.add('a2z-mode');
+      updateTracker();
+    })();
+    </script>
+    
+</body>
+</html>
